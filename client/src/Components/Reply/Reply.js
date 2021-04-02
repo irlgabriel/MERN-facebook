@@ -110,7 +110,7 @@ const Reply = ({
               reply.user.first_name + " " + reply.user.last_name}
           </h6>
           {!showEdit ? (
-            <div>
+            <div style={{wordBreak: 'break-word'}}>
               <p
                 className="mb-0"
                 dangerouslySetInnerHTML={{ __html: reply.content }}

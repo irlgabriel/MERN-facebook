@@ -135,7 +135,7 @@ const Comment = ({ level = 0, comments, comment, setComments, user, post }) => {
               comment.user.first_name + " " + comment.user.last_name}
           </h6>
           {!showEdit ? (
-            <div>
+            <div style={{wordBreak: 'break-word'}}>
               <p
                 className="mb-0"
                 dangerouslySetInnerHTML={{ __html: comment.content }}

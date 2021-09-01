@@ -9,7 +9,7 @@ const cookieParser = require("cookie-parser");
 const logger = require("morgan");
 const mongoose = require("mongoose");
 
-const authRouter = require('./routes/auth');
+const authRouter = require("./routes/auth");
 const usersRouter = require("./routes/users");
 const postsRouter = require("./routes/posts");
 const commentsRouter = require("./routes/comment");
@@ -25,22 +25,22 @@ mongoose.connection.on("open", () => console.log("Connected to mongoDB"));
 
 const app = express();
 
-
-app.use(express.static(path.resolve(__dirname, 'client/build')));
+app.use(express.static(path.resolve(__dirname, "client/build")));
 app.use(express.static(path.join(__dirname, "public")));
-app.use(cors({
-  origin: function (origin, callback) {
-    callback(null, origin);
-  },
-  credentials: true
-}));
+app.use(
+  cors({
+    origin: function (origin, callback) {
+      callback(null, origin);
+    },
+    credentials: true,
+  })
+);
 
 app.use(logger("dev"));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(passport.initialize());
-
 
 // routes path
 app.use("/", authRouter);
@@ -50,9 +50,9 @@ app.use("/posts/:post_id/comments", commentsRouter);
 app.use("/notifications", notificationsRouter);
 app.use("/friend_requests", friendRequestsRouter);
 
-if(process.env.NODE_ENV !== 'development') {
-  app.get('*', function(request, response) {
-    response.sendFile(path.resolve(__dirname, 'client/build', 'index.html'));
+if (process.env.NODE_ENV !== "development") {
+  app.get("*", function (request, response) {
+    response.sendFile(path.resolve(__dirname, "client/build", "index.html"));
   });
 }
 

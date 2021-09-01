@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
-import { Container, Form, Label, Input, FormGroup, Button } from "reactstrap";
+import { Container, Form, Input, FormGroup, Button } from "reactstrap";
 import { RoundImage, GrayHover } from "./PostForm.components";
 import { FcStackOfPhotos } from "react-icons/fc";
 import { CSSTransition } from "react-transition-group";
@@ -8,7 +8,7 @@ import { Link } from "react-router-dom";
 import { LoadingOverlay } from "..";
 
 const PostForm = ({ user, setPosts, posts }) => {
-  const [displayName, setDisplayName] = useState(user.display_name)
+  const [displayName, setDisplayName] = useState(user.display_name);
   const [loading, setLoading] = useState(false);
   const [showImageForm, setImageForm] = useState(false);
   const [expandForm, setExpandForm] = useState(false);
@@ -26,7 +26,9 @@ const PostForm = ({ user, setPosts, posts }) => {
     setLoading(true);
     axios
       .post("/posts", formData, {
-        headers: { Authorization: "bearer " + token },
+        headers: {
+          Authorization: "bearer " + token,
+        },
       })
       .then((res) => {
         setPosts([res.data, ...posts]);
@@ -50,8 +52,8 @@ const PostForm = ({ user, setPosts, posts }) => {
   };
 
   useEffect(() => {
-    setDisplayName(user.first_name || user.display_name.split(' ')[0]);
-  }, [])
+    setDisplayName(user.first_name || user.display_name.split(" ")[0]);
+  }, []);
 
   return (
     <Container
@@ -74,7 +76,7 @@ const PostForm = ({ user, setPosts, posts }) => {
             />
           </Link>
           <Input
-            id='post_input_form'
+            id="post_input_form"
             onFocus={() => setExpandForm(true)}
             style={{ borderRadius: "24px" }}
             value={content}
@@ -111,8 +113,8 @@ const PostForm = ({ user, setPosts, posts }) => {
           classNames="fade"
           unmountOnExit
         >
-          <FormGroup className="py-2">
-            <Button type="submit" className="w-100 px-5" color="secondary">
+          <FormGroup className="d-flex justify-content-center align-items-center w-100 py-2">
+            <Button type="submit" className="w-25 px-5" color="primary">
               Post!
             </Button>
           </FormGroup>

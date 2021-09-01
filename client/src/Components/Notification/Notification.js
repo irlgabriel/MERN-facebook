@@ -9,7 +9,7 @@ import axios from "axios";
 const Notification = ({ notification, notifications, setNotifications }) => {
   const history = useHistory();
 
-  const config = localStorage.getItem('token') &&  {
+  const config = localStorage.getItem("token") && {
     headers: {
       Authorization: "bearer " + localStorage.getItem("token"),
     },
@@ -43,8 +43,11 @@ const Notification = ({ notification, notifications, setNotifications }) => {
       onClick={() => clickHandler()}
       clicked={notification.clicked}
     >
-      <UserImage className="mr-2" src={notification.from.profile_photo} />
-      <p className="mb-0">{notification.message}</p>
+      <UserImage
+        className="mr-2"
+        src={notification?.from?.profile_photo ?? "Unknown"}
+      />
+      <p className="mb-0">{notification?.message ?? ""}</p>
       <DeleteButton onClick={(e) => deleteHandler(e)} />
     </NotificationContainer>
   );

@@ -1,5 +1,6 @@
 import styled from "styled-components";
 import { Link } from "react-router-dom";
+import { Col } from "reactstrap";
 
 export const RoundImage = styled.div`
   border-radius: 20px;
@@ -27,14 +28,14 @@ export const NavItem = styled(Link)`
 `;
 
 export const NoPostsDiv = styled.div`
-  padding: .5rem;
+  padding: 0.5rem;
   width: 100%;
   border-radius: 5px;
   background: white;
   display: flex;
   align-items: center;
   justify-content: center;
-`
+`;
 
 export const FakeLink = styled.div`
   display: inline-block;
@@ -43,4 +44,9 @@ export const FakeLink = styled.div`
     text-decoration: underline;
     cursor: pointer;
   }
-`
+`;
+
+export const Column = styled(Col)`
+  overflow-y: scroll;
+  max-height: 90vh;
+`;

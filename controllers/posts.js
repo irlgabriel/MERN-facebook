@@ -1,7 +1,7 @@
 const { body, validationResult } = require("express-validator");
 const multer = require("multer");
 const AWS = require("aws-sdk");
-const path = require('path');
+const path = require("path");
 
 const Post = require("../models/posts");
 const Notification = require("../models/notifications");
@@ -18,13 +18,17 @@ const storage = multer.memoryStorage({
 
 const fileFilter = (req, file, callback) => {
   var ext = path.extname(file.originalname);
-  if(ext !== '.png' && ext !== '.jpg' && ext !== '.gif' && ext !== '.jpeg') {
-      return callback(new Error('Only images are allowed'))
+  if (ext !== ".png" && ext !== ".jpg" && ext !== ".gif" && ext !== ".jpeg") {
+    return callback(new Error("Only images are allowed"));
   }
-  callback(null, true)
-}
+  callback(null, true);
+};
 
-const upload = multer({ storage: storage, fileFilter: fileFilter, limits: 5* 1024 * 1024 }).single("image");
+const upload = multer({
+  storage: storage,
+  fileFilter: fileFilter,
+  limits: 5 * 1024 * 1024,
+}).single("image");
 
 exports.get_posts = (req, res, next) => {
   Post.find()
@@ -42,23 +46,22 @@ exports.get_posts = (req, res, next) => {
 
 exports.get_post = (req, res, next) => {
   Post.findById(req.params.post_id)
-  .populate('user')
-  .populate('likes')
-  .exec((err, post) => {
-    if(err) next(err);
-    res.json(post);
-  })
-}
+    .populate("user")
+    .populate("likes")
+    .exec((err, post) => {
+      if (err) next(err);
+      res.json(post);
+    });
+};
 
 exports.create_post = [
   body("content").trim().isLength({ min: 1 }).escape(),
   upload,
   (req, res, next) => {
+    console.log("req.body", req.body);
     const { content } = req.body;
 
     const errors = validationResult(req);
-
-    if (!errors.isEmpty()) return res.status(400).json(errors.array());
 
     Post.create({ content, user: req.user.user_id }, (err, post) => {
       if (err) return res.status(400).json(err);
@@ -131,8 +134,8 @@ exports.edit_post = [
     if (!errors.isEmpty()) return res.status(400).json(errors.array());
 
     Post.findById(req.params.post_id, (err, post) => {
-      if(err) res.status(400).json(err);
-      if(req.file) {
+      if (err) res.status(400).json(err);
+      if (req.file) {
         //upload it to s3
         const originalName = req.file.originalname.split(".");
         const format = originalName[originalName.length - 1];
@@ -145,7 +148,7 @@ exports.edit_post = [
         S3.upload(params, (err, data) => {
           if (err) console.log(err);
           Post.findOneAndUpdate(
-            {_id: req.params.post_id}, 
+            { _id: req.params.post_id },
             {
               image: {
                 url: data.Location,
@@ -153,29 +156,30 @@ exports.edit_post = [
               },
               content,
             },
-            {new: true})
-            .populate('user')
-            .populate('likes')
+            { new: true }
+          )
+            .populate("user")
+            .populate("likes")
             .exec((err, post) => {
-              if(err) res.status(400).json(err);
+              if (err) res.status(400).json(err);
               res.json(post);
-            })
-        })
-    } else {
-      Post.findOneAndUpdate(
-        { _id: req.params.post_id },
-        { content },
-        { new: true }
-      )
-        .populate("user")
-        .populate("likes")
-        .exec((err, post) => {
-          if (err) return res.status(400).json(err);
-          res.json(post);
+            });
         });
+      } else {
+        Post.findOneAndUpdate(
+          { _id: req.params.post_id },
+          { content },
+          { new: true }
+        )
+          .populate("user")
+          .populate("likes")
+          .exec((err, post) => {
+            if (err) return res.status(400).json(err);
+            res.json(post);
+          });
       }
-    })
-  }
+    });
+  },
 ];
 
 exports.like_post = (req, res, next) => {
@@ -239,7 +243,6 @@ exports.delete_post = (req, res, next) => {
         if (err) {
           next(err);
         } else {
-          //console.log('Data: ', data);
         }
       });
     }

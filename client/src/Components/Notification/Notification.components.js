@@ -15,6 +15,11 @@ export const NotificationContainer = styled.div`
   }
   max-height: 80vh;
   overflow-y: scroll;
+  padding-right: 25px;
+
+  :first-child {
+    margin-top: 8px;
+  }
 `;
 
 export const UserImage = styled.div`

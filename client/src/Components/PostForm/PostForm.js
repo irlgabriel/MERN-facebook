@@ -1,16 +1,26 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import axios from "axios";
-import { Container, Form, Label, Input, FormGroup, Button } from "reactstrap";
-import { RoundImage, GrayHover } from "./PostForm.components";
+import { Form, Input, FormGroup, Button } from "reactstrap";
+import {
+  RoundImage,
+  GrayHover,
+  Container,
+  CloseIcon,
+  ImageWrapper,
+  Image,
+} from "./PostForm.components";
 import { FcStackOfPhotos } from "react-icons/fc";
 import { CSSTransition } from "react-transition-group";
 import { Link } from "react-router-dom";
 import { LoadingOverlay } from "..";
 
 const PostForm = ({ user, setPosts, posts }) => {
-  const [displayName, setDisplayName] = useState(user.display_name)
+  const imageInputRef = useRef(null);
+  const textInputRef = useRef(null);
+
+  const [displayName, setDisplayName] = useState(user.display_name);
   const [loading, setLoading] = useState(false);
-  const [showImageForm, setImageForm] = useState(false);
+  const [imageSrc, setImageSrc] = useState(null);
   const [expandForm, setExpandForm] = useState(false);
   const [content, setContent] = useState("");
   const [file, setFile] = useState(null);
@@ -18,6 +28,8 @@ const PostForm = ({ user, setPosts, posts }) => {
   const submitHandler = (e) => {
     e.preventDefault();
     const token = localStorage.getItem("token");
+
+    if (!content && !file) return;
 
     const formData = new FormData();
     formData.append("content", content);
@@ -31,38 +43,40 @@ const PostForm = ({ user, setPosts, posts }) => {
       .then((res) => {
         setPosts([res.data, ...posts]);
         setContent("");
+        setImageSrc(null);
         setFile(null);
         setExpandForm(false);
-        setImageForm(false);
         setLoading(false);
       })
       .catch((err) => console.log(err));
   };
 
-  const onChangeHandler = (e) => {
-    // Reset field height
-    e.target.style.height = "inherit";
+  const handleImageFormClick = () => {
+    if (imageInputRef) {
+      imageInputRef.current.click();
+    }
+  };
 
-    // Calculate the height
-    const height = e.target.scrollHeight;
-
-    e.target.style.height = `${height}px`;
+  const handleImageSelect = (e) => {
+    if (e.target.files && e.target.files.length > 0) {
+      const file = e.target.files[0];
+      setFile(file);
+    }
   };
 
   useEffect(() => {
-    setDisplayName(user.first_name || user.display_name.split(' ')[0]);
-  }, [])
+    if (file) {
+      setImageSrc(window.URL.createObjectURL(file));
+      setExpandForm(true);
+    }
+  }, [file]);
+
+  useEffect(() => {
+    setDisplayName(user.first_name || user.display_name.split(" ")[0]);
+  }, []);
 
   return (
-    <Container
-      fluid
-      className="my-3 p-2 p-relative"
-      style={{
-        boxShadow: "0 2px 4px rgba(0, 0, 0, .1), 0 8px 16px rgba(0, 0, 0, .1)",
-        background: "white",
-        borderRadius: "5px",
-      }}
-    >
+    <Container>
       {loading && <LoadingOverlay />}
       <Form encType="multipart/form-data" onSubmit={(e) => submitHandler(e)}>
         <div className="d-flex align-items-center mb-2">
@@ -70,40 +84,42 @@ const PostForm = ({ user, setPosts, posts }) => {
             <RoundImage
               className="mr-2"
               src={user.profile_photo}
-              width="36px"
+              width="40px"
             />
           </Link>
-          <Input
-            id='post_input_form'
-            onFocus={() => setExpandForm(true)}
-            style={{ borderRadius: "24px" }}
-            value={content}
-            className="w-100 py-1 pr-5"
-            type="textarea"
-            rows={1}
-            name="content"
-            onChange={(e) => {
-              setContent(e.target.value);
-              onChangeHandler(e);
-            }}
-            placeholder={`What's on your mind, ${displayName}?`}
-          />
-        </div>
-        <CSSTransition
-          in={showImageForm}
-          timeout={300}
-          classNames="fade"
-          unmountOnExit
-        >
-          <FormGroup style={{ marginLeft: "48px" }}>
-            <Input
-              onChange={(e) => setFile(e.target.files[0])}
-              type="file"
-              name="image"
+          <div className="w-100">
+            <textarea
+              ref={textInputRef}
+              id="post_input_form"
+              onFocus={() => setExpandForm(true)}
+              style={{
+                height: "32px",
+                alignItems: "center",
+                background: "rgb(240, 242, 245)",
+                borderRadius: "24px",
+              }}
+              value={content}
+              className="w-100 pl-2 pr-5 d-flex"
+              type="textarea"
+              name="content"
+              onChange={(e) => {
+                setContent(e.target.value);
+              }}
+              placeholder={`What's on your mind, ${displayName}?`}
             />
-            <em>Max 5MB (Accepted formats: jpg, jpeg, png)</em>
-          </FormGroup>
-        </CSSTransition>
+          </div>
+        </div>
+        {imageSrc && (
+          <CSSTransition>
+            <ImageWrapper
+              className="py-2"
+              style={{ display: "flex", justifyContent: "center" }}
+            >
+              <CloseIcon onClick={() => setImageSrc(null)} />
+              <Image src={imageSrc} alt="selected-file" />
+            </ImageWrapper>
+          </CSSTransition>
+        )}
 
         <CSSTransition
           in={expandForm}
@@ -111,14 +127,27 @@ const PostForm = ({ user, setPosts, posts }) => {
           classNames="fade"
           unmountOnExit
         >
-          <FormGroup className="py-2">
-            <Button type="submit" className="w-100 px-5" color="secondary">
+          <FormGroup
+            style={{ justifyContent: "center" }}
+            className="d-flex w-100 py-2"
+          >
+            <Button
+              style={{ background: "lightblue" }}
+              type="submit"
+              className="px-5"
+            >
               Post!
             </Button>
           </FormGroup>
         </CSSTransition>
         <hr className="my-2" />
-        <GrayHover onClick={() => setImageForm(!showImageForm)}>
+        <GrayHover onClick={handleImageFormClick}>
+          <input
+            onChange={handleImageSelect}
+            style={{ display: "none" }}
+            type="file"
+            ref={imageInputRef}
+          />
           <FcStackOfPhotos size={36} className="mr-2" />
           <p className="m-0">Photos</p>
         </GrayHover>

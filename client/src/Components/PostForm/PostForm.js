@@ -38,7 +38,9 @@ const PostForm = ({ user, setPosts, posts }) => {
     setLoading(true);
     axios
       .post("/posts", formData, {
-        headers: { Authorization: "bearer " + token },
+        headers: {
+          Authorization: "bearer " + token,
+        },
       })
       .then((res) => {
         setPosts([res.data, ...posts]);

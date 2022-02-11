@@ -34,7 +34,6 @@ import {
 import {
   AiOutlineSearch,
   AiFillHome,
-  AiOutlineHome,
   AiFillBell,
   AiFillLock,
   AiFillDelete,
@@ -118,7 +117,7 @@ const Navbar = ({ setUser, reloadUser, user }) => {
     axios.get("/friend_requests", config).then((res) => {
       setNewRequests(res.data.filter((request) => request.to._id === user._id));
     });
-  }, []);
+  }, [user]);
 
   useEffect(() => {
     setNewNotifications(
@@ -138,7 +137,7 @@ const Navbar = ({ setUser, reloadUser, user }) => {
     } else {
       setSearchDropdown(false);
     }
-  }, [query]);
+  }, [query, users]);
 
   return (
     <Nav className="sticky-top px-1">

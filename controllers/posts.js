@@ -58,6 +58,7 @@ exports.create_post = [
   body("content").trim().isLength({ min: 0 }).escape(),
   upload,
   (req, res, next) => {
+    console.log("req.body", req.body);
     const { content } = req.body;
 
     const errors = validationResult(req);
@@ -247,7 +248,6 @@ exports.delete_post = (req, res, next) => {
         if (err) {
           next(err);
         } else {
-          //console.log('Data: ', data);
         }
       });
     }

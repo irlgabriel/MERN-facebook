@@ -19,7 +19,6 @@ import axios from "axios";
 import { Link } from "react-router-dom";
 
 const Comment = ({ level = 0, comments, comment, setComments, user, post }) => {
-
   const [file, setFile] = useState(post.image);
   const [showReplyForm, setShowReply] = useState(false);
   const [showReplies, setShowReplies] = useState(false);
@@ -27,12 +26,11 @@ const Comment = ({ level = 0, comments, comment, setComments, user, post }) => {
   const [content, setContent] = useState(comment.content);
   const [showEdit, setEdit] = useState(false);
 
-  const config = localStorage.getItem('token') &&  {
+  const config = localStorage.getItem("token") && {
     headers: {
       Authorization: "bearer " + localStorage.getItem("token"),
     },
   };
-
 
   const deleteHandler = () => {
     window.confirm(
@@ -41,7 +39,6 @@ const Comment = ({ level = 0, comments, comment, setComments, user, post }) => {
       axios
         .delete(`/posts/${post._id}/comments/${comment._id}`, config)
         .then((res) => {
-          console.log(res.data._id, comment._id);
           setComments(
             comments.filter((comment) => comment._id !== res.data._id)
           );
@@ -66,8 +63,8 @@ const Comment = ({ level = 0, comments, comment, setComments, user, post }) => {
     e.preventDefault();
 
     const formData = new FormData();
-    formData.append('content', content);
-    if(file) formData.append('image', file);
+    formData.append("content", content);
+    if (file) formData.append("image", file);
     axios
       .put(`/posts/${post._id}/comments/${comment._id}`, formData, config)
       .then((res) => {
@@ -104,7 +101,8 @@ const Comment = ({ level = 0, comments, comment, setComments, user, post }) => {
       setReplies(
         comments.filter(
           (comm) =>
-            /*comm.hasOwnProperty("comment")*/ comm.comment && comm.comment._id === comment._id
+            /*comm.hasOwnProperty("comment")*/ comm.comment &&
+            comm.comment._id === comment._id
         )
       );
     }
@@ -135,7 +133,7 @@ const Comment = ({ level = 0, comments, comment, setComments, user, post }) => {
               comment.user.first_name + " " + comment.user.last_name}
           </h6>
           {!showEdit ? (
-            <div style={{wordBreak: 'break-word'}}>
+            <div style={{ wordBreak: "break-word" }}>
               <p
                 className="mb-0"
                 dangerouslySetInnerHTML={{ __html: comment.content }}
@@ -171,9 +169,16 @@ const Comment = ({ level = 0, comments, comment, setComments, user, post }) => {
                 <Button color="primary" type="submit" size="sm">
                   Edit
                 </Button>
-                <Button onClick={() => setEdit(false)} type='button' size='sm' className='ml-2' color='danger'>Cancel</Button>
+                <Button
+                  onClick={() => setEdit(false)}
+                  type="button"
+                  size="sm"
+                  className="ml-2"
+                  color="danger"
+                >
+                  Cancel
+                </Button>
               </FormGroup>
-              
             </Form>
           )}
           {!showEdit && (

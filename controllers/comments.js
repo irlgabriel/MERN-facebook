@@ -2,7 +2,7 @@ const { body, validationResult } = require("express-validator");
 const multer = require("multer");
 const AWS = require("aws-sdk");
 const async = require("async");
-const path = require('path');
+const path = require("path");
 const Comment = require("../models/comments");
 const Notification = require("../models/notifications");
 const User = require("../models/users");
@@ -18,13 +18,17 @@ const storage = multer.memoryStorage({
 
 const fileFilter = (req, file, callback) => {
   var ext = path.extname(file.originalname);
-  if(ext !== '.png' && ext !== '.jpg' && ext !== '.gif' && ext !== '.jpeg') {
-      return callback(new Error('Only images are allowed'))
+  if (ext !== ".png" && ext !== ".jpg" && ext !== ".gif" && ext !== ".jpeg") {
+    return callback(new Error("Only images are allowed"));
   }
-  callback(null, true)
-}
+  callback(null, true);
+};
 
-const upload = multer({ storage: storage, fileFilter: fileFilter, limits: 5* 1024 * 1024 }).single("image");
+const upload = multer({
+  storage: storage,
+  fileFilter: fileFilter,
+  limits: 5 * 1024 * 1024,
+}).single("image");
 
 module.exports.get_comments = (req, res, next) => {
   Comment.find({ post: req.params.post_id })
@@ -97,7 +101,7 @@ module.exports.create_comment = [
                   .populate("user")
                   .populate("comment")
                   .populate("post")
-                  .populate('likes')
+                  .populate("likes")
                   .execPopulate()
                   .then((comment) => res.json(comment));
               }
@@ -109,7 +113,7 @@ module.exports.create_comment = [
           .populate("user")
           .populate("comment")
           .populate("post")
-          .populate('likes')
+          .populate("likes")
           .execPopulate()
           .then((comment) => res.json(comment));
       }
@@ -126,12 +130,10 @@ module.exports.edit_comment = [
     if (!errors.isEmpty()) return res.status(400).json(errors.array());
 
     const { content } = req.body;
-    console.log(req.file);
-
 
     Comment.findById(req.params.comment_id, (err, comment) => {
       // if a file is sent with the request then we update it as well and upload it to s3!
-      if(err) return res.status(400).json(err);
+      if (err) return res.status(400).json(err);
       // Delete image from AWS if there's any
       /*
       if (comment.image) {
@@ -156,7 +158,7 @@ module.exports.edit_comment = [
         };
 
         S3.upload(params, (err, data) => {
-          if (err)  return res.status(400).json(err);
+          if (err) return res.status(400).json(err);
           Comment.findOneAndUpdate(
             { _id: comment._id },
             {
@@ -173,26 +175,31 @@ module.exports.edit_comment = [
                 .populate("user")
                 .populate("comment")
                 .populate("post")
-                .populate('likes')
+                .populate("likes")
                 .execPopulate()
                 .then((comment) => res.json(comment));
             }
           );
         });
       } else {
-        Comment.findOneAndUpdate({_id: req.params.comment_id}, {content}, {new: true}, (err, comment) => {
-          if(err) return res.status(400).json(err);
-          comment
-          .populate("user")
-          .populate("comment")
-          .populate("post")
-          .populate('likes')
-          .execPopulate()
-          .then((comment) => res.json(comment));
-        }
-      )}
-    },
-  )}
+        Comment.findOneAndUpdate(
+          { _id: req.params.comment_id },
+          { content },
+          { new: true },
+          (err, comment) => {
+            if (err) return res.status(400).json(err);
+            comment
+              .populate("user")
+              .populate("comment")
+              .populate("post")
+              .populate("likes")
+              .execPopulate()
+              .then((comment) => res.json(comment));
+          }
+        );
+      }
+    });
+  },
 ];
 
 module.exports.like_comment = (req, res, next) => {

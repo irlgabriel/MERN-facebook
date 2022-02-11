@@ -45,9 +45,9 @@ const Notification = ({ notification, notifications, setNotifications }) => {
     >
       <UserImage
         className="mr-2"
-        src={notification.from?.profile_photo ?? ""}
+        src={notification?.from?.profile_photo ?? "Unknown"}
       />
-      <p className="mb-0">{notification.message}</p>
+      <p className="mb-0">{notification?.message ?? ""}</p>
       <DeleteButton onClick={(e) => deleteHandler(e)} />
     </NotificationContainer>
   );

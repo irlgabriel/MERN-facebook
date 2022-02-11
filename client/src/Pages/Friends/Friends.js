@@ -9,17 +9,17 @@ import {
 } from "../../Components";
 import Axios from "axios";
 
-const Friends = ({reloadUser, user, setUser }) => {
+const Friends = ({ reloadUser, user, setUser }) => {
   const [suggestions, setSuggestions] = useState([]);
   const [requests, setRequests] = useState([]);
   const [posts, setPosts] = useState([]);
   const [previewUserPosts, setPreviewUserPosts] = useState([]);
   const [previewUser, setPreviewUser] = useState(undefined);
   const [loading, setLoading] = useState(false);
-  const [sentRequests, setSentRequests] = useState([])
-  const [receivedRequests, setReceivedRequests] = useState([])
+  const [sentRequests, setSentRequests] = useState([]);
+  const [receivedRequests, setReceivedRequests] = useState([]);
 
-  const config = localStorage.getItem('token') &&  {
+  const config = localStorage.getItem("token") && {
     headers: {
       Authorization: "bearer " + localStorage.getItem("token"),
     },
@@ -32,17 +32,16 @@ const Friends = ({reloadUser, user, setUser }) => {
     });
   };
 
- /* Friend request logic functions */
- const sendRequest = (to) => {
-  //const to = e.target.getAttribute('data-id');
-  Axios.post(`/friend_requests/${to}/send`, {}, config).then((res) => {
-    console.log(res.data);
-    setSuggestions(
-      suggestions.filter((suggestion) => suggestion._id !== res.data.to._id)
-    );
-    setRequests([...requests, res.data]);
-  });
-};
+  /* Friend request logic functions */
+  const sendRequest = (to) => {
+    //const to = e.target.getAttribute('data-id');
+    Axios.post(`/friend_requests/${to}/send`, {}, config).then((res) => {
+      setSuggestions(
+        suggestions.filter((suggestion) => suggestion._id !== res.data.to._id)
+      );
+      setRequests([...requests, res.data]);
+    });
+  };
 
   const confirmFriend = (_id) => {
     //const _id = e.target.getAttribute('data-id');
@@ -62,15 +61,14 @@ const Friends = ({reloadUser, user, setUser }) => {
   useEffect(() => {
     setLoading(true);
     Promise.all([
-      
       Axios.get("/friend_requests/recommendations", config),
-      Axios.get('/friend_requests', config),
-      Axios.get('/posts')
+      Axios.get("/friend_requests", config),
+      Axios.get("/posts"),
     ]).then((results) => {
       setSuggestions(results[0].data);
       setRequests(results[1].data);
       setPosts(results[2].data);
-      setLoading(false)
+      setLoading(false);
     });
   }, []);
 
@@ -85,23 +83,30 @@ const Friends = ({reloadUser, user, setUser }) => {
 
   // filter sent and received requests whenever the requests array changes
   useEffect(() => {
-    setSentRequests(requests
-      .filter((request) => request.from._id === user._id))
-    setReceivedRequests(requests
-      .filter((request) => request.to._id === user._id))
-  }, [requests])
+    setSentRequests(
+      requests.filter((request) => request.from._id === user._id)
+    );
+    setReceivedRequests(
+      requests.filter((request) => request.to._id === user._id)
+    );
+  }, [requests]);
 
   return (
     <Container fluid className="px-0">
       {/* Loading overlay */}
       {loading && <LoadingOverlay />}
-      <Navbar key="friends" setUser={setUser} reloadUser={reloadUser} user={user} />
+      <Navbar
+        key="friends"
+        setUser={setUser}
+        reloadUser={reloadUser}
+        user={user}
+      />
       <Row className="p-0 m-0" style={{ height: "auto" }}>
         <Col
           id="friends-col"
           className="d-none d-md-block box-shadow-right p-0 px-2"
           md="4"
-          lg='3'
+          lg="3"
           style={{ background: "white" }}
         >
           <h2>Friends</h2>

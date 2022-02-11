@@ -8,7 +8,7 @@ exports.get_friends_recommendations = (req, res, next) => {
 
   // Find requests that this user sent.
   FriendRequest.find({ from: req.user.user_id }, (err, pendingSent) => {
-    if (err) return console.log(err);//res.status(400).json(err);
+    if (err) return console.log(err); //res.status(400).json(err);
     // filtering array
     let pending = [];
     // create an array of ids of users who received requests from the user.
@@ -19,7 +19,6 @@ exports.get_friends_recommendations = (req, res, next) => {
       if (err) return res.status(400).json(err);
       // create an array of ids of users who sent request to the user
       pending.push(...pendingReceived.map((p) => p.from));
-      console.log(pending);
       User.find(
         {
           friends: { $ne: req.user.user_id },
@@ -35,7 +34,9 @@ exports.get_friends_recommendations = (req, res, next) => {
 };
 
 exports.get_friends_requests = (req, res, next) => {
-  FriendRequest.find({ $or: [{ to: req.user.user_id }, { from: req.user.user_id }] })
+  FriendRequest.find({
+    $or: [{ to: req.user.user_id }, { from: req.user.user_id }],
+  })
     .populate("to")
     .populate("from")
     .exec((err, requests) => {
@@ -53,18 +54,21 @@ exports.send_friend_request = (req, res, next) => {
       const from = await User.findById(req.user.user_id);
       const to = await User.findById(req.params.user_id);
 
-      Notification.create({
-        from,
-        to,
-        type: "friend_request",
-        url: `/users/${from._id}`,
-      }, (err, notif) => {
-        request
-        .populate("from")
-        .populate("to")
-        .execPopulate()
-        .then((req) => res.json(req));
-      });
+      Notification.create(
+        {
+          from,
+          to,
+          type: "friend_request",
+          url: `/users/${from._id}`,
+        },
+        (err, notif) => {
+          request
+            .populate("from")
+            .populate("to")
+            .execPopulate()
+            .then((req) => res.json(req));
+        }
+      );
     }
   );
 };
@@ -121,12 +125,21 @@ exports.delete_friend = (req, res, next) => {
   */
   const user1 = req.user.user_id;
   const user2 = req.params.user_id;
-  console.log(user1, user2);
-  User.findOneAndUpdate({_id: user1}, {$pull: {friends: user2}}, {}, (err) => {
-    if(err) return res.status(400).json(err);
-    User.findOneAndUpdate({_id: user2}, {$pull: {friends: user1}}, {}, (err) => {
-      if(err) return res.status(400).json(err);
-      res.sendStatus(200);
-    })
-  })
-}
+  User.findOneAndUpdate(
+    { _id: user1 },
+    { $pull: { friends: user2 } },
+    {},
+    (err) => {
+      if (err) return res.status(400).json(err);
+      User.findOneAndUpdate(
+        { _id: user2 },
+        { $pull: { friends: user1 } },
+        {},
+        (err) => {
+          if (err) return res.status(400).json(err);
+          res.sendStatus(200);
+        }
+      );
+    }
+  );
+};

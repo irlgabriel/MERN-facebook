@@ -1,14 +1,10 @@
-import React from 'react';
+import React from "react";
 
 class MyComponent extends React.Component {
-  responseFacebook(response) {
-    console.log(response);
-  }
+  responseFacebook(response) {}
 
   render() {
-    return (
-      <></> 
-    )
+    return <></>;
   }
 }
 

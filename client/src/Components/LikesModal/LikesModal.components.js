@@ -17,12 +17,13 @@ export const Overlay = styled.div`
 export const Container = styled.div`
   overflow-y: scroll;
   min-height: 300px;
-  max-height: 70vh;
-  min-width: 300px;
+  max-height: 60vh;
+  min-width: 400px;
   max-width: 70%;
   border-radius: 6px;
   background: white;
   z-index: 6;
+  overflow-y: auto;
 `;
 
 export const Header = styled.div`

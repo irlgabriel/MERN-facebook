@@ -1,8 +1,7 @@
-
 const { body, validationResult } = require("express-validator");
 const multer = require("multer");
 const AWS = require("aws-sdk");
-const path = require('path');
+const path = require("path");
 
 const User = require("../models/users");
 
@@ -17,17 +16,20 @@ const storage = multer.memoryStorage({
 
 const fileFilter = (req, file, callback) => {
   var ext = path.extname(file.originalname);
-  if(ext !== '.png' && ext !== '.jpg' && ext !== '.gif' && ext !== '.jpeg') {
-      return callback(new Error('Only images are allowed'))
+  if (ext !== ".png" && ext !== ".jpg" && ext !== ".gif" && ext !== ".jpeg") {
+    return callback(new Error("Only images are allowed"));
   }
-  callback(null, true)
-}
+  callback(null, true);
+};
 
-const upload = multer({ storage: storage, fileFilter: fileFilter, limits: 5* 1024 * 1024 }).single("image");
+const upload = multer({
+  storage: storage,
+  fileFilter: fileFilter,
+  limits: 5 * 1024 * 1024,
+}).single("image");
 exports.update_profile_photo = [
   upload,
   (req, res, next) => {
-    console.log(req.file);
     const original_file = req.file.originalname.split(".");
     const format = original_file[original_file.length - 1];
 
@@ -45,7 +47,6 @@ exports.update_profile_photo = [
         { Bucket: params.Bucket, Key: params.Key },
         (err, data) => {
           if (err) return res.status(500).json(err);
-          console.log(data);
         }
       );
 
@@ -85,7 +86,6 @@ exports.update_cover_photo = [
         { Bucket: params.Bucket, Key: params.Key },
         (err, data) => {
           if (err) return res.status(500).json(err);
-          console.log(data);
         }
       );
 
@@ -108,13 +108,13 @@ exports.update_cover_photo = [
 exports.delete_user = (req, res, next) => {
   User.findById(req.user.user_id, (err, user) => {
     // delete user from all friends' lists
-    if(err) return(next(err));
+    if (err) return next(err);
     user.remove((err, doc) => {
-      if(err) return next(err);
+      if (err) return next(err);
       res.json(doc);
-    })
-  })
-}
+    });
+  });
+};
 
 exports.get_users = (req, res, next) => {
   User.find((err, users) => {
@@ -125,27 +125,29 @@ exports.get_users = (req, res, next) => {
 
 exports.get_user = (req, res, next) => {
   User.findById(req.params.user_id)
-  .populate('friends')
-  .exec((err, user) => {
-    if (err) return res.status(400).json(err);
-    return res.json(user);
-  });
+    .populate("friends")
+    .exec((err, user) => {
+      if (err) return res.status(400).json(err);
+      return res.json(user);
+    });
 };
 
 // updates user's description field
 exports.update_desc = [
-  body('description').trim().isLength({min: 1, max: 150}).escape(),
+  body("description").trim().isLength({ min: 1, max: 150 }).escape(),
   (req, res, next) => {
     const errors = validationResult(req);
 
-    console.log(req.params.user_id);
-    console.log(req.body)
     if (!errors.isEmpty()) return res.status(400).json(errors.array());
 
-    User.findOneAndUpdate({_id: req.params.user_id}, {description: req.body.description}, {new: true}, (err, user) => {
-      if(err) return res.status(400).json(err);
-      res.json(user);
-    })
-
-  }
-]
+    User.findOneAndUpdate(
+      { _id: req.params.user_id },
+      { description: req.body.description },
+      { new: true },
+      (err, user) => {
+        if (err) return res.status(400).json(err);
+        res.json(user);
+      }
+    );
+  },
+];

@@ -30,13 +30,13 @@ import { BsThreeDotsVertical } from "react-icons/bs";
 import { VscComment } from "react-icons/vsc";
 import { Link, useParams } from "react-router-dom";
 import { CSSTransition } from "react-transition-group";
-import { Post as IPost, User, Comment as IComment } from "Types";
 import {
   useEditPost,
   useRemovePost,
   useLikePost,
   useCurrentUser,
   useGetPost,
+  useComments,
 } from "Hooks";
 
 interface Props {
@@ -50,24 +50,20 @@ const Post = ({ id }: Props) => {
   const [, editPost] = useEditPost(id ?? post_id);
   const deletePost = useRemovePost(id ?? post_id);
   const likePost = useLikePost(id ?? post_id);
+  const [{ data: comments }, getPostComments] = useComments(id ?? post_id);
+
+  console.log("comments", comments);
 
   const [file, setFile] = useState<File | null>(null /*post.image*/);
   const [content, setContent] = useState("");
   const [edit, setEdit] = useState(false);
-  const [comments, setComments] = useState<IComment[]>([]);
   const [settingsDropdown, setSettingsDropdown] = useState(false);
   const [commentsDropdown, setCommentsDropdown] = useState(false);
   const [likesModal, setLikesModal] = useState(false);
 
-  //localStorage.getItem('token') &&
-  const config = {
-    headers: {
-      Authorization: "bearer " + localStorage.getItem("token"),
-    },
-  };
-
   useEffect(() => {
     getPost(id || post_id);
+    getPostComments(id ?? post_id);
   }, []);
 
   const editHandler = (e: React.FormEvent<HTMLFormElement>) => {
@@ -76,8 +72,9 @@ const Post = ({ id }: Props) => {
     formData.append("content", content);
     if (file) formData.append("image", file);
 
-    //@ts-ignore
-    editPost(formData);
+    // @ts-ignore
+    editPost({ id: post._id, post: formData });
+    setEdit(false);
   };
 
   const deleteHandler = () => {
@@ -108,17 +105,6 @@ const Post = ({ id }: Props) => {
 
     e.target.style.height = `${height}px`;
   };
-
-  // useEffect(() => {
-  //   // GET Comments
-  //   axios
-  //     .get(`/posts/${post!._id}/comments`)
-  //     .then((res) => {
-  //       setComments(res.data);
-  //     })
-  //     .catch((err) => console.log(err));
-  //   //
-  // }, []);
 
   useEffect(() => {
     const textarea = document.querySelector("textarea");
@@ -305,19 +291,10 @@ const Post = ({ id }: Props) => {
               <Comment
                 // @ts-ignore ????
                 key={comment._id}
-                comments={comments}
-                post={post as IPost}
-                user={user as User}
                 comment={comment}
-                setComments={setComments}
               />
             ))}
-          <CommentForm
-            post={post as IPost}
-            user={user as User}
-            setComments={setComments}
-            comments={comments}
-          />
+          <CommentForm post_id={post._id} />
         </CommentsContainer>
       )}
 

@@ -62,9 +62,9 @@ export const editPost =
 
     try {
       dispatch(beginActivity({ type: ActionType.EDIT_POST, uuid: activityId }));
-      const { data: editedPost } = await axios.patch<Post>(
+      const { data: editedPost } = await axios.put<Post>(
         `/posts/${id}`,
-        { post },
+        post,
         config
       );
       dispatch(editPostAction(editedPost));
@@ -102,7 +102,7 @@ export const createPost =
       );
       const { data: post } = await axios.post<Post>(
         `/posts`,
-        { createPostInput },
+        createPostInput,
         config
       );
       dispatch(createPostAction(post));

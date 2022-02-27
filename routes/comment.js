@@ -10,6 +10,9 @@ router.get("/", commentController.get_comments);
 // GET replies
 router.get("/:comment_id", commentController.get_replies);
 
+// GET post's comments
+router.get("/post_id=:post_id", commentController.get_post_comments);
+
 // POST create comment
 router.post(
   "/",

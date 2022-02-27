@@ -1,12 +1,19 @@
-import { useDispatch } from "react-redux";
-import { getComments } from "Store/data/comments";
+import { useDispatch, useSelector } from "Hooks";
+import { getComments, selectCommentsByPost } from "Store/data/comments";
+import { Comment } from "Types";
 
-export const useComments = () => {
+export const useComments = (
+  post_id: string
+): [{ data: Comment[] }, (post_id: string) => void] => {
   const dispatch = useDispatch();
 
-  function handler() {
-    dispatch(getComments());
+  const data = useSelector((state) =>
+    selectCommentsByPost(state.data.comments, post_id)
+  );
+
+  function handler(post_id: string) {
+    dispatch(getComments(post_id));
   }
 
-  return [{}, handler];
+  return [{ data }, handler];
 };

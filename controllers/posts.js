@@ -153,7 +153,7 @@ exports.edit_post = [
     if (!errors.isEmpty()) return res.status(400).json(errors.array());
 
     Post.findById(req.params.post_id, (err, post) => {
-      if (err) res.status(400).json(err);
+      if (err) return res.status(400).json(err);
       if (req.file) {
         //upload it to s3
         const originalName = req.file.originalname.split(".");
@@ -165,7 +165,7 @@ exports.edit_post = [
           Body: req.file.buffer,
         };
         S3.upload(params, (err, data) => {
-          if (err) console.log(err);
+          if (err) return console.log(err);
           Post.findOneAndUpdate(
             { _id: req.params.post_id },
             {
@@ -181,7 +181,7 @@ exports.edit_post = [
             .populate("likes")
             .exec((err, post) => {
               if (err) res.status(400).json(err);
-              res.json(post);
+              return res.json(post);
             });
         });
       } else {
@@ -194,7 +194,7 @@ exports.edit_post = [
           .populate("likes")
           .exec((err, post) => {
             if (err) return res.status(400).json(err);
-            res.json(post);
+            return res.json(post);
           });
       }
     });

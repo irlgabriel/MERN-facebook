@@ -15,33 +15,35 @@ import { Reply } from "..";
 import { AiFillLike } from "react-icons/ai";
 import { BsArrow90DegDown } from "react-icons/bs";
 import { ReplyForm } from "..";
-import axios from "axios";
 import { Link } from "react-router-dom";
 import { Comment as IComment, Post, User } from "Types";
+import {
+  useDeleteComment,
+  useEditComment,
+  useReplies,
+  useCurrentUser,
+  useLikeComment,
+} from "Hooks";
 
 interface Props {
-  level?: number;
-  comments: IComment[];
   comment: IComment;
-  setComments: (comments: IComment[]) => void;
-  user: User;
-  post: Post;
+  level?: number;
 }
 
-const Comment = ({
-  level = 0,
-  comments,
-  comment,
-  setComments,
-  user,
-  post,
-}: Props) => {
+const Comment = ({ level = 0, comment }: Props) => {
   const [file, setFile] = useState<File | null>(null /**post.image */);
   const [showReplyForm, setShowReply] = useState(false);
   const [showReplies, setShowReplies] = useState(false);
-  const [replies, setReplies] = useState<IComment[]>([]);
   const [content, setContent] = useState<string>(comment.content);
   const [showEdit, setEdit] = useState(false);
+
+  const deleteComment = useDeleteComment();
+  const editComment = useEditComment();
+  const likeComment = useLikeComment();
+  const [{ data: replies }] = useReplies(comment._id);
+  const user = useCurrentUser();
+
+  const post = comment.post;
 
   const config = {
     headers: {
@@ -52,28 +54,11 @@ const Comment = ({
   const deleteHandler = () => {
     window.confirm(
       "Are you sure you want to delete this comment? This action cannot be undone."
-    ) &&
-      axios
-        .delete(`/posts/${post._id}/comments/${comment._id}`, config)
-        .then((res) => {
-          setComments(
-            comments.filter((comment) => comment._id !== res.data._id)
-          );
-        })
-        .catch((err) => console.log(err));
+    ) && deleteComment(post._id, comment._id);
   };
 
-  const likeComment = () => {
-    axios
-      .post<IComment>(`/posts/${post._id}/comments/${comment._id}`, {}, config)
-      .then((res) => {
-        setComments(
-          comments.map((comment) =>
-            comment._id === res.data._id ? res.data : comment
-          )
-        );
-      })
-      .catch((err) => console.log(err));
+  const likeHandler = () => {
+    likeComment(post._id, comment._id);
   };
 
   const editHandler = (e: React.FormEvent<HTMLFormElement>) => {
@@ -82,21 +67,8 @@ const Comment = ({
     const formData = new FormData();
     formData.append("content", content);
     if (file) formData.append("image", file);
-    axios
-      .put<IComment>(
-        `/posts/${post._id}/comments/${comment._id}`,
-        formData,
-        config
-      )
-      .then((res) => {
-        setComments(
-          comments.map((comment) =>
-            comment._id === res.data._id ? res.data : comment
-          )
-        );
-        setEdit(false);
-      })
-      .catch((err) => console.log(err));
+    //@ts-ignore
+    editComment(id, formData);
   };
 
   const onChangeHandler = (target: HTMLTextAreaElement | HTMLInputElement) => {
@@ -118,23 +90,13 @@ const Comment = ({
   };
 
   useEffect(() => {
-    if (comments && comment) {
-      setReplies(
-        comments.filter(
-          (comm) =>
-            /*comm.hasOwnProperty("comment")*/ comm.comment &&
-            comm.comment._id === comment._id
-        )
-      );
-    }
-  }, []);
-
-  useEffect(() => {
     const textarea = document.querySelector("textarea");
     if (textarea) {
       onChangeHandler(textarea);
     }
   }, [showEdit]);
+
+  if (!user) return null;
 
   return (
     <CommentContainer>
@@ -228,7 +190,7 @@ const Comment = ({
                 ? "royalblue"
                 : "black"
             }
-            onClick={() => likeComment()}
+            onClick={() => likeHandler()}
             bold
           >
             Like
@@ -272,27 +234,14 @@ const Comment = ({
           ""
         )}
         {showReplies &&
-          replies.map((reply) => (
-            <Reply
-              key={reply._id}
-              reply={reply}
-              user={user}
-              setReplies={setReplies}
-              replies={replies}
-              comment={comment}
-              post={post}
-            />
-          ))}
+          replies.map((reply) => <Reply key={reply._id} reply={reply} />)}
         {showReplyForm && (
           <ReplyForm
             key={comment._id}
             user={user}
             post={post}
             comment={comment}
-            replies={replies}
-            setReplies={setReplies}
             setShowReply={setShowReply}
-            // setComments={setComments}
           />
         )}
       </CommentWrapper>

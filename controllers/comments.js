@@ -121,6 +121,18 @@ module.exports.create_comment = [
   },
 ];
 
+module.exports.get_post_comments = (req, res, next) => {
+  const { post_id } = req.params;
+
+  Comment.find({ post: post_id })
+    .populate("comment")
+    .populate("user")
+    .exec((err, replies) => {
+      if (err) return res.status(400).json(err);
+      res.json(replies);
+    });
+};
+
 module.exports.edit_comment = [
   upload,
   //body("content").trim().isLength({ min: 1 }).escape(),
@@ -230,36 +242,36 @@ module.exports.like_comment = (req, res, next) => {
         async (err, updatedComment) => {
           if (err) return res.status(400).json(err);
           // Send notification to the post's author;
-          const from = await User.findById(user_id);
-          const to = await User.findById(updatedComment.user._id);
-          if (to._id !== from._id) {
-            Notification.create(
-              {
-                from,
-                to,
-                type: "like_comment",
-                url: `/posts/${req.params.post_id}`,
-              },
-              (err, notification) => {
-                if (err) return res.status(400).json(err);
-                updatedComment
-                  .populate("user")
-                  .populate("comment")
-                  .populate("post")
-                  .populate("likes")
-                  .execPopulate()
-                  .then((populatedComment) => res.json(populatedComment));
-              }
-            );
-          } else {
-            updatedComment
-              .populate("user")
-              .populate("comment")
-              .populate("post")
-              .populate("likes")
-              .execPopulate()
-              .then((populatedComment) => res.json(populatedComment));
-          }
+          // const from = await User.findById(user_id);
+          // const to = await User.findById(updatedComment.user._id);
+          // if (to._id !== from._id) {
+          //   Notification.create(
+          //     {
+          //       from,
+          //       to,
+          //       type: "like_comment",
+          //       url: `/posts/${req.params.post_id}`,
+          //     },
+          //     (err, notification) => {
+          //       if (err) return res.status(400).json(err);
+          //       updatedComment
+          //         .populate("user")
+          //         .populate("comment")
+          //         .populate("post")
+          //         .populate("likes")
+          //         .execPopulate()
+          //         .then((populatedComment) => res.json(populatedComment));
+          //     }
+          //   );
+          // } else {
+          updatedComment
+            .populate("user")
+            .populate("comment")
+            .populate("post")
+            .populate("likes")
+            .execPopulate()
+            .then((populatedComment) => res.json(populatedComment));
+          // }
         }
       );
     }

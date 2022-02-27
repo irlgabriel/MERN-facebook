@@ -34,9 +34,9 @@ const Home = () => {
         <LoadingOverlay />
       </CSSTransition>
       <Navbar />
-      <Row style={{ maxHeight: "calc(100vh- 55px)" }} className="mx-0">
+      <Row style={{ maxHeight: "calc( - 55px)" }} className="mx-0">
         <Col
-          style={{ maxHeight: "calc(100vh- 55px)" }}
+          style={{ maxHeight: "calc(100vh - 55px)" }}
           id="left-col"
           className="p-2 d-none d-lg-block"
           sm="3"
@@ -55,7 +55,7 @@ const Home = () => {
         <Col
           style={{
             paddingBottom: 0,
-            maxHeight: "calc(100vh- 55px)",
+            maxHeight: "calc(100vh - 55px)",
             overflowY: "scroll",
           }}
           id="mid-col"

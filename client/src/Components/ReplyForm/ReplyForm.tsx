@@ -5,35 +5,22 @@ import { Form, Input, FormGroup, Button } from "reactstrap";
 import { RoundImage, PhotoImage } from "./ReplyForm.components";
 import { CSSTransition } from "react-transition-group";
 import { Comment, Post, User } from "Types";
+import { useCreateComment } from "Hooks";
 
 interface Props {
   user: User;
   comment: Comment;
-  replies: Comment[];
-  setReplies: (comments: Comment[]) => void;
   setShowReply: (show: boolean) => void;
   post: Post;
 }
 
-const ReplyForm = ({
-  post,
-  setShowReply,
-  user,
-  comment,
-  replies,
-  setReplies,
-}: Props) => {
+const ReplyForm = ({ post, setShowReply, user, comment }: Props) => {
   const [file, setFile] = useState<File | null>(null);
   const [content, setContent] = useState<string>("");
   const [showSubmit, setShowSubmit] = useState<boolean>(false);
   const [imageForm, setImageForm] = useState<boolean>(false);
 
-  // prepended previously localStorage.getItem('token') &&
-  const config = {
-    headers: {
-      Authorization: "bearer " + localStorage.getItem("token"),
-    },
-  };
+  const createComment = useCreateComment();
 
   const submitHandler = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -41,13 +28,10 @@ const ReplyForm = ({
     formData.append("content", content);
     formData.append("comment", comment._id);
     if (file) formData.append("image", file);
-    Axios.post<Comment>(`/posts/${post._id}/comments/`, formData, config)
-      .then((res) => {
-        setShowReply(false);
-        setContent("");
-        setReplies([res.data, ...replies]);
-      })
-      .catch((err) => console.log(err));
+    //@ts-ignore
+    createComment(formData);
+    setShowReply(false);
+    setContent("");
   };
 
   const onChangeHandler = (e: React.ChangeEvent<HTMLInputElement>) => {

@@ -55,7 +55,7 @@ const reducer = (state: State = initialState, action: Actions): State => {
 
       return produce(state, (draft) => {
         draft.byId[post._id] = post;
-
+        draft.posts = [post, ...draft.posts];
         draft.byUser[post.user._id] = [
           ...(draft.byUser[post.user._id] || []),
           post,

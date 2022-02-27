@@ -11,76 +11,44 @@ import {
 } from "./Reply.components";
 import { Form, Input, Button, FormGroup } from "reactstrap";
 import { AiFillLike } from "react-icons/ai";
-import axios from "axios";
-import { Comment, Post, User } from "Types";
+import { Comment } from "Types";
+import {
+  useReplies,
+  useDeleteComment,
+  useLikeComment,
+  useEditComment,
+  useCurrentUser,
+} from "Hooks";
 
 export interface Props {
   level?: number;
   reply: Comment;
-  replies: Comment[];
-  setReplies: (replies: Comment[]) => void;
-  comment: Comment;
-  user: User;
-  post: Post;
 }
 
-const Reply = ({
-  level = 0,
-  reply,
-  replies,
-  setReplies,
-  comment,
-  user,
-  post,
-}: Props) => {
+const Reply = ({ reply }: Props) => {
   const [content, setContent] = useState<string>(reply.content);
   const [showEdit, setEdit] = useState<boolean>(false);
 
-  //prev prepended localStorage.getItem('token') &&
-  const config = {
-    headers: {
-      Authorization: "bearer " + localStorage.getItem("token"),
-    },
-  };
+  const deleteComment = useDeleteComment();
+  const editComment = useEditComment();
+  const likeComment = useLikeComment();
+  const user = useCurrentUser();
+  const [{ data: replies }] = useReplies(reply._id);
 
   const deleteHandler = () => {
     window.confirm(
       "Are you sure you want to delete this comment? This action cannot be undone."
-    ) &&
-      axios
-        .delete(`/posts/${post._id}/comments/${reply._id}`, config)
-        .then((res) => {
-          setReplies(replies.filter((reply) => reply._id !== res.data._id));
-        })
-        .catch((err) => console.log(err));
+    ) && deleteComment(reply.post._id, reply._id);
   };
 
-  const likeComment = () => {
-    axios
-      .post(`/posts/${post._id}/comments/${reply._id}`, {}, config)
-      .then((res) => {
-        setReplies(
-          replies.map((reply) =>
-            reply._id === res.data._id ? res.data : reply
-          )
-        );
-      })
-      .catch((err) => console.log(err));
+  const likeHandler = () => {
+    likeComment(reply.post._id, reply._id);
   };
 
   const editHandler: ReactEventHandler<HTMLFormElement> = (e) => {
     e.preventDefault();
-    axios
-      .put(`/posts/${post._id}/comments/${reply._id}`, { content }, config)
-      .then((res) => {
-        setReplies(
-          replies.map((reply) =>
-            reply._id === res.data._id ? res.data : reply
-          )
-        );
-        setEdit(false);
-      })
-      .catch((err) => console.log(err));
+    editComment(reply.post._id, reply._id, { content });
+    setEdit(false);
   };
 
   const onChangeHandler = (target: HTMLInputElement) => {
@@ -108,6 +76,8 @@ const Reply = ({
   //     onChangeHandler(textarea);
   //   }
   // }, [showEdit]);
+
+  if (!user) return null;
 
   return (
     <ReplyContainer>
@@ -170,7 +140,7 @@ const Reply = ({
                 ? "royalblue"
                 : "black"
             }
-            onClick={() => likeComment()}
+            onClick={() => likeHandler()}
             bold
           >
             Like

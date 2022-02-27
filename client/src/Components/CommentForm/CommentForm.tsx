@@ -1,42 +1,30 @@
-import Axios from "axios";
 import { Link } from "react-router-dom";
 import React, { useState } from "react";
 import { Form, Input, FormGroup, Button } from "reactstrap";
 import { UserImage, PhotoImage } from "./CommentForm.components";
 import { CSSTransition } from "react-transition-group";
-import { Comment, Post, User } from "Types";
+import { useCurrentUser, useCreateComment } from "Hooks";
 
 interface Props {
-  post: Post;
-
-  user: User;
-  comments: Comment[];
-  setComments: (comments: Comment[]) => void;
+  post_id: string;
 }
 
-const CommentForm = ({ post, user, comments, setComments }: Props) => {
+const CommentForm = ({ post_id }: Props) => {
   const [file, setFile] = useState<File | null>(null);
   const [imageForm, setImageForm] = useState(false);
   const [content, setContent] = useState("");
   const [showSubmit, setSubmit] = useState(false);
+  const createComment = useCreateComment();
+
+  const user = useCurrentUser();
 
   const submitHandler = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const formData = new FormData();
     formData.append("content", content);
     if (file) formData.append("image", file);
-    Axios.post<Comment[]>(`/posts/${post._id}/comments`, formData, {
-      headers: {
-        Authorization: "bearer " + localStorage.getItem("token"),
-      },
-    })
-      .then((res) => {
-        setContent("");
-        setImageForm(false);
-        setFile(null);
-        setComments([...res.data, ...comments]);
-      })
-      .catch((err) => console.log(err));
+    //@ts-ignore
+    createComment(post_id, formData);
   };
 
   const onChangeHandler = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -48,6 +36,8 @@ const CommentForm = ({ post, user, comments, setComments }: Props) => {
 
     e.target.style.height = `${height}px`;
   };
+
+  if (!user) return null;
 
   return (
     <Form onSubmit={(e) => submitHandler(e)}>

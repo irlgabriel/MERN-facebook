@@ -8,6 +8,8 @@ const postController = require("../controllers/posts");
 // GET retrieve all posts
 router.get("/", postController.get_posts);
 
+router.get("/:user", postController.get_posts_by_user);
+
 // GET a post by id
 router.get("/:post_id", postController.get_post);
 

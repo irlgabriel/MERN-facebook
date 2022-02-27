@@ -44,6 +44,20 @@ exports.get_posts = (req, res, next) => {
     });
 };
 
+exports.get_posts_by_user = (req, res, next) => {
+  Post.find({ user: req.params.user })
+    .sort("-createdAt")
+    .populate("likes")
+    .exec((err, posts) => {
+      if (err) return res.status(400).json(err);
+
+      Post.populate(posts, { path: "user" }, (err, populatedPosts) => {
+        if (err) return res.status(400).json(err);
+        res.json(populatedPosts);
+      });
+    });
+};
+
 exports.get_post = (req, res, next) => {
   Post.findById(req.params.post_id)
     .populate("user")

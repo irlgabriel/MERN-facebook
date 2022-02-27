@@ -8,6 +8,10 @@
     "build": "cd client/ && npm install && npm run build"
   },
   "dependencies": {
+    "@types/async": "^3.2.12",
+    "@types/react-router-dom": "^5.3.3",
+    "@types/react-transition-group": "^4.4.4",
+    "@types/styled-components": "^5.1.22",
     "async": "^3.2.0",
     "aws-sdk": "^2.808.0",
     "bcrypt": "^5.0.0",
@@ -31,6 +35,8 @@
     "passport-facebook": "^3.0.0",
     "passport-jwt": "^4.0.0",
     "passport-local": "^1.0.0",
+    "redux-devtools-extension": "^2.13.9",
+    "redux-thunk": "^2.4.1",
     "uuid": "^8.3.2"
   },
   "devDependencies": {

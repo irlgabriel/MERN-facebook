@@ -51,11 +51,15 @@ const editCommentAction = (comment: Comment): EditCommentAction => ({
 
 export const editComment =
   (post_id: string, comment_id: string, input: CreateCommentInput): Thunk =>
-  async (dispatch) => {
+  async (dispatch, getState) => {
+    const config = {
+      headers: { Authorization: `bearer ${getState().auth.auth.token}` },
+    };
     try {
       const { data } = await axios.put<Comment>(
         `posts/${post_id}/comments/${comment_id}`,
-        input
+        input,
+        config
       );
       dispatch(editCommentAction(data));
     } catch (e: any) {
@@ -70,11 +74,15 @@ const createCommentAction = (comment: Comment): CreateCommentAction => ({
 
 export const createComment =
   (post_id: string, input: CreateCommentInput): Thunk =>
-  async (dispatch) => {
+  async (dispatch, getState) => {
+    const config = {
+      headers: { Authorization: `bearer ${getState().auth.auth.token}` },
+    };
     try {
       const { data } = await axios.post<Comment>(
         `posts/${post_id}/comments/`,
-        input
+        input,
+        config
       );
       dispatch(createCommentAction(data));
     } catch (e: any) {
@@ -89,10 +97,14 @@ const deleteCommentAction = (comment: Comment): DeleteCommentAction => ({
 
 export const deleteComment =
   (post_id: string, comment_id: string): Thunk =>
-  async (dispatch) => {
+  async (dispatch, getState) => {
+    const config = {
+      headers: { Authorization: `bearer ${getState().auth.auth.token}` },
+    };
     try {
       const { data } = await axios.delete<Comment>(
-        `posts/${post_id}/comments/${comment_id}`
+        `posts/${post_id}/comments/${comment_id}`,
+        config
       );
       dispatch(deleteCommentAction(data));
     } catch (e: any) {

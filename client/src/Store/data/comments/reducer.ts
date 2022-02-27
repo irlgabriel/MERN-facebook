@@ -118,9 +118,7 @@ const reducer = (state: State = initialState, action: Actions): State => {
           if (!draft.byPost[comment.post._id]) {
             draft.byPost[comment.post._id] = [comment];
           } else {
-            draft.byPost[comment.post._id] = draft.byPost[comment.post._id].map(
-              (c) => (c._id === comment._id ? comment : c)
-            );
+            draft.byPost[comment.post._id].push(comment);
           }
         }
       });
@@ -136,11 +134,16 @@ const reducer = (state: State = initialState, action: Actions): State => {
           }
         }
 
-        if (comment.post && comment.post._id) {
-          if (draft.byPost[comment.post._id]) {
-            draft.byPost[comment.post._id] = draft.byPost[
-              comment.post._id
-            ].filter((d) => d._id !== comment.post._id);
+        //@ts-ignore
+        if (comment.post && comment.post) {
+          //@ts-ignore
+          if (draft.byPost[comment.post]) {
+            //@ts-ignore
+            draft.byPost[comment.post] = draft.byPost[
+              //@ts-ignore
+              comment.post
+              //@ts-ignore
+            ].filter((d) => d._id !== comment.post);
           }
         }
       });

@@ -25,6 +25,8 @@ const CommentForm = ({ post_id }: Props) => {
     if (file) formData.append("image", file);
     //@ts-ignore
     createComment(post_id, formData);
+    setSubmit(false);
+    setContent("");
   };
 
   const onChangeHandler = (e: React.ChangeEvent<HTMLInputElement>) => {

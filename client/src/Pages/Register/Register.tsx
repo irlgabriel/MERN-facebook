@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import { Container, Form, Input, Label, FormGroup, Button } from "reactstrap";
+import { Container, Form, Input, Label, FormGroup } from "reactstrap";
 import { FlashMessage } from "./Register.components";
 import { CSSTransition } from "react-transition-group";
 import { Link, useHistory } from "react-router-dom";
@@ -111,9 +111,9 @@ const Register = ({ reloadUser, getUser }: Props) => {
           />
         </FormGroup>
         <FormGroup className="text-center">
-          <Button type="submit" color="primary">
+          <button type="submit" className="primary-button">
             Register
-          </Button>
+          </button>
         </FormGroup>
       </Form>
     </Container>

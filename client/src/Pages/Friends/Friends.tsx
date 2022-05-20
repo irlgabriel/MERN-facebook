@@ -8,7 +8,7 @@ import {
   FriendSuggestion,
 } from "../../Components";
 import Axios from "axios";
-import { User, FriendRequest as IFriendRequest, Post } from "Types";
+import { User, Post } from "Types";
 import {
   useLogin,
   useFriendRequests,
@@ -18,7 +18,6 @@ import {
   useSendRequest,
   useReceivedRequests,
   useSentRequests,
-  useCurrentUser,
 } from "Hooks";
 
 const Friends = () => {
@@ -50,32 +49,6 @@ const Friends = () => {
       setPreviewUser(res.data);
     });
   };
-
-  // /* Friend request logic functions */
-  // const sendRequest = (to: string) => {
-  //   //const to = e.target.getAttribute('data-id');
-  //   Axios.post(`/friend_requests/${to}/send`, {}, config).then((res) => {
-  //     setSuggestions(
-  //       suggestions.filter((suggestion) => suggestion._id !== res.data.to._id)
-  //     );
-  //     setRequests([...requests, res.data]);
-  //   });
-  // };
-
-  // const confirmFriend = (_id: string) => {
-  //   //const _id = e.target.getAttribute('data-id');
-  //   Axios.post(`/friend_requests/${_id}/accept`).then((res) => {
-  //     setRequests(requests.filter((request) => request._id !== res.data._id));
-  //     reloadUser();
-  //   });
-  // };
-
-  // const declineFriend = (_id: string) => {
-  //   //const _id = e.target.getAttribute('data-id');
-  //   Axios.post(`/friend_requests/${_id}/decline`).then((res) => {
-  //     setRequests(requests.filter((request) => request._id !== res.data._id));
-  //   });
-  // };
 
   useEffect(() => {
     getFriendRequests();
@@ -118,15 +91,17 @@ const Friends = () => {
           <h5>People you may know</h5>
           <hr className="my-1"></hr>
           {/* Friend Suggestions */}
-          {suggestions.map((to) => (
-            <FriendSuggestion
-              onClick={clickHandler}
-              sendRequest={sendRequest}
-              key={to._id}
-              //@ts-ignore
-              to={to}
-            />
-          ))}
+          {suggestions
+            .filter((s) => sentRequests.map((s) => s.to._id).includes(s.to._id))
+            .map((to) => (
+              <FriendSuggestion
+                onClick={clickHandler}
+                sendRequest={sendRequest}
+                key={to._id}
+                //@ts-ignore
+                to={to}
+              />
+            ))}
         </Col>
         <Col id="friends-profile" className="p-0">
           {previewUser && (

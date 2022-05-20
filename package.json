@@ -8,6 +8,7 @@
     "build": "cd client/ && npm install && npm run build"
   },
   "dependencies": {
+    "@reduxjs/toolkit": "^1.8.0",
     "@types/async": "^3.2.12",
     "@types/react-router-dom": "^5.3.3",
     "@types/react-transition-group": "^4.4.4",

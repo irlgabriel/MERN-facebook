@@ -108,7 +108,8 @@ export const deleteComment =
       );
       dispatch(deleteCommentAction(data));
     } catch (e: any) {
-      throw new Error("failed to fetch comments");
+      console.log(e);
+      // throw new Error("failed to fetch comments");
     }
   };
 

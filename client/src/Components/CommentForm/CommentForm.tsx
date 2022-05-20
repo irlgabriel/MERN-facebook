@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import React, { useState } from "react";
-import { Form, Input, FormGroup, Button } from "reactstrap";
+import { Form, Input, FormGroup } from "reactstrap";
 import { UserImage, PhotoImage } from "./CommentForm.components";
 import { CSSTransition } from "react-transition-group";
 import { useCurrentUser, useCreateComment } from "Hooks";
@@ -88,9 +88,9 @@ const CommentForm = ({ post_id }: Props) => {
       </CSSTransition>
       {showSubmit && (
         <FormGroup className="text-right">
-          <Button type="submit" color="primary" size="sm">
+          <button type="submit" className="primary-button">
             Comment!
-          </Button>
+          </button>
         </FormGroup>
       )}
     </Form>

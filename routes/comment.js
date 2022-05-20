@@ -13,6 +13,12 @@ router.get("/:comment_id", commentController.get_replies);
 // GET post's comments
 router.get("/post_id=:post_id", commentController.get_post_comments);
 
+// GET post/s comment lenght
+router.get(
+  "/post_id=:post_id/count",
+  commentController.get_post_comments_length
+);
+
 // POST create comment
 router.post(
   "/",

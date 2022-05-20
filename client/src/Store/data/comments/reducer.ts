@@ -125,8 +125,13 @@ const reducer = (state: State = initialState, action: Actions): State => {
     }
     case ActionType.DELETE_COMMENT: {
       return produce(state, (draft) => {
+        // delete replies;
         const { comment } = action.payload;
-        if (comment.comment && comment.comment._id) {
+        const {
+          post: { _id: post_id },
+          comment: { _id: comment_id },
+        } = comment;
+        if (comment_id) {
           if (draft.byComment[comment.comment._id]) {
             draft.byComment[comment.comment._id] = draft.byComment[
               comment.comment._id
@@ -134,16 +139,11 @@ const reducer = (state: State = initialState, action: Actions): State => {
           }
         }
 
-        //@ts-ignore
-        if (comment.post && comment.post) {
-          //@ts-ignore
-          if (draft.byPost[comment.post]) {
-            //@ts-ignore
-            draft.byPost[comment.post] = draft.byPost[
-              //@ts-ignore
-              comment.post
-              //@ts-ignore
-            ].filter((d) => d._id !== comment.post);
+        if (post_id) {
+          if (draft.byPost[post_id]) {
+            draft.byPost[post_id] = draft.byPost[post_id].filter(
+              (d) => d._id !== post_id
+            );
           }
         }
       });

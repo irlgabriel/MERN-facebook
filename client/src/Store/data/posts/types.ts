@@ -15,6 +15,7 @@ export enum ActionType {
   DELETE_POST = "data/posts/DELETE_POST",
   GET_POSTS_BY_USER = "data/posts/GET_POSTS_BY_USER",
   LIKE_POST = "data/posts/LIKE_POST",
+  GET_COMMENTS_COUNT = "data/posts/GET_COMMENTS_COUNT",
 }
 
 //should be in api
@@ -74,6 +75,13 @@ export interface GetUsersPostsAction extends Action {
   };
 }
 
+export interface GetCommentsCountAction extends Action {
+  type: ActionType.GET_COMMENTS_COUNT;
+  payload: {
+    count: number;
+  };
+}
+
 export type Actions =
   | GetPostsAction
   | GetUsersPostsAction
@@ -81,4 +89,5 @@ export type Actions =
   | DeletePostAction
   | GetPostAction
   | CreatePostAction
-  | LikePostAction;
+  | LikePostAction
+  | GetCommentsCountAction;

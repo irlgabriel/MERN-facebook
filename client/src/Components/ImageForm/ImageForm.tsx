@@ -1,6 +1,6 @@
 import Axios from "axios";
 import React, { useState } from "react";
-import { Form, Input, Button, FormGroup } from "reactstrap";
+import { Form, Input, FormGroup } from "reactstrap";
 import { TransparentBackground } from "./ImageForm.components";
 
 interface Props {
@@ -62,16 +62,17 @@ const ImageForm = ({
           />
         </FormGroup>
         <FormGroup className="d-flex justify-content-end">
-          <Button className="mr-2" type="submit" color="secondary">
+          <button className="mr-2 primary-button" type="submit">
             Submit
-          </Button>
-          <Button
+          </button>
+          <button
+            className="secondary-button"
             type="button"
             color="danger"
             onClick={() => setImageForm(false)}
           >
             Cancel
-          </Button>
+          </button>
         </FormGroup>
       </Form>
     </TransparentBackground>

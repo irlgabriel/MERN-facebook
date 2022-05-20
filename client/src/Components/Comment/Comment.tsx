@@ -10,13 +10,13 @@ import {
   LikesContainer,
   ReplyCount,
 } from "./Comment.components";
-import { Form, Input, Button, FormGroup } from "reactstrap";
+import { Form, Input, FormGroup } from "reactstrap";
 import { Reply } from "..";
 import { AiFillLike } from "react-icons/ai";
 import { BsArrow90DegDown } from "react-icons/bs";
 import { ReplyForm } from "..";
 import { Link } from "react-router-dom";
-import { Comment as IComment, Post, User } from "Types";
+import { Comment as IComment } from "Types";
 import {
   useDeleteComment,
   useEditComment,
@@ -151,18 +151,16 @@ const Comment = ({ level = 0, comment }: Props) => {
                 <em>Max 5MB (Accepted formats: jpg, jpeg, png)</em>
               </FormGroup>
               <FormGroup className="text-right mb-1">
-                <Button color="primary" type="submit" size="sm">
+                <button className="primary-button" type="submit">
                   Edit
-                </Button>
-                <Button
+                </button>
+                <button
                   onClick={() => setEdit(false)}
                   type="button"
-                  size="sm"
-                  className="ml-2"
-                  color="danger"
+                  className="ml-2 secondary-button"
                 >
                   Cancel
-                </Button>
+                </button>
               </FormGroup>
             </Form>
           )}

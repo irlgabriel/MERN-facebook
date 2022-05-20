@@ -133,6 +133,18 @@ module.exports.get_post_comments = (req, res, next) => {
     });
 };
 
+module.exports.get_post_comments_length = (req, res, next) => {
+  const { post_id } = req.params;
+
+  Comment.find({ post: post_id })
+    .then((doc) => {
+      return res.json({ count: documents.length });
+    })
+    .catch((e) => {
+      return res.status(400).json(err);
+    });
+};
+
 module.exports.edit_comment = [
   upload,
   //body("content").trim().isLength({ min: 1 }).escape(),

@@ -1,7 +1,6 @@
 import React from "react";
-import Axios from "axios";
 import { useState } from "react";
-import { Form, Input, FormGroup, Button } from "reactstrap";
+import { Form, Input, FormGroup } from "reactstrap";
 import { RoundImage, PhotoImage } from "./ReplyForm.components";
 import { CSSTransition } from "react-transition-group";
 import { Comment, Post, User } from "Types";
@@ -93,9 +92,9 @@ const ReplyForm = ({ post, setShowReply, user, comment }: Props) => {
       </CSSTransition>
       {showSubmit && (
         <FormGroup className="mb-0 text-right">
-          <Button type="submit" size="sm">
+          <button type="submit" className="primary-button">
             Reply
-          </Button>
+          </button>
         </FormGroup>
       )}
     </Form>

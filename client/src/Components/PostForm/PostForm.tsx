@@ -1,6 +1,5 @@
 import React, { useEffect, useState, useRef } from "react";
-import axios from "axios";
-import { Form, FormGroup, Button } from "reactstrap";
+import { Form, FormGroup } from "reactstrap";
 import {
   RoundImage,
   GrayHover,
@@ -13,7 +12,7 @@ import { FcStackOfPhotos } from "react-icons/fc";
 import { CSSTransition } from "react-transition-group";
 import { Link } from "react-router-dom";
 import { LoadingOverlay } from "..";
-import { Post, User } from "Types";
+import { User } from "Types";
 import { useCurrentUser, useCreatePost } from "Hooks";
 
 const PostForm = () => {
@@ -129,16 +128,19 @@ const PostForm = () => {
           unmountOnExit
         >
           <FormGroup
-            style={{ justifyContent: "center" }}
+            style={{ justifyContent: "flex-end" }}
             className="d-flex w-100 py-2"
           >
-            <Button
-              style={{ background: "lightblue" }}
-              type="submit"
-              className="px-5"
+            <button
+              onClick={() => setExpandForm(false)}
+              type="button"
+              className="secondary-button"
             >
+              Cancel
+            </button>
+            <button type="submit" className="ml-3 px-4 primary-button">
               Post!
-            </Button>
+            </button>
           </FormGroup>
         </CSSTransition>
         <hr className="my-2" />

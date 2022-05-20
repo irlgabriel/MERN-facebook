@@ -20,6 +20,7 @@ export enum ActionType {
   CREATE_COMMENT = "data/comments/CREATE_COMMENT",
   EDIT_COMMENT = "data/comments/EDIT_COMMENT",
   LIKE_COMMENT = "data/comments/LIKE_COMMENT",
+  GET_COMMENTS_COUNT = "data/comments/GET_COMMENTS_COUNT",
 }
 
 export interface GetCommentsAction extends Action {

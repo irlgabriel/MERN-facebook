@@ -4,7 +4,6 @@ import {
   FriendInfo,
   RoundImage,
 } from "./FriendRequest.components";
-import { Button } from "reactstrap";
 import { useFriendRequest, useDeclineRequest, useConfirmRequest } from "Hooks";
 
 interface Props {
@@ -27,20 +26,18 @@ const FriendRequest = ({ onClick, id }: Props) => {
       <FriendInfo>
         <h4>{from.display_name || from.first_name + " " + from.last_name}</h4>
         <div className="d-flex w-100 align-items-center">
-          <Button
+          <button
             onClick={() => confirmFriend(id)}
-            color="primary"
-            className="mr-2 w-100"
+            className="primary-button mr-2 w-100"
           >
             Confirm
-          </Button>
-          <Button
+          </button>
+          <button
             onClick={() => declineFriend(id)}
-            className="w-100"
-            color="secondary"
+            className="w-100 secondary-button"
           >
             Delete
-          </Button>
+          </button>
         </div>
       </FriendInfo>
     </FriendsContainer>

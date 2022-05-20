@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
-import axios from "axios";
 import moment from "moment";
-import { Form, Input, Button, FormGroup } from "reactstrap";
+import { Form, Input, FormGroup } from "reactstrap";
 import {
   PostContainer,
   RoundImage,
@@ -50,9 +49,7 @@ const Post = ({ id }: Props) => {
   const [, editPost] = useEditPost(id ?? post_id);
   const deletePost = useRemovePost(id ?? post_id);
   const likePost = useLikePost(id ?? post_id);
-  const [{ data: comments }, getPostComments] = useComments(id ?? post_id);
-
-  console.log("comments", comments);
+  const [{ data: comments }, getComments] = useComments(id ?? post_id);
 
   const [file, setFile] = useState<File | null>(null /*post.image*/);
   const [content, setContent] = useState("");
@@ -62,8 +59,8 @@ const Post = ({ id }: Props) => {
   const [likesModal, setLikesModal] = useState(false);
 
   useEffect(() => {
-    getPost(id || post_id);
-    getPostComments(id ?? post_id);
+    !post && getPost(id || post_id);
+    getComments(id || post_id);
   }, []);
 
   const editHandler = (e: React.FormEvent<HTMLFormElement>) => {
@@ -72,7 +69,7 @@ const Post = ({ id }: Props) => {
     formData.append("content", content);
     if (file) formData.append("image", file);
 
-    // @ts-ignore
+    // @ts-ignore formdata cant have a shape as far as I know
     editPost({ id: post._id, post: formData });
     setEdit(false);
   };
@@ -219,22 +216,16 @@ const Post = ({ id }: Props) => {
             <em>Max 5MB (Accepted formats: jpg, jpeg, png)</em>
           </FormGroup>
           <FormGroup className="d-flex align-items-center">
-            <Button
-              className="ml-auto mr-2"
-              type="submit"
-              color="primary"
-              size="sm"
-            >
+            <button className="ml-auto mr-2 primary-button" type="submit">
               Edit
-            </Button>
-            <Button
+            </button>
+            <button
               type="button"
+              className="secondary-button"
               onClick={() => setEdit(false)}
-              color="danger"
-              size="sm"
             >
               Cancel
-            </Button>
+            </button>
           </FormGroup>
         </Form>
       )}

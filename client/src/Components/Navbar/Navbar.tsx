@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
-import { Link, useLocation, useHistory } from "react-router-dom";
-import { Nav, Button, Col, Input } from "reactstrap";
+import { Link, useLocation } from "react-router-dom";
+import { Nav, Col, Input } from "reactstrap";
 import {
   NavMidItem,
   RoundWrapper,
@@ -43,7 +43,7 @@ import { GoTriangleDown } from "react-icons/go";
 import { BsArrowLeft } from "react-icons/bs";
 import { CSSTransition } from "react-transition-group";
 import { Notification } from "..";
-import { User, Notification as INotification, FriendRequest } from "Types";
+import { User, Notification as INotification } from "Types";
 import {
   useLogin,
   useLogout,
@@ -51,15 +51,14 @@ import {
   useNotifications,
   useUsers,
   useDeleteNotifications,
+  useReceivedRequests,
 } from "Hooks";
 
 const Navbar = () => {
   const [{ data: user }] = useLogin();
 
-  const [
-    { data: notifications, loading: loadingNotifications },
-    getNotifications,
-  ] = useNotifications();
+  const [{ data: notifications }, getNotifications] = useNotifications();
+  const receivedRequests = useReceivedRequests(user!._id);
 
   const deleteNotifications = useDeleteNotifications();
 
@@ -67,14 +66,7 @@ const Navbar = () => {
 
   const logout = useLogout();
   const deleteAccount = useDeleteAccount();
-  const [{ data: users, loading: loadingUsers }, getUsers] = useUsers();
-
-  // init previously prepended by localStorage.getItem("token") &&
-  const config = {
-    headers: {
-      Authorization: "bearer " + localStorage.getItem("token"),
-    },
-  };
+  const [{ data: users }, getUsers] = useUsers();
 
   const fullname = (user: User) => {
     return user.display_name || user.first_name + " " + user.last_name;
@@ -90,7 +82,6 @@ const Navbar = () => {
   const [notificationDropdown, setNotificationDropdown] =
     useState<boolean>(false);
   const [newNotifications, setNewNotifications] = useState<INotification[]>([]);
-  const [newRequests, setNewRequests] = useState<FriendRequest[]>([]);
 
   useEffect(() => {
     // Get Notifications
@@ -204,9 +195,9 @@ const Navbar = () => {
           active={location.pathname === "/friends"}
           className="mid-nav-item"
         >
-          {newRequests.length ? (
+          {receivedRequests.length ? (
             <NewFriendsNotifications
-              count={newRequests.length.toString() ?? ""}
+              count={receivedRequests.length.toString() ?? ""}
             />
           ) : (
             ""
@@ -387,13 +378,12 @@ const Navbar = () => {
               <p>No notifications</p>
             )}
             {notifications.length ? (
-              <Button
+              <button
                 onClick={() => deleteNotifications()}
-                className="ml-auto"
-                outline
+                className="ml-auto secondary-button"
               >
                 Clear all
-              </Button>
+              </button>
             ) : (
               ""
             )}

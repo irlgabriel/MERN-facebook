@@ -1,5 +1,4 @@
 import React from "react";
-import { Button } from "reactstrap";
 import {
   FriendsContainer,
   FriendInfo,
@@ -21,13 +20,12 @@ const FriendSuggestion = ({ onClick, sendRequest, to }: Props) => {
         <h4>{to.display_name || to.first_name + " " + to.last_name}</h4>
         {
           <div>
-            <Button
+            <button
               onClick={() => sendRequest(to._id)}
-              color="primary"
-              className="w-100"
+              className="primary-button w-100"
             >
               Send Friend Request
-            </Button>
+            </button>
           </div>
         }
       </FriendInfo>

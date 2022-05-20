@@ -1,5 +1,5 @@
-import React, { SetStateAction, useEffect, useState } from "react";
-import { Container, Col, Button } from "reactstrap";
+import React, { useEffect, useState } from "react";
+import { Container, Col } from "reactstrap";
 import { Navbar } from "../../Components";
 import {
   CoverPhoto,
@@ -207,19 +207,18 @@ const Profile = ({ showNav = true, previewUser }: Props) => {
                   has sent you a friend request
                 </p>
                 <div className="d-block">
-                  <Button
+                  <button
                     onClick={() => confirmRequest(receivedRequest._id)}
-                    className="mr-2"
-                    color="success"
+                    className="mr-2 primary-button"
                   >
                     Confirm
-                  </Button>
-                  <Button
+                  </button>
+                  <button
                     onClick={() => declineRequest(receivedRequest._id)}
-                    color="danger"
+                    className="secondary-button"
                   >
                     Delete
-                  </Button>
+                  </button>
                 </div>
               </FlexDivGray>
             )}

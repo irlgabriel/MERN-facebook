@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import Axios from "axios";
-import { Link, useHistory } from "react-router-dom";
-import { Container, Form, Input, Button, FormGroup } from "reactstrap";
+import { Link } from "react-router-dom";
+import { Container, Form, Input, FormGroup } from "reactstrap";
 import { FlashMessage } from "./Index.components";
 import { CSSTransition } from "react-transition-group";
 import { LoadingOverlay } from "../../Components";
@@ -72,13 +72,12 @@ const Index = () => {
             />
           </FormGroup>
           <FormGroup>
-            <Button
+            <button
               style={{ fontSize: "20px" }}
-              color="primary"
-              className="font-weight-bold py-2 w-100"
+              className="primary-button font-weight-bold py-2 w-100"
             >
               Log In
-            </Button>
+            </button>
           </FormGroup>
         </Form>
         <div className="d-flex align-items-center justify-content-between">
@@ -88,9 +87,12 @@ const Index = () => {
         </div>
         <Container className="w-75">
           <Link to="/register">
-            <Button className="w-100 py-2 font-weight-bold" color="success">
+            <button
+              className="secondary-button w-100 py-2 font-weight-bold"
+              color="success"
+            >
               Create New Account
-            </Button>
+            </button>
           </Link>
         </Container>
         <div className="d-flex align-items-center justify-content-between">
@@ -106,7 +108,7 @@ const Index = () => {
                 : "https://fcloneodin.herokuapp.com/auth/facebook"
             }
           >
-            <Button color="primary">Login with Facebook</Button>
+            <button className="primary-button">Login with Facebook</button>
           </a>
         </div>
       </div>

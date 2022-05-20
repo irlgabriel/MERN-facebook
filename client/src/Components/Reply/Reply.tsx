@@ -9,11 +9,10 @@ import {
   FooterLink,
   LikesContainer,
 } from "./Reply.components";
-import { Form, Input, Button, FormGroup } from "reactstrap";
+import { Form, Input, FormGroup } from "reactstrap";
 import { AiFillLike } from "react-icons/ai";
 import { Comment } from "Types";
 import {
-  useReplies,
   useDeleteComment,
   useLikeComment,
   useEditComment,
@@ -33,7 +32,6 @@ const Reply = ({ reply }: Props) => {
   const editComment = useEditComment();
   const likeComment = useLikeComment();
   const user = useCurrentUser();
-  const [{ data: replies }] = useReplies(reply._id);
 
   const deleteHandler = () => {
     window.confirm(
@@ -112,9 +110,9 @@ const Reply = ({ reply }: Props) => {
                 />
               </FormGroup>
               <FormGroup className="text-right mb-1">
-                <Button color="primary" type="submit" size="sm">
+                <button type="submit" className="primary-button">
                   Edit
-                </Button>
+                </button>
               </FormGroup>
             </Form>
           )}

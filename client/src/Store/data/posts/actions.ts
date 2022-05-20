@@ -8,6 +8,7 @@ import {
   GetUsersPostsAction,
   CreatePostInput,
   CreatePostAction,
+  GetCommentsCountAction,
 } from "./types";
 import { Thunk } from "Store/types";
 import { beginActivity, setError, endActivity } from "Store/activities";
@@ -109,6 +110,46 @@ export const createPost =
     } catch (e: any) {
       setError({
         type: ActionType.CREATE_POST,
+        message: e.message,
+        uuid: activityId,
+      });
+    } finally {
+      dispatch(endActivity({ uuid: activityId }));
+    }
+  };
+
+//GET
+const getCommentsCountAction = (count: number): GetCommentsCountAction => ({
+  type: ActionType.GET_COMMENTS_COUNT,
+  payload: { count },
+});
+
+export const getCommentsCount =
+  (id: string): Thunk =>
+  async (dispatch, getState) => {
+    const activityId = uuid();
+
+    const config = {
+      headers: {
+        Authorization: "bearer " + getState().auth.auth.token,
+      },
+    };
+
+    try {
+      dispatch(
+        beginActivity({ type: ActionType.GET_COMMENTS_COUNT, uuid: activityId })
+      );
+      const {
+        data: { count },
+      } = await axios.get<{ count: number }>(
+        `/comments/post_id=${id}/count`,
+        config
+      );
+
+      dispatch(getCommentsCountAction(count));
+    } catch (e: any) {
+      setError({
+        type: ActionType.GET_COMMENTS_COUNT,
         message: e.message,
         uuid: activityId,
       });

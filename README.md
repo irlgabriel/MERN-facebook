@@ -4,4 +4,4 @@
 
 #### Current version: [Facebook](https://fcloneodin.herokuapp.com/#/)
 
-#### Unfortunately you cannot run this app locally because you would need to provide a lot of environment variables.
+##### Alternatively the app can be ran locally with custom mongo database (see env vars example in .env.example)

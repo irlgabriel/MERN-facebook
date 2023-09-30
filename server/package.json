@@ -5,7 +5,7 @@
   "scripts": {
     "start": "node ./bin/www",
     "startDev": "nodemon ./bin/www",
-    "build": "cd ../client && npm install --legacy-peer-deps && npm run build"
+    "build": "npm run start"
   },
   "dependencies": {
     "async": "^3.2.0",
@@ -32,6 +32,9 @@
     "passport-jwt": "^4.0.0",
     "passport-local": "^1.0.0",
     "uuid": "^8.3.2"
+  },
+  "engines": {
+    "node": "16.18.0"
   },
   "devDependencies": {
     "nodemon": "^2.0.6"

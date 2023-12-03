@@ -1,8 +1,9 @@
-const express = require("express");
-const router = express.Router({ mergeParams: true });
-const passport = require("passport");
+import express, { Router } from "express";
+import passport from "passport";
 
-const commentController = require("../controllers/comments");
+import * as commentController from "../controllers/comments/comments";
+
+const router = Router();
 
 // GET comments
 router.get("/", commentController.get_comments);
@@ -38,4 +39,4 @@ router.delete(
   commentController.delete_comment
 );
 
-module.exports = router;
+export default router;

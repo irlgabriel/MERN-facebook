@@ -1,9 +1,10 @@
-const express = require("express");
-const router = express.Router();
+import express, { Router } from "express";
 
-const passport = require("passport");
+import passport from "passport";
 
-const notificationsController = require("../controllers/notifications");
+import * as notificationsController from "../controllers/notifications/notifications";
+
+const router = Router();
 
 /** Notifications */
 // GET
@@ -27,8 +28,10 @@ router.delete(
   notificationsController.delete_notification
 );
 
-router.delete('/',
-  passport.authenticate('jwt'),
+router.delete(
+  "/",
+  passport.authenticate("jwt"),
   notificationsController.delete_all
-)
-module.exports = router;
+);
+
+export default router;

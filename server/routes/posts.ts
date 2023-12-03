@@ -1,9 +1,9 @@
-const express = require("express");
-const router = express.Router();
-const passport = require("passport");
-const multer = require("multer");
+import { Router } from "express";
+import passport from "passport";
 
-const postController = require("../controllers/posts");
+import * as postController from "../controllers/posts/posts";
+
+const router = Router();
 
 // GET retrieve all posts
 router.get("/", postController.get_posts);
@@ -30,4 +30,4 @@ router.delete(
   postController.delete_post
 );
 
-module.exports = router;
+export default router;

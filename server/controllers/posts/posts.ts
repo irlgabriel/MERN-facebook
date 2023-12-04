@@ -8,6 +8,7 @@ import { Notification } from "../../models/notifications";
 import { User } from "../../models/users";
 import { RequestHandler } from "express";
 import { DeleteObjectOutput, ManagedUpload } from "aws-sdk/clients/s3";
+import { GetPostsRequestInput } from "./types";
 
 // AWS
 const S3 = new AWS.S3();
@@ -28,12 +29,21 @@ const upload = multer({
   limits: { fileSize: 5 * 1024 * 1024 },
 }).single("image");
 
-export const get_posts: RequestHandler = async (req, res, next) => {
+export const get_posts: RequestHandler<
+  any,
+  any,
+  any,
+  GetPostsRequestInput
+> = async (req, res, next) => {
+  console.log(req.query);
+  const { offset, pageSize } = req.query;
+
   try {
     const posts = await Post.find()
+      .limit(pageSize)
+      .skip(offset)
       .sort("-createdAt")
       .populate(["likes", "user"]);
-
     res.json(posts);
   } catch (e) {
     next(e);
@@ -41,7 +51,9 @@ export const get_posts: RequestHandler = async (req, res, next) => {
 };
 
 export const get_post: RequestHandler = async (req, res, next) => {
+  console.log(req, req.params);
   try {
+    if (req.params.post_id) res.send(req.params.post_id);
     const post = await Post.findById(req.params.post_id).populate([
       "user",
       "likes",
@@ -161,7 +173,7 @@ export const like_post: RequestHandler = async (req, res, next) => {
 
     if (!post) throw new Error("Could not find post!");
 
-    if (post.likes.find((like) => like.toString() === user_id)) {
+    if (post.likes.find((like) => like?.toString() === user_id)) {
       const updatedPost = await Post.findOneAndUpdate(
         { _id: req.params.post_id },
         { $pull: { likes: user_id } },

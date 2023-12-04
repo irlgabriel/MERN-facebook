@@ -7,7 +7,7 @@ import path from "path";
 import cors from "cors";
 import cookieParser from "cookie-parser";
 import logger from "morgan";
-import mongoose from "mongoose";
+import mongoose, { Document } from "mongoose";
 
 import indexRouter from "./routes/index";
 import authRouter from "./routes/auth";
@@ -16,6 +16,8 @@ import postsRouter from "./routes/posts";
 import commentsRouter from "./routes/comment";
 import friendRequestsRouter from "./routes/friend_requests";
 import notificationsRouter from "./routes/notifications";
+import { IPost, Post } from "./models/posts";
+import { Comment } from "./models/comments";
 
 mongoose.connect(process.env.DB_STRING as string, {
   // useUnifiedTopology: true,
@@ -45,10 +47,11 @@ app.use(passport.initialize());
 
 // routes path
 app.use("/", authRouter);
-app.use("/", indexRouter);
+// prefix /posts/:post_id/comments
+// needed to be moved inside actual router (some upgrade broke the previous approach)
+app.use("/", commentsRouter);
 app.use("/users", usersRouter);
 app.use("/posts", postsRouter);
-app.use("/posts/:post_id/comments", commentsRouter);
 app.use("/notifications", notificationsRouter);
 app.use("/friend_requests", friendRequestsRouter);
 

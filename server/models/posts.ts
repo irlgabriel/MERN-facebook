@@ -9,6 +9,7 @@ const postSchema = new Schema(
     image: { type: Object },
     user: { type: Schema.Types.ObjectId, ref: "User" },
     likes: [{ type: Schema.Types.ObjectId, ref: "User" }],
+    commentsCount: { type: Number, default: 0 },
   },
   { timestamps: true }
 );

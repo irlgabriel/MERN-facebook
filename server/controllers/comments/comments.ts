@@ -36,23 +36,20 @@ const upload = multer({
   limits: { fileSize: 5 * 1024 * 1024 },
 }).single("image");
 
-export const get_comments: RequestHandler = async (req, res, next) => {
+export const get_comments: RequestHandler<{ post_id: string }> = async (
+  req,
+  res,
+  next
+) => {
+  const post_id = req.params.post_id;
   try {
-    const comments = await Comment.find({ post: req.params.post_id })
-      .populate("post")
-      .populate("comment")
-      .populate("user")
-      .populate("likes")
-      .sort("-createdAt")
-      .exec();
+    const comments = await Comment.find({ post: post_id })
+      .populate(["post", "comment", "user", "likes"])
+      .sort("-createdAt");
     res.json(comments);
   } catch (e) {
-    res.status(400).json(e);
+    next(e);
   }
-  // /.then(err, comments) => {
-  //   if (err) return res.status(400).json(err);
-  //   res.json(comments);
-  // };
 };
 
 // GET REPLIES

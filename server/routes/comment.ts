@@ -6,35 +6,38 @@ import * as commentController from "../controllers/comments/comments";
 const router = Router();
 
 // GET comments
-router.get("/", commentController.get_comments);
+router.get("/posts/:post_id/comments", commentController.get_comments);
 
 // GET replies
-router.get("/:comment_id", commentController.get_replies);
+router.get(
+  "/posts/:post_id/comments/:comment_id",
+  commentController.get_replies
+);
 
 // POST create comment
 router.post(
-  "/",
+  "/posts/:post_id/comments",
   passport.authenticate("jwt"),
   commentController.create_comment
 );
 
 // PUT edit comment
 router.put(
-  "/:comment_id",
+  "/posts/:post_id/comments/:comment_id",
   passport.authenticate("jwt"),
   commentController.edit_comment
 );
 
 // POST like comment
 router.post(
-  "/:comment_id",
+  "/posts/:post_id/comments/:comment_id",
   passport.authenticate("jwt"),
   commentController.like_comment
 );
 
 // DELETE delete comment
 router.delete(
-  "/:comment_id",
+  "/posts/:post_id/comments/:comment_id",
   passport.authenticate("jwt"),
   commentController.delete_comment
 );

@@ -65,7 +65,7 @@ passport.use(
       try {
         const user = await User.findOne({ email: email }).populate("friends");
         if (!user) return done({ message: "Email not found!" }, false);
-        if (user.password) done({ message: "Password cannot be empty!" });
+        if (!user.password) done({ message: "Password cannot be empty!" });
         //check for password match
         bcrypt.compare(password, user.password as string, (err, match) => {
           if (err) return done(err, false);

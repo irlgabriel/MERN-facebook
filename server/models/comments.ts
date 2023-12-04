@@ -4,8 +4,8 @@ const commentSchema = new Schema(
   {
     content: String,
     user: { type: Schema.Types.ObjectId, ref: "User" },
-
     image: Object,
+    post: { type: Schema.Types.ObjectId, ref: "Post" },
     comment: { type: Schema.Types.ObjectId, ref: "Comment" },
     likes: [{ type: Schema.Types.ObjectId, ref: "User" }],
   },

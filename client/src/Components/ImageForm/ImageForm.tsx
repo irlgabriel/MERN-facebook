@@ -3,14 +3,9 @@ import React, { useState } from "react";
 import { GrDiamond } from "react-icons/gr";
 import { Container, Form, Input, Button, FormGroup } from "reactstrap";
 import { TransparentBackground } from "./ImageForm.components";
+
 const ImageForm = ({ method = "PUT", content, path, setImageForm }) => {
   const [file, setFile] = useState<File | null>(null);
-
-  const config = localStorage.getItem("token") && {
-    headers: {
-      Authorization: "bearer " + localStorage.getItem("token"),
-    },
-  };
 
   const onSubmitHandler = (e) => {
     e.preventDefault();

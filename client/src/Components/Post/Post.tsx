@@ -1,7 +1,7 @@
-import React, { useEffect, useMemo, useState } from "react";
-import axios from "axios";
+import React, { useEffect, useRef, useState } from "react";
 import moment from "moment";
-import { Form, Input, Button, FormGroup } from "reactstrap";
+import { Form, Input, FormGroup } from "reactstrap";
+
 import {
   PostContainer,
   RoundImage,
@@ -28,13 +28,17 @@ import {
 } from "react-icons/ai";
 import { BsThreeDotsVertical } from "react-icons/bs";
 import { VscComment } from "react-icons/vsc";
-import { Link } from "react-router-dom";
 import { CSSTransition } from "react-transition-group";
 import { Post as PostType, User } from "../../Types/types";
-import { useAppDispatch, useAppSelector } from "../../Hooks/utils";
+import useOutsideClick, {
+  useAppDispatch,
+  useAppSelector,
+} from "../../Hooks/utils";
 import { deletePost, editPost, likePost } from "../../Store/posts";
-import { getComments, getReplies, selectComments } from "../../Store/comments";
+import { getComments, selectCommentsByPost } from "../../Store/comments";
 import { RootState } from "../../Store/store";
+import Link from "next/link";
+import { Button } from "flowbite-react";
 
 interface Props {
   post: PostType;
@@ -43,15 +47,12 @@ interface Props {
 const Post = ({ post }: Props) => {
   const dispatch = useAppDispatch();
   const user = useAppSelector((state) => state.auth.user) as User;
-  const commentIds = useAppSelector(
-    (state) => state.comments.byPostId?.[post._id] ?? []
-  );
 
   const comments = useAppSelector((state: RootState) =>
-    selectComments(state.comments, commentIds)
+    selectCommentsByPost(state.comments, post._id)
   );
+  const fetchedComments = useAppSelector((state) => state.comments.fetched);
 
-  const [fetchedComments, setFetchedComments] = useState(false);
   const [file, setFile] = useState<File | null>(null);
   const [content, setContent] = useState("");
   const [edit, setEdit] = useState(false);
@@ -59,10 +60,15 @@ const Post = ({ post }: Props) => {
   const [commentsDropdown, setCommentsDropdown] = useState(false);
   const [likesModal, setLikesModal] = useState(false);
 
+  const expandedMenu = useRef<HTMLDivElement>(null);
+
+  useOutsideClick([expandedMenu], () => {
+    setSettingsDropdown(false);
+  });
+
   useEffect(() => {
     if (commentsDropdown && !fetchedComments) {
       dispatch(getComments(post._id));
-      setFetchedComments(true);
     }
   }, [commentsDropdown, fetchedComments, post]);
 
@@ -79,9 +85,14 @@ const Post = ({ post }: Props) => {
   };
 
   const deleteHandler = () => {
-    window.confirm(
-      "Are you sure you want to delete this post? This action cannot be undone!"
-    ) && dispatch(deletePost(post._id));
+    if (
+      window.confirm(
+        "Are you sure you want to delete this post? This action cannot be undone!"
+      )
+    ) {
+      dispatch(deletePost(post._id));
+      setSettingsDropdown(false);
+    }
   };
 
   const like = () => {
@@ -106,17 +117,6 @@ const Post = ({ post }: Props) => {
     e.target.style.height = `${height}px`;
   };
 
-  // useEffect(() => {
-  //   // GET Comments
-  //   axios
-  //     .get(`/posts/${post._id}/comments`)
-  //     .then((res) => {
-  //       setComments(res.data);
-  //     })
-  //     .catch((err) => console.log(err));
-  //   //
-  // }, []);
-
   useEffect(() => {
     const textarea = document.querySelector("textarea");
     if (textarea) {
@@ -136,7 +136,9 @@ const Post = ({ post }: Props) => {
     <PostContainer className="mb-2">
       <Header className="mb-2">
         <Link
-          to={postUser._id === user._id ? "/profile" : `/users/${postUser._id}`}
+          href={
+            postUser._id === user._id ? "/profile" : `/users/${postUser._id}`
+          }
         >
           <RoundImage src={postUser.profile_photo} />
         </Link>
@@ -161,7 +163,7 @@ const Post = ({ post }: Props) => {
 
         {/** Settings Dropdown  */}
         {settingsDropdown && (
-          <RoundedContainer>
+          <RoundedContainer ref={expandedMenu}>
             <FunctionalItem
               onClick={() => {
                 setEdit(true);
@@ -180,7 +182,7 @@ const Post = ({ post }: Props) => {
         )}
       </Header>
       {!edit && (
-        <Body>
+        <div className="flex">
           <p
             className="mb-1"
             dangerouslySetInnerHTML={{ __html: post.content }}
@@ -188,7 +190,7 @@ const Post = ({ post }: Props) => {
           {post.image && post.image.url && (
             <img className="mb-2" width="100%" src={post.image?.url} />
           )}
-        </Body>
+        </div>
       )}
       {edit && (
         <Form onSubmit={(e) => editHandler(e)}>
@@ -286,7 +288,6 @@ const Post = ({ post }: Props) => {
                 key={comment._id}
                 comments={comments}
                 post={post}
-                user={user}
                 comment={comment}
               />
             ))}

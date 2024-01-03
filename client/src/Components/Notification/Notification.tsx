@@ -3,50 +3,29 @@ import {
   UserImage,
   DeleteButton,
 } from "./Notification.components";
-import { useHistory } from "react-router-dom";
-import axios from "axios";
 import React, { PropsWithChildren } from "react";
 import { Notification as NotificationType } from "../../Types/types";
+import { useRouter } from "next/router";
+import { clearNotification, readNotification } from "../../Store/notifications";
+import { useAppDispatch } from "../../Hooks/utils";
 
 type Props = PropsWithChildren<{
   notification: NotificationType;
-  notifications: NotificationType[];
-  setNotifications: React.Dispatch<React.SetStateAction<NotificationType[]>>;
 }>;
 
-const Notification = ({
-  notification,
-  notifications,
-  setNotifications,
-}: Props) => {
-  const history = useHistory();
+const Notification = ({ notification }: Props) => {
+  const { push } = useRouter();
 
-  const config = localStorage.getItem("token") && {
-    headers: {
-      Authorization: "bearer " + localStorage.getItem("token"),
-    },
-  };
+  const dispatch = useAppDispatch();
 
   const clickHandler = () => {
-    axios.put(`/notifications/${notification._id}`, {}).then((res) => {
-      setNotifications(
-        notifications.map((notification) =>
-          notification._id === res.data._id ? res.data : notification
-        )
-      );
-      history.push(notification.url);
-    });
+    dispatch(readNotification(notification._id));
+    push(notification.url);
   };
 
   const deleteHandler = (e) => {
     e.stopPropagation();
-    axios.delete(`/notifications/${notification._id}`).then((res) => {
-      setNotifications(
-        notifications.filter(
-          (notification) => notification._id !== res.data._id
-        )
-      );
-    });
+    dispatch(clearNotification(notification._id));
   };
 
   return (

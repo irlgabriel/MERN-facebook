@@ -1,6 +1,6 @@
 import styled from "styled-components";
-import { Link } from "react-router-dom";
 import { FiMenu } from "react-icons/fi";
+import Link from "next/link";
 
 export const MenuIcon = styled(FiMenu)`
   font-size: 32px;
@@ -18,7 +18,7 @@ export const RegularLink = styled(Link)`
   }
 `;
 
-export const NavMidItem = styled(Link)`
+export const NavMidItem = styled(Link)<{ active: boolean }>`
   position: relative;
   width: 100px;
   height: 100%;
@@ -27,7 +27,7 @@ export const NavMidItem = styled(Link)`
   align-items: center;
   border-bottom: ${({ active }) =>
     active ? "3px solid royalblue" : "3px solid transparent"};
-`;
+` as typeof Link;
 
 export const RoundWrapper = styled.div`
   position: relative;

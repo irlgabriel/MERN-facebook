@@ -1,5 +1,5 @@
+import Link from "next/link";
 import styled from "styled-components";
-import { Link } from "react-router-dom";
 
 export const Overlay = styled.div`
   display: flex;

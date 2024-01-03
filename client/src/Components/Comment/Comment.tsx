@@ -15,13 +15,30 @@ import { Reply } from "..";
 import { AiFillLike } from "react-icons/ai";
 import { BsArrow90DegDown } from "react-icons/bs";
 import { ReplyForm } from "..";
-import { Link } from "react-router-dom";
+import Link from "next/link";
+import { Comment as CommentType, Post, User } from "../../Types/types";
+import { getReplies, selectReplies } from "../../Store/comments";
+import { useAppDispatch, useAppSelector } from "../../Hooks/utils";
 
-const Comment = ({ level = 0, comments, comment, user, post }) => {
-  const [file, setFile] = useState(post.image);
+interface Props {
+  level?: number;
+  comments: CommentType[];
+  comment: CommentType;
+  post: Post;
+}
+
+const Comment = ({ level = 0, comment, post }: Props) => {
+  const dispatch = useAppDispatch();
+
+  const commentOwner = post.user as any as User;
+
+  const replies = useAppSelector((state) =>
+    selectReplies(state.comments, comment._id)
+  );
+
+  const [file, setFile] = useState<File | null>(null);
   const [showReplyForm, setShowReply] = useState(false);
   const [showReplies, setShowReplies] = useState(false);
-  const [replies, setReplies] = useState([]);
   const [content, setContent] = useState(comment.content);
   const [showEdit, setEdit] = useState(false);
 
@@ -91,15 +108,7 @@ const Comment = ({ level = 0, comments, comment, user, post }) => {
   };
 
   useEffect(() => {
-    if (comments && comment) {
-      setReplies(
-        comments.filter(
-          (comm) =>
-            /*comm.hasOwnProperty("comment")*/ comm.comment &&
-            comm.comment._id === comment._id
-        )
-      );
-    }
+    dispatch(getReplies({ commentId: comment._id, postId: post._id }));
   }, []);
 
   useEffect(() => {
@@ -111,20 +120,14 @@ const Comment = ({ level = 0, comments, comment, user, post }) => {
 
   return (
     <CommentContainer>
-      <Link
-        to={
-          user._id === comment.user._id
-            ? "/profile"
-            : `/users/${comment.user._id}`
-        }
-      >
-        <UserPhoto className="mr-2" src={comment.user.profile_photo} />
+      <Link href={`/users/${commentOwner._id}`}>
+        <UserPhoto className="mr-2" src={commentOwner.profile_photo} />
       </Link>
       <CommentWrapper className={"w-100"}>
         <CommentBody>
           <h6 className="mb-0">
-            {comment.user.display_name ||
-              comment.user.first_name + " " + comment.user.last_name}
+            {commentOwner.display_name ||
+              commentOwner.first_name + " " + commentOwner.last_name}
           </h6>
           {!showEdit ? (
             <div style={{ wordBreak: "break-word" }}>
@@ -133,7 +136,7 @@ const Comment = ({ level = 0, comments, comment, user, post }) => {
                 dangerouslySetInnerHTML={{ __html: comment.content }}
               ></p>
               {comment.image && (
-                <Link to="/profile">
+                <Link href={`/users/${comment.user}`}>
                   <img width="100%" src={comment.image.url} />
                 </Link>
               )}
@@ -153,7 +156,7 @@ const Comment = ({ level = 0, comments, comment, user, post }) => {
               </FormGroup>
               <FormGroup style={{ marginLeft: "12px" }}>
                 <Input
-                  onChange={(e) => setFile(e.target?.files?.[0])}
+                  onChange={(e) => setFile(e.target?.files?.[0] ?? null)}
                   type="file"
                   name="image"
                 />
@@ -179,7 +182,8 @@ const Comment = ({ level = 0, comments, comment, user, post }) => {
             <LikesContainer>
               <AiFillLike
                 fill={
-                  comment.likes.some((e) => e._id === user._id)
+                  //@ts-ignore
+                  comment.likes.some((e) => e._id === commentOwner._id)
                     ? "royalblue"
                     : ""
                 }
@@ -195,7 +199,8 @@ const Comment = ({ level = 0, comments, comment, user, post }) => {
         <CommentFooter>
           <FooterLink
             color={
-              comment.likes.some((e) => e._id === user._id)
+              //@ts-ignore
+              comment.likes.some((e) => e._id === commentOwner._id)
                 ? "royalblue"
                 : "black"
             }
@@ -209,22 +214,23 @@ const Comment = ({ level = 0, comments, comment, user, post }) => {
               Reply
             </FooterLink>
           )}
-          {user._id === comment.user._id && (
+          {commentOwner._id === commentOwner._id && (
             <FooterLink bold onClick={() => deleteHandler()} color="gray">
               <span style={{ color: "black" }}>&middot;&nbsp;&nbsp;</span>
               Delete
             </FooterLink>
           )}
-          {user._id === comment.user._id && (
+          {commentOwner._id === commentOwner._id && (
             <FooterLink bold onClick={() => setEdit(!showEdit)} color="gray">
               Edit
             </FooterLink>
           )}
           <FooterLink color="lightgray">
+            {/*@ts-ignore*/}
             {moment(comment.createdAt).fromNow()}
           </FooterLink>
         </CommentFooter>
-        {replies.length && !showReplies ? (
+        {comment.childrenCount && !showReplies ? (
           <div
             onClick={() => setShowReplies(true)}
             className="pl-3 pt-2 d-flex align-items-center"
@@ -236,7 +242,7 @@ const Comment = ({ level = 0, comments, comment, user, post }) => {
             />
             &nbsp;
             <ReplyCount className="mb-0 font-weight-bold">
-              {replies.length} Replies
+              {comment.childrenCount} Replies
             </ReplyCount>
           </div>
         ) : (
@@ -248,23 +254,11 @@ const Comment = ({ level = 0, comments, comment, user, post }) => {
               //@ts-ignore
               key={reply._id}
               reply={reply}
-              user={user}
-              setReplies={setReplies}
-              replies={replies}
               comment={comment}
-              post={post}
             />
           ))}
         {showReplyForm && (
-          <ReplyForm
-            key={comment._id}
-            user={user}
-            post={post}
-            comment={comment}
-            replies={replies}
-            setReplies={setReplies}
-            setShowReply={setShowReply}
-          />
+          <ReplyForm key={comment._id} post={post} comment={comment} />
         )}
       </CommentWrapper>
     </CommentContainer>

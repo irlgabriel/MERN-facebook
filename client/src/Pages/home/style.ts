@@ -1,6 +1,6 @@
 import styled from "styled-components";
-import { Link } from "react-router-dom";
 import { Col } from "reactstrap";
+import Link from "next/link";
 
 export const RoundImage = styled.div<{ src: string }>`
   border-radius: 20px;

@@ -1,6 +1,5 @@
+import Link from "next/link";
 import styled from "styled-components";
-import { Link } from "react-router-dom";
-
 export const Image = styled.img`
   width: 100%;
 `;

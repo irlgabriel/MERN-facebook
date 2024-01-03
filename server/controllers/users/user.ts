@@ -96,6 +96,7 @@ export const update_cover_photo: RequestHandler[] = [
           { cover_photo: data.Location },
           { new: true }
         );
+        res.json(newUser);
       });
     } catch (e) {
       next(e);
@@ -121,6 +122,18 @@ export const get_users: RequestHandler = async (req, res, next) => {
   } catch (e) {
     next(e);
   }
+};
+
+// todo
+// implement on FE
+export const search_user: RequestHandler = async (req, res, next) => {
+  const { user } = req.query;
+
+  const users = await User.find({
+    $or: [{ display_name: user }, { last_name: user }, { first_name: user }],
+  });
+
+  res.json(users);
 };
 
 export const get_user: RequestHandler = async (req, res, next) => {

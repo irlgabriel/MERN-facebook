@@ -1,4 +1,16 @@
+import { createGlobalStyle } from "styled-components";
+
+export const GlobalStyle = createGlobalStyle`
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+body {
+  background: rgb(240, 242, 245);
+}
 #index-main {
+  hr {
+    height: 1px;
+  }
   display: flex;
   justify-content: space-around;
   align-items: center;
@@ -53,13 +65,6 @@
 .row {
   justify-content: space-between;
   /*min-height: 800px;*/
-}
-.nav {
-  background: white;
-  height: 55px;
-  z-index: 2;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1), 0 8px 16px rgba(0, 0, 0, 0.1);
-  position: relative;
 }
 
 textarea {
@@ -131,3 +136,4 @@ input[type='text'], textarea {
     display: none !important;
   }
 }
+`;

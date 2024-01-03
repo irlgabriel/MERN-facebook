@@ -1,17 +1,22 @@
-import Axios from "axios";
 import React, { useState } from "react";
 import { Form, Input, FormGroup, Button } from "reactstrap";
 import { RoundImage, PhotoImage } from "./ReplyForm.components";
 import { CSSTransition } from "react-transition-group";
+import { createComment } from "../../Store/comments";
+import { useAppDispatch, useAppSelector } from "../../Hooks/utils";
+import { Comment, Post } from "../../Types/types";
+import { selectUserById } from "../../Store/users";
 
-const ReplyForm = ({
-  post,
-  setShowReply,
-  user,
-  comment,
-  replies,
-  setReplies,
-}) => {
+interface Props {
+  post: Post;
+  comment: Comment;
+}
+
+const ReplyForm = ({ post, comment }: Props) => {
+  const dispatch = useAppDispatch();
+
+  const user = useAppSelector((state) => state.auth.user);
+
   const [file, setFile] = useState<File | null>(null);
   const [content, setContent] = useState("");
   const [showSubmit, setShowSubmit] = useState(false);
@@ -23,13 +28,9 @@ const ReplyForm = ({
     formData.append("content", content);
     formData.append("comment", comment._id);
     if (file) formData.append("image", file);
-    Axios.post(`/posts/${post._id}/comments/`, formData)
-      .then((res) => {
-        setShowReply(false);
-        setContent("");
-        setReplies([res.data, ...replies]);
-      })
-      .catch((err) => console.log(err));
+    dispatch(
+      createComment({ data: formData, comment: comment._id, post_id: post._id })
+    );
   };
 
   const onChangeHandler = (e) => {
@@ -53,7 +54,7 @@ const ReplyForm = ({
   return (
     <Form onSubmit={(e) => submitHandler(e)}>
       <FormGroup className="mb-2 mt-1 d-flex align-items-center position-relative">
-        <RoundImage className="mr-2" src={user.profile_photo} />
+        <RoundImage className="mr-2" src={user?.profile_photo} />
         <Input
           value={content}
           onFocus={() => setShowSubmit(true)}

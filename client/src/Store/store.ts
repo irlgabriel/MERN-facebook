@@ -3,12 +3,18 @@ import authSlice, { State as AuthState } from "./auth";
 import postsSlice, { State as PostsState } from "./posts";
 import usersSlice, { State as UsersState } from "./users";
 import commentsState, { State as CommentsState } from "./comments";
+import friendRequestsState, {
+  State as FriendRequestsState,
+} from "./friendRequests";
+import notificationsState, { State as NotificationsState } from "./comments";
 
 export interface State {
   posts: PostsState;
   comments: CommentsState;
   users: UsersState;
   auth: AuthState;
+  friendRequests: FriendRequestsState;
+  notifications: NotificationsState;
 }
 
 const store = configureStore({
@@ -17,6 +23,8 @@ const store = configureStore({
     users: usersSlice.reducer,
     auth: authSlice.reducer,
     comments: commentsState.reducer,
+    friendRequests: friendRequestsState.reducer,
+    notifications: notificationsState.reducer,
   },
 });
 

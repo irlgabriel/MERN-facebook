@@ -1,12 +1,12 @@
-import { CreateCommentRequestInput } from "./types";
+import axios from "../helpers/network";
+import { CreateCommentRequestInput, DeleteCommentRequestInput } from "./types";
 import {
   createAsyncThunk,
   createSelector,
   createSlice,
 } from "@reduxjs/toolkit";
-import axios from "../Api/helpers";
-import { Comment, Post } from "../Types/types";
-import { RootState } from "./store";
+import { Comment } from "../Types/types";
+import { fetchPost, fetchPosts } from "./posts";
 
 /**
  * ACTIONS
@@ -26,7 +26,7 @@ export const getReplies = createAsyncThunk(
     const comments = (
       await axios.get<Comment[]>("/posts/" + postId + "/comments/" + commentId)
     ).data;
-    console.log('in action',{comments})
+    console.log("in action", { comments });
     return comments;
   }
 );
@@ -42,13 +42,54 @@ export const createComment = createAsyncThunk(
   }
 );
 
+export const editComment = createAsyncThunk(
+  "comments/editComment",
+  async (input: CreateCommentRequestInput) => {
+    const comment = (
+      await axios.put<Comment>(
+        "/posts/" + input.post_id + "/comments" + input.comment,
+        {
+          ...input,
+        }
+      )
+    ).data;
+
+    return comment;
+  }
+);
+
+export const likeComment = createAsyncThunk(
+  "comments/likeComment",
+  async ({ postId, commentId }: DeleteCommentRequestInput) => {
+    const comment = (
+      await axios.put<Comment>(`/posts/${postId}/comments/${commentId}`)
+    ).data;
+
+    return { commentId, postId, comment };
+  }
+);
+
+export const deleteComment = createAsyncThunk(
+  "comments/deleteComment",
+  async ({
+    commentId,
+    postId,
+    parentCommentId = undefined,
+  }: DeleteCommentRequestInput) => {
+    await axios.delete(`/posts/${postId}/comments/${commentId}`);
+
+    return { commentId, postId, parentCommentId };
+  }
+);
+
 /**
  * STATE
  */
 const initialState: State = {
-  comments: [],
-  byPostId: {},
-  byCommentId: {},
+  ids: [],
+  idsByPost: {},
+  idsByComment: {},
+  byId: {},
   loading: false,
   fetched: false,
   error: null,
@@ -58,9 +99,10 @@ const initialState: State = {
  * TYPES
  */
 export interface State {
-  comments: Comment[];
-  byCommentId: Record<string, Comment>;
-  byPostId: Record<string, string[]>;
+  ids: string[];
+  byId: Record<string, Comment>;
+  idsByPost: Record<string, string[]>;
+  idsByComment: Record<string, string[]>;
   loading: boolean;
   fetched: boolean;
   error: string | null;
@@ -70,12 +112,30 @@ export interface State {
  * SELECTORS
  */
 
-export const selectComments = createSelector(
-  (state: State, ids: string[]) => ids.map((id) => state.byCommentId[id]),
-  (comments) => comments
+const getStoreCommentsMap = (state: State) => state.byId;
+const getPostToCommentIdsMap = (state: State) => state.idsByPost;
+const getCommentId = (_: State, commentId: string) => commentId;
+const getPostId = (_: State, postId: string) => postId;
+
+export const selectReplies = createSelector(
+  [getStoreCommentsMap, getPostToCommentIdsMap, getCommentId],
+  (commentsMap, idsByComment, id) => {
+    if (!idsByComment[id]) return [];
+    return idsByComment[id].map((id) => commentsMap[id]);
+  }
 );
 
-///
+export const selectCommentsByPost = createSelector(
+  [getStoreCommentsMap, getPostToCommentIdsMap, getPostId],
+  (commentsMap, postToCommentIdsMap, postId) => {
+    if (!postToCommentIdsMap[postId]) return [];
+    return postToCommentIdsMap[postId].map((id) => commentsMap[id]);
+  }
+);
+
+/**
+ * REDUCER
+ */
 const postsSlice = createSlice({
   name: "posts",
   initialState,
@@ -90,7 +150,23 @@ const postsSlice = createSlice({
     builder.addCase(getReplies.fulfilled, (state, action) => {
       const comments = action.payload;
       state.loading = false;
-      state.comments.push(...comments);
+      comments.forEach((comment) => {
+        state.ids.push(comment._id);
+        state.byId[comment._id] = comment;
+
+        if (!state.idsByPost[comment._id]) {
+          state.idsByPost[comment._id] = [];
+        }
+        state.idsByPost[comment._id].push(comment._id);
+
+        // is reply
+        if (comment.comment) {
+          if (!state.idsByComment[comment._id]) {
+            state.idsByComment[comment._id] = [];
+          }
+          state.idsByComment[comment._id].push(comment._id);
+        }
+      });
     });
     builder.addCase(getReplies.rejected, (state, action) => {
       state.loading = false;
@@ -103,7 +179,8 @@ const postsSlice = createSlice({
     builder.addCase(createComment.fulfilled, (state, action) => {
       const comment = action.payload;
       state.loading = false;
-      state.comments.push(comment);
+      state.byId[comment._id] = comment;
+      state.idsByPost[comment.post];
     });
     builder.addCase(createComment.rejected, (state, action) => {
       state.loading = false;
@@ -115,17 +192,82 @@ const postsSlice = createSlice({
     });
     builder.addCase(getComments.fulfilled, (state, action) => {
       const { comments, postId } = action.payload;
-      console.log('in reducer',{comments})
+      console.log("in reducer", { comments });
       state.loading = false;
 
-      state.byPostId[postId] = comments.map((d) => d._id);
+      state.idsByPost[postId] = comments.map((d) => d._id);
       comments.forEach((comment) => {
-        state.byCommentId[comment._id] = comment;
+        state.byId[comment._id] = comment;
+        state.idsByComment[comment._id] = [];
       });
     });
     builder.addCase(getComments.rejected, (state, action) => {
       state.loading = false;
       state.error = action.error.message ?? null;
+    });
+    /// DELETE COMMENT
+    builder.addCase(deleteComment.pending, (state) => {
+      state.loading = true;
+    });
+    builder.addCase(deleteComment.fulfilled, (state, action) => {
+      const { commentId, postId } = action.payload;
+      state.loading = false;
+
+      state.ids = state.ids.filter((id) => id !== commentId);
+      state.idsByPost[postId] = state.idsByPost[postId].filter(
+        (id) => id !== commentId
+      );
+      state.idsByComment[postId] = state.idsByComment[postId].filter(
+        (id) => id !== commentId
+      );
+    });
+    builder.addCase(deleteComment.rejected, (state, action) => {
+      state.loading = false;
+      state.error = action.error.message ?? null;
+    });
+    /// LIKE COMMENT
+    builder.addCase(likeComment.pending, (state) => {
+      state.loading = true;
+    });
+    builder.addCase(likeComment.fulfilled, (state, action) => {
+      const { comment } = action.payload;
+      state.loading = false;
+
+      state.byId[comment._id] = comment;
+    });
+    builder.addCase(likeComment.rejected, (state, action) => {
+      state.loading = false;
+      state.error = action.error.message ?? null;
+    });
+    /// LIKE COMMENT
+    builder.addCase(editComment.pending, (state) => {
+      state.loading = true;
+    });
+    builder.addCase(editComment.fulfilled, (state, action) => {
+      const comment = action.payload;
+      state.loading = false;
+
+      state.byId[comment._id] = comment;
+    });
+    builder.addCase(editComment.rejected, (state, action) => {
+      state.loading = false;
+      state.error = action.error.message ?? null;
+    });
+
+    /**
+     * extra
+     */
+    builder.addCase(fetchPost.fulfilled, (state, action) => {
+      const post = action.payload;
+
+      state.idsByPost[post._id] = [];
+    });
+    builder.addCase(fetchPosts.fulfilled, (state, action) => {
+      const posts = action.payload;
+
+      posts.forEach(({ _id }) => {
+        state.idsByPost[_id] = [];
+      });
     });
   },
 });

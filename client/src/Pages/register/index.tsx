@@ -1,23 +1,24 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
 import { Container, Form, Input, Label, FormGroup, Button } from "reactstrap";
-import { FlashMessage } from "./Register.components";
-import { CSSTransition } from 'react-transition-group';
-import { Link, useHistory } from 'react-router-dom';
+import { FlashMessage } from "./style";
+import { CSSTransition } from "react-transition-group";
+import Link from "next/link";
+import { useRouter } from "next/router";
 
 const Register = ({ user, reloadUser, getUser }) => {
-  const location = useHistory();
+  const { push } = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPass, setConfirmPass] = useState("");
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
-  const [message, setMessage] = useState(undefined);
+  const [message, setMessage] = useState("");
 
   const submitHandler = (e) => {
     e.preventDefault();
     if (password !== confirmPass) {
-      setMessage('Passwords do not match');
+      setMessage("Passwords do not match");
       return;
     }
     axios
@@ -28,9 +29,9 @@ const Register = ({ user, reloadUser, getUser }) => {
         last_name: lastName,
       })
       .then((res) => {
-        localStorage.setItem('token', res.data);
+        localStorage.setItem("token", res.data);
         getUser(res.data);
-        location.push('/');
+        push("/");
       })
       .catch((err) => {
         console.log(err.response);
@@ -39,25 +40,26 @@ const Register = ({ user, reloadUser, getUser }) => {
   };
 
   useEffect(() => {
-    if (user) location.push("/home");
+    if (user) push("/home");
   }, [user]);
 
   // Clear message after 3s
   useEffect(() => {
     setTimeout(() => {
-      if(message) setMessage(undefined);
-    }, 3000)
-    
-  }, [message])
+      if (message) setMessage("");
+    }, 3000);
+  }, [message]);
 
   return (
-    <Container style={{ width: "600px", paddingTop: "60px", minHeight: '100vh' }}>
-      <Link to='/'>Back</Link>
+    <Container
+      style={{ width: "600px", paddingTop: "60px", minHeight: "100vh" }}
+    >
+      <Link href="/">Back</Link>
       <h3 className="text-center">Register</h3>
       <CSSTransition
-        in={message}
+        in={message !== ""}
         timeout={300}
-        classNames='fade'
+        classNames="fade"
         unmountOnExit
       >
         <FlashMessage>{message}</FlashMessage>

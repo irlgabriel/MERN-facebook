@@ -5,24 +5,17 @@ import {
   Friend,
   Image,
 } from "./FriendsProfile.components";
-import axios from "axios";
 import { User } from "../../Types/types";
 
-const FriendsProfile = ({ user, currentUser }) => {
+const FriendsProfile = ({ user }) => {
   const [friends, setFriends] = useState<User[]>([]);
-
-  useEffect(() => {
-    axios
-      .get("/users/" + currentUser._id)
-      .then((res) => setFriends(res.data.friends));
-  }, [currentUser._id]);
 
   return (
     <Wrapper>
       <FriendsContainer>
         {friends.map((friend) => (
           <Friend
-            to={friend._id === user._id ? "/profile" : `/users/${friend._id}`}
+            href={friend._id === user._id ? "/profile" : `/users/${friend._id}`}
           >
             <Image
               width="36px"

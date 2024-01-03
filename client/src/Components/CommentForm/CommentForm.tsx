@@ -1,9 +1,9 @@
 import Axios from "axios";
-import { Link } from "react-router-dom";
 import React, { useState } from "react";
 import { Form, Input, FormGroup, Button } from "reactstrap";
 import { UserImage, PhotoImage } from "./CommentForm.components";
 import { CSSTransition } from "react-transition-group";
+import Link from "next/link";
 
 const CommentForm = ({ post, user, comments }) => {
   const [file, setFile] = useState<File | null>(null);
@@ -18,7 +18,10 @@ const CommentForm = ({ post, user, comments }) => {
     if (file) formData.append("image", file);
     Axios.post(`/posts/${post._id}/comments`, formData, {
       headers: {
-        Authorization: "bearer " + localStorage.getItem("token"),
+        Authorization:
+          "bearer " + typeof window !== undefined
+            ? localStorage.getItem("token")
+            : "",
       },
     })
       .then((res) => {
@@ -43,7 +46,7 @@ const CommentForm = ({ post, user, comments }) => {
   return (
     <Form onSubmit={(e) => submitHandler(e)}>
       <div className="d-flex align-items-center mb-2">
-        <Link to="/profile">
+        <Link href="/profile">
           <UserImage className="mr-2" src={user.profile_photo} />
         </Link>
         <FormGroup className="mb-0 w-100 position-relative">

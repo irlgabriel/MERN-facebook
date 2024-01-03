@@ -1,6 +1,5 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import axios from "axios";
-import { Link, useLocation, useHistory } from "react-router-dom";
 import { Nav, Button, Col, Input } from "reactstrap";
 import {
   NavMidItem,
@@ -13,11 +12,9 @@ import {
   TopRightUserImg,
   RegularLink,
   NewNotifications,
-  MenuIcon,
   SearchContainer,
   SearchResult,
   SmallRoundImg,
-  Menu,
   LockedOverlay,
   NewFriendsNotifications,
   FlexDiv,
@@ -49,19 +46,36 @@ import {
   Notification as NotificationType,
   User,
 } from "../../Types/types";
-import { useAppSelector } from "../../Hooks/utils";
+import { useAppDispatch, useAppSelector } from "../../Hooks/utils";
+import { getUsers } from "../../Store/users";
+import {
+  clearAllNotifications,
+  getNotifications,
+} from "../../Store/notifications";
+import Link from "next/link";
+import { useRouter } from "next/router";
+import { ProtectedRoute } from "../ProtectedRoute/ProtectedRoute";
+import { getRequests } from "../../Store/friendRequests";
 
 const Navbar = () => {
-  const location = useLocation();
-  const history = useHistory();
+  const dispatch = useAppDispatch();
+
+  const { pathname, push } = useRouter();
 
   const user = useAppSelector((state) => state.auth.user) as User;
+  const users = useAppSelector((state) => state.users.users) as User[];
+  const requests = useAppSelector((state) => state.friendRequests.requests);
+  const usersFetched = useAppSelector((state) => state.users.fetched);
+
+  const receivedRequests = useMemo(() => {
+    //@ts-ignore
+    return requests.filter((req) => req.to._id === user._id);
+  }, [requests]);
 
   const fullname = (user) => {
     return user.display_name || user.first_name + " " + user.last_name;
   };
 
-  const [users, setUsers] = useState([]);
   const [menu, setMenu] = useState(false);
   const [showSearch, setShowSearch] = useState(false);
   const [searchDropdown, setSearchDropdown] = useState(false);
@@ -74,12 +88,9 @@ const Navbar = () => {
   const [newNotifications, setNewNotifications] = useState<NotificationType[]>(
     []
   );
-  const [newRequests, setNewRequests] = useState<FriendRequest[]>([]);
 
   const clearNotifications = () => {
-    axios.delete("/notifications").then((res) => {
-      setNotifications([]);
-    });
+    dispatch(clearAllNotifications());
   };
 
   const deleteAccount = () => {
@@ -87,7 +98,7 @@ const Navbar = () => {
       "Are you sure you want to delete your account? This action cannot be undone!"
     ) &&
       axios.delete("/users").then((res) => {
-        localStorage.removeItem("token");
+        typeof window !== undefined ? localStorage.removeItem("token") : "";
         // todo
         // logout
       });
@@ -99,29 +110,21 @@ const Navbar = () => {
     // logout
     // delete the cookie if there's any
     document.cookie = "token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
-    history.push("/");
+    push("/");
   };
 
+  // MOUNT
   useEffect(() => {
-    // Get Notification
-    axios
-      .get(`/notifications`)
-      .then((res) => {
-        setNotifications(res.data);
-      })
-      .catch((err) => console.log(err));
+    dispatch(getNotifications());
 
-    // Get Users
-    axios.get("/users").then((res) => {
-      setUsers(res.data);
-    });
-  }, []);
+    if (!usersFetched) {
+      dispatch(getUsers());
+    }
+  }, [usersFetched]);
 
   useEffect(() => {
     // Get new friend requests
-    axios.get("/friend_requests").then((res) => {
-      setNewRequests(res.data.filter((request) => request.to._id === user._id));
-    });
+    dispatch(getRequests());
   }, [user]);
 
   useEffect(() => {
@@ -145,10 +148,10 @@ const Navbar = () => {
   }, [query, users]);
 
   return (
-    <Nav className="sticky-top px-1">
-      <Col className="align-items-center d-flex position-relative">
+    <Nav className="fixed h-14 z-50 top-0 grid gap-5 w-full grid-cols-12 shadow-xl bg-slate-50">
+      <div className="sm:hidden md:flex col-span-3 items-center flex relative">
         {!showSearch && (
-          <Link className="d-none d-md-block" to="/home">
+          <Link className="sm:hidden md:block" href="/home">
             <FaFacebook className="mr-2" fill="royalblue" size={40} />
           </Link>
         )}
@@ -158,7 +161,7 @@ const Navbar = () => {
           </RoundWrapper>
         )}
         {showSearch && (
-          <div className="d-flex align-items-center">
+          <div className="flex items-center">
             <RoundWrapper
               className="mr-2 px-2"
               onClick={() => setShowSearch(false)}
@@ -183,7 +186,7 @@ const Navbar = () => {
         >
           <SearchContainer>
             {results.map((result) => (
-              <Link to={`/users/${result._id}`}>
+              <Link href={`/users/${result._id}`}>
                 <SearchResult>
                   <SmallRoundImg
                     className="mr-2"
@@ -195,62 +198,43 @@ const Navbar = () => {
             ))}
           </SearchContainer>
         </CSSTransition>
-      </Col>
+      </div>
 
       {/** >768px */}
-      <Col sm="5" id="nav-mid" className="d-flex align-items-center">
+      <Col className="sm:col-span-10 sm:col-start-2 sm:col-end-11 md:col-span-6 flex items-center">
         <NavMidItem
-          to="/home"
-          active={location.pathname === "/home"}
+          href="/home"
+          //@ts-ignore
+          active={pathname === "/home"}
           className="mid-nav-item"
         >
           <AiFillHome
             size={32}
-            fill={location.pathname === "/home" ? "royalblue" : "gray"}
+            fill={pathname === "/home" ? "royalblue" : "gray"}
             className="mr-2"
           />
         </NavMidItem>
         <NavMidItem
-          to="/friends"
-          active={location.pathname === "/friends"}
+          href="/friends"
+          //@ts-ignore
+          active={pathname === "/friends"}
           className="mid-nav-item"
         >
-          {newRequests.length ? (
-            <NewFriendsNotifications count={newRequests.length} />
+          {receivedRequests.length ? (
+            <NewFriendsNotifications count={receivedRequests.length} />
           ) : (
             ""
           )}
           <FaUserFriends
-            fill={location.pathname === "/friends" ? "royalblue" : "gray"}
+            fill={pathname === "/friends" ? "royalblue" : "gray"}
             size={32}
           />
         </NavMidItem>
       </Col>
-      {/** <768px */}
-      <Col className="position-relative align-items-center d-flex d-md-none">
-        <MenuIcon
-          onClick={() => {
-            setMenu(!menu);
-            setNotificationDropdown(false);
-            setUserDropdown(false);
-          }}
-        />
-        <CSSTransition in={menu} timeout={300} classNames="fade" unmountOnExit>
-          <Menu>
-            <GrayHover>
-              <LinkGreyHover to="/home">Home</LinkGreyHover>
-            </GrayHover>
-            <GrayHover>
-              <LinkGreyHover to="/friends">Friends</LinkGreyHover>
-            </GrayHover>
-          </Menu>
-        </CSSTransition>
-      </Col>
-
-      <Col className="d-flex justify-content-end align-items-center">
-        <RegularLink to="/profile">
+      <div className="flex col-span-3 items-center">
+        <RegularLink href={`/users/${user._id}`}>
           <RoundedUserDiv
-            active={location.pathname === "/profile"}
+            active={pathname === `/users/${user._id}`}
             className="mr-1"
           >
             <TopRightUserImg src={user.profile_photo} className="mr-2" />
@@ -314,7 +298,7 @@ const Navbar = () => {
             fill="black"
           />
         </RoundWrapper>
-      </Col>
+      </div>
 
       {/** Collapsable div for user profile */}
       <CSSTransition
@@ -324,7 +308,7 @@ const Navbar = () => {
         unmountOnExit
       >
         <CollapsableDiv>
-          <LinkGreyHover to="/profile">
+          <LinkGreyHover href={`/users/${user._id}`}>
             <GrayHover>
               <RoundImage src={user.profile_photo} className="mr-2" />
               <div>
@@ -348,7 +332,7 @@ const Navbar = () => {
           <Warning
             onClick={() => setWarning(!warning)}
             style={{ userSelect: "none" }}
-            className="d-flex justify-content-end align-items-center"
+            className="flex justify-end items-center"
           >
             <AiFillWarning fill="orange" size={32} />
             <p style={{ color: "orange" }} className="mb-0">
@@ -410,8 +394,6 @@ const Navbar = () => {
               //@ts-ignore
               key={notification._id}
               notification={notification}
-              notifications={notifications}
-              setNotifications={setNotifications}
             />
           ))}
         </CollapsableDiv>
@@ -420,4 +402,4 @@ const Navbar = () => {
   );
 };
 
-export default Navbar;
+export default ProtectedRoute(Navbar);

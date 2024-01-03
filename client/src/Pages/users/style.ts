@@ -1,8 +1,8 @@
 import styled from "styled-components";
 import { Col } from "reactstrap";
-import { Link } from "react-router-dom";
 import { ImExit } from "react-icons/im";
 import { AiFillCheckSquare } from "react-icons/ai";
+import Link from "next/link";
 
 export const CoverPhoto = styled.div<{ src: string }>`
   width: 100%;
@@ -81,7 +81,7 @@ export const ProfileNav = styled.div`
   display: flex;
   align-items: center;
 `;
-export const NavItem = styled(Link)`
+export const NavItem = styled.a<{ active?: boolean }>`
   padding: 1rem;
   background: white;
   transition: all 0.2s;
@@ -175,7 +175,7 @@ export const WhiteContainer = styled.div`
   width: 100%;
 `;
 
-export const Description = styled.a`
+export const Description = styled(Link)`
   min-width: 150px;
   max-width: 270px;
   display: block;

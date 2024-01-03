@@ -5,11 +5,13 @@ import * as postController from "../controllers/posts/posts";
 
 const router = Router();
 
-// GET retrieve all posts
-router.get("/", postController.get_posts);
+router.get("/user", postController.get_user_posts);
+
+// GET retrieve all posts for authenticated user (*)
+router.get("/", passport.authenticate("jwt"), postController.get_posts);
 
 // GET a post by id
-router.get("/:post_id", postController.get_post);
+router.get("/:post_id", passport.authenticate("jwt"), postController.get_post);
 
 // POST create post
 router.post("/", passport.authenticate("jwt"), postController.create_post);

@@ -1,7 +1,6 @@
 import styled from "styled-components";
 import { MdClose } from "react-icons/md";
 export const Container = styled.div`
-  margin-top: 24px;
   margin-bottom: 16px;
   padding: 12px 16px 10px 16px;
   border-radius: max(0px, min(8px, calc((100vw - 4px - 100%) * 9999))) / 8px;
@@ -9,7 +8,8 @@ export const Container = styled.div`
   box-shadow: "0 2px 4px rgba(0, 0, 0, .1), 0 8px 16px rgba(0, 0, 0, .1)";
 
   textarea {
-    ::-webkit-input-placeholder {
+    ::-webkit-input-placeholder,
+    ::placeholder {
       line-height: 32px;
     }
     height: 32px !important;

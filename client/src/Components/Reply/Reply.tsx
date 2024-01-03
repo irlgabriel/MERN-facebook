@@ -1,3 +1,4 @@
+//@ts-nocheck
 import moment from "moment";
 import React, { useState, useEffect } from "react";
 import {
@@ -8,70 +9,53 @@ import {
   ReplyFooter,
   FooterLink,
   LikesContainer,
-  ReplyCount,
 } from "./Reply.components";
 import { Form, Input, Button, FormGroup } from "reactstrap";
 import { AiFillLike } from "react-icons/ai";
-import { BsArrow90DegDown } from "react-icons/bs";
-import { ReplyForm } from "..";
-import axios from "axios";
 
-const Reply = ({
-  level = 0,
-  reply,
-  replies,
-  setReplies,
-  comment,
-  user,
-  post,
-}) => {
+import { deleteComment, editComment, likeComment } from "../../Store/comments";
+import { useAppDispatch, useAppSelector } from "../../Hooks/utils";
+import { Comment } from "../../Types/types";
+import { selectPostById } from "../../Store/posts";
+import { selectUserById } from "../../Store/users";
+
+interface Props {
+  reply: Comment;
+  level?: number;
+  comment: Comment;
+}
+
+const Reply = ({ level = 0, reply, comment }: Props) => {
+  const dispatch = useAppDispatch();
+
+  useAppSelector((state) => selectPostById(state.posts, comment.post));
+  const post = useAppSelector((state) => state.posts);
+  const user = useAppSelector((state) =>
+    selectUserById(state.users, reply.user)
+  );
+
   const [content, setContent] = useState(reply.content);
   const [showEdit, setEdit] = useState(false);
 
-  const config = localStorage.getItem("token") && {
-    headers: {
-      Authorization: "bearer " + localStorage.getItem("token"),
-    },
-  };
-
   const deleteHandler = () => {
-    window.confirm(
-      "Are you sure you want to delete this comment? This action cannot be undone."
-    ) &&
-      axios
-        .delete(`/posts/${post._id}/comments/${reply._id}`)
-        .then((res) => {
-          setReplies(replies.filter((reply) => reply._id !== res.data._id));
-        })
-        .catch((err) => console.log(err));
+    if (
+      window.confirm(
+        "Are you sure you want to delete this comment? This action cannot be undone."
+      )
+    ) {
+      dispatch(deleteComment({}));
+    }
   };
 
-  const likeComment = () => {
-    axios
-      .post(`/posts/${post._id}/comments/${reply._id}`, {})
-      .then((res) => {
-        setReplies(
-          replies.map((reply) =>
-            reply._id === res.data._id ? res.data : reply
-          )
-        );
-      })
-      .catch((err) => console.log(err));
+  const likeHandler = () => {
+    dispatch(likeComment({ postId: reply.post, commentId: reply._id }));
   };
 
   const editHandler = (e) => {
     e.preventDefault();
-    axios
-      .put(`/posts/${post._id}/comments/${reply._id}`, { content })
-      .then((res) => {
-        setReplies(
-          replies.map((reply) =>
-            reply._id === res.data._id ? res.data : reply
-          )
-        );
-        setEdit(false);
-      })
-      .catch((err) => console.log(err));
+    dispatch(
+      editComment({ content, comment: comment._id, post_id: reply.post })
+    );
   };
 
   const onChangeHandler = (target) => {
@@ -101,12 +85,11 @@ const Reply = ({
 
   return (
     <ReplyContainer>
-      <UserPhoto className="mr-2" src={reply.user.profile_photo} />
+      <UserPhoto className="mr-2" src={user?.profile_photo} />
       <ReplyWrapper className={"w-100"}>
         <ReplyBody>
           <h6 className="mb-0">
-            {reply.user.display_name ||
-              reply.user.first_name + " " + reply.user.last_name}
+            {user?.display_name || user?.first_name + " " + user?.last_name}
           </h6>
           {!showEdit ? (
             <div style={{ wordBreak: "break-word" }}>
@@ -139,7 +122,9 @@ const Reply = ({
             <LikesContainer>
               <AiFillLike
                 fill={
-                  reply.likes.some((e) => e._id === user._id) ? "royalblue" : ""
+                  reply.likes.some((e) => e._id === user?._id)
+                    ? "royalblue"
+                    : ""
                 }
                 size={12}
               />
@@ -153,22 +138,22 @@ const Reply = ({
         <ReplyFooter>
           <FooterLink
             color={
-              reply.likes.some((e) => e._id === user._id)
+              reply.likes.some((e) => e._id === user?._id)
                 ? "royalblue"
                 : "black"
             }
-            onClick={() => likeComment()}
+            onClick={() => likeHandler()}
             bold
           >
             Like
           </FooterLink>
-          {user._id === reply.user._id && (
+          {user?._id === user?._id && (
             <FooterLink bold onClick={() => deleteHandler()} color="gray">
               <span style={{ color: "black" }}>&middot;&nbsp;&nbsp;</span>
               Delete
             </FooterLink>
           )}
-          {user._id === reply.user._id && (
+          {user?._id === user?._id && (
             <FooterLink bold onClick={() => setEdit(!showEdit)} color="gray">
               Edit
             </FooterLink>

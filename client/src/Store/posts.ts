@@ -1,7 +1,11 @@
-import { GetPostsRequestInput, PaginationOptions } from "./types";
-import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
-import Axios from "axios";
-import { Post } from "../Types/types";
+import { PaginationOptions, GetUserPostsRequestInput } from "./types";
+import {
+  createAsyncThunk,
+  createSelector,
+  createSlice,
+} from "@reduxjs/toolkit";
+import axios from "../helpers/network";
+import { Post, isUser } from "../Types/types";
 import { RootState } from "./store";
 
 /**
@@ -10,28 +14,28 @@ import { RootState } from "./store";
 export const addPost = createAsyncThunk(
   "posts/addPost",
   async ({ content, image }: { content: string; image: any }) => {
-    const post = (await Axios.post<Post>("/posts", { content, image })).data;
+    const post = (await axios.post<Post>("/posts", { content, image })).data;
     return post;
   }
 );
 export const likePost = createAsyncThunk(
   "posts/likePost",
   async (postId: string) => {
-    const post = (await Axios.post<Post>("/posts/" + postId + "/like")).data;
+    const post = (await axios.post<Post>("/posts/" + postId + "/like")).data;
     return post;
   }
 );
 export const deletePost = createAsyncThunk(
   "posts/deletePost",
   async (postId: string) => {
-    const post = (await Axios.post<Post>("/posts", { post_id: postId })).data;
+    const post = (await axios.delete<Post>("/posts/" + postId)).data;
     return post;
   }
 );
 export const editPost = createAsyncThunk(
   "posts/editPost",
   async ({ content, image }: Partial<{ content: string; image: any }>) => {
-    const post = (await Axios.post<Post>("/posts", { content, image })).data;
+    const post = (await axios.post<Post>("/posts", { content, image })).data;
     return post;
   }
 );
@@ -39,19 +43,37 @@ export const editPost = createAsyncThunk(
 export const fetchPost = createAsyncThunk(
   "posts/fetchPost",
   async (postId: string) => {
-    const post = (await Axios.post<Post>("/post", { post_id: postId })).data;
+    const post = (await axios.post<Post>("/post", { post_id: postId })).data;
     return post;
   }
 );
 
-export const fetchPosts = createAsyncThunk<any, any, { state: RootState }>(
+export const fetchPosts = createAsyncThunk<Post[], void, { state: RootState }>(
   "posts/fetchPosts",
   async (_: void, { getState }) => {
     const { pageSize, offset } = getState().posts.pageOpts;
     const posts = (
-      await Axios.get<Post[]>("/posts", { params: { pageSize, offset } })
+      await axios.get<Post[]>("/posts", {
+        params: { pageSize, offset },
+      })
     ).data;
-    console.log({ posts });
+    return posts;
+  }
+);
+
+export const fetchUserPosts = createAsyncThunk<
+  Post[],
+  GetUserPostsRequestInput,
+  { state: RootState }
+>(
+  "posts/fetchUserPosts",
+  async ({ userId }: GetUserPostsRequestInput, { getState }) => {
+    const { pageSize, offset } = getState().posts.pageOpts;
+    const posts = (
+      await axios.get<Post[]>("/posts/user", {
+        params: { pageSize, offset, userId },
+      })
+    ).data;
     return posts;
   }
 );
@@ -60,7 +82,9 @@ export const fetchPosts = createAsyncThunk<any, any, { state: RootState }>(
  * STATE
  */
 const initialState: State = {
-  posts: [],
+  ids: [],
+  byId: {},
+  idsByUserId: {},
   loading: false,
   fetched: false,
   pageOpts: {
@@ -70,12 +94,41 @@ const initialState: State = {
   error: null,
   hasMoreData: true,
 };
+/**
+ * SELECTORS
+ */
+const selectPostsMap = (state: State) => state.byId;
+const selectPostIds = (state: State) => state.ids;
+const selectUserIdToPostIdsMap = (state: State) => state.idsByUserId;
+const selectUserId = (_: State, userId: string) => userId;
+const selectPostId = (_: State, postId: string) => postId;
+
+export const selectPostById = createSelector(
+  [selectPostsMap, selectPostId],
+  (posts, id) => posts[id]
+);
+
+export const selectPostsByUser = createSelector(
+  [selectPostsMap, selectUserIdToPostIdsMap, selectUserId],
+  (posts, usersPostIds, userId) => {
+    console.log("selector input", { posts, usersPostIds, userId });
+    if (!usersPostIds[userId]) return [];
+    return usersPostIds[userId].map((id) => posts[id]);
+  }
+);
+
+export const selectAllPosts = createSelector(
+  [selectPostsMap, selectPostIds],
+  (postsMap, ids) => ids.map((id) => postsMap[id])
+);
 
 /**
  * TYPES
  */
 export interface State {
-  posts: Post[];
+  ids: string[];
+  byId: Record<string, Post>;
+  idsByUserId: Record<string, string[]>;
   loading: boolean;
   fetched: boolean;
   error: string | null;
@@ -97,7 +150,24 @@ const postsSlice = createSlice({
     builder.addCase(fetchPosts.fulfilled, (state, action) => {
       const posts = action.payload;
       state.loading = false;
-      state.posts.push(...posts);
+      posts.forEach((post) => {
+        let userId: string | null = null;
+        if (isUser(post.user)) {
+          userId = post.user._id;
+        } else {
+          userId = post.user;
+        }
+        if (!userId) return;
+
+        console.log({ post, userId });
+
+        state.ids.push(post._id);
+        state.byId[post._id] = post;
+        if (!state.idsByUserId[userId]) {
+          state.idsByUserId[userId] = [];
+        }
+        state.idsByUserId[userId].push(post._id);
+      });
       state.fetched = true;
       if (posts.length) {
         state.pageOpts.offset += posts.length;
@@ -116,7 +186,20 @@ const postsSlice = createSlice({
     builder.addCase(fetchPost.fulfilled, (state, action) => {
       const post = action.payload;
       state.loading = false;
-      state.posts.push(post);
+      let userId: string | null = null;
+      if (isUser(post.user)) {
+        userId = post.user._id;
+      } else {
+        userId = post.user;
+      }
+      if (!userId) return;
+
+      state.ids.push(post._id);
+      state.byId[post._id] = post;
+      if (!state.idsByUserId[userId]) {
+        state.idsByUserId[userId] = [];
+      }
+      state.idsByUserId[userId].push(post._id);
     });
     builder.addCase(fetchPost.rejected, (state, action) => {
       state.loading = false;
@@ -129,7 +212,20 @@ const postsSlice = createSlice({
     builder.addCase(addPost.fulfilled, (state, action) => {
       const post = action.payload;
       state.loading = false;
-      state.posts.push(post);
+      let userId: string | null = null;
+      if (isUser(post.user)) {
+        userId = post.user._id;
+      } else {
+        userId = post.user;
+      }
+      if (!userId) return;
+
+      state.ids.unshift(post._id);
+      state.byId[post._id] = post;
+      if (!state.idsByUserId[userId]) {
+        state.idsByUserId[userId] = [];
+      }
+      state.idsByUserId[userId].unshift(post._id);
     });
     builder.addCase(addPost.rejected, (state, action) => {
       state.loading = false;
@@ -142,7 +238,7 @@ const postsSlice = createSlice({
     builder.addCase(editPost.fulfilled, (state, action) => {
       const post = action.payload;
       state.loading = false;
-      state.posts = state.posts.map((d) => (d._id !== post._id ? d : post));
+      state.byId[post._id] = post;
     });
     builder.addCase(editPost.rejected, (state, action) => {
       state.loading = false;
@@ -155,7 +251,7 @@ const postsSlice = createSlice({
     builder.addCase(deletePost.fulfilled, (state, action) => {
       const post = action.payload;
       state.loading = false;
-      state.posts = state.posts.filter((d) => d._id !== post._id);
+      delete state.byId[post._id];
     });
     builder.addCase(deletePost.rejected, (state, action) => {
       state.loading = false;
@@ -168,7 +264,7 @@ const postsSlice = createSlice({
     builder.addCase(likePost.fulfilled, (state, action) => {
       const post = action.payload;
       state.loading = false;
-      state.posts = state.posts.map((d) => (d._id !== post._id ? d : post));
+      state.byId[post._id] = post;
     });
     builder.addCase(likePost.rejected, (state, action) => {
       state.loading = false;

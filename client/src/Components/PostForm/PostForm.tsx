@@ -1,25 +1,34 @@
-import React, { useEffect, useState, useRef } from "react";
-import axios from "axios";
-import { Form, Input, FormGroup, Button } from "reactstrap";
+import React, { useEffect, useState, useRef, MutableRefObject } from "react";
+import { Form, FormGroup } from "reactstrap";
 import {
   RoundImage,
-  GrayHover,
   Container,
   CloseIcon,
   ImageWrapper,
   Image,
 } from "./PostForm.components";
-import { FcStackOfPhotos } from "react-icons/fc";
 import { CSSTransition } from "react-transition-group";
-import { Link } from "react-router-dom";
 import { LoadingOverlay } from "..";
+import { useAppDispatch, useAppSelector } from "../../Hooks/utils";
+import { addPost } from "../../Store/posts";
+import { User } from "../../Types/types";
+import Link from "next/link";
+import { Button, Textarea } from "flowbite-react";
 
-const PostForm = ({ user, setPosts, posts }) => {
+const PostForm = ({
+  user,
+  postInputRef,
+}: {
+  user: User;
+  postInputRef?: MutableRefObject<HTMLTextAreaElement | null>;
+}) => {
+  const dispatch = useAppDispatch();
   const imageInputRef = useRef<HTMLInputElement | null>(null);
   const textInputRef = useRef<HTMLTextAreaElement | null>(null);
 
+  const loading = useAppSelector((state) => state.posts.loading);
+
   const [displayName, setDisplayName] = useState(user.display_name);
-  const [loading, setLoading] = useState(false);
   const [imageSrc, setImageSrc] = useState<string | null>(null);
   const [expandForm, setExpandForm] = useState(false);
   const [content, setContent] = useState("");
@@ -27,8 +36,6 @@ const PostForm = ({ user, setPosts, posts }) => {
 
   const submitHandler = (e) => {
     e.preventDefault();
-    const token = localStorage.getItem("token");
-
     if (!content && !file) return;
 
     const formData = new FormData();
@@ -36,22 +43,8 @@ const PostForm = ({ user, setPosts, posts }) => {
     //@ts-ignore
     formData.append("image", file);
 
-    setLoading(true);
-    axios
-      .post("/posts", formData, {
-        headers: {
-          Authorization: "bearer " + token,
-        },
-      })
-      .then((res) => {
-        setPosts([res.data, ...posts]);
-        setContent("");
-        setImageSrc(null);
-        setFile(null);
-        setExpandForm(false);
-        setLoading(false);
-      })
-      .catch((err) => console.log(err));
+    // formdata cannot be strongly typed
+    dispatch(addPost(formData as any));
   };
 
   const handleImageFormClick = () => {
@@ -67,6 +60,13 @@ const PostForm = ({ user, setPosts, posts }) => {
     }
   };
 
+  const mergeRefs = (node: HTMLTextAreaElement | null) => {
+    if (node) {
+      textInputRef.current = node;
+      if (postInputRef) postInputRef.current = node;
+    }
+  };
+
   useEffect(() => {
     if (file) {
       setImageSrc(window.URL.createObjectURL(file) as string);
@@ -79,35 +79,33 @@ const PostForm = ({ user, setPosts, posts }) => {
   }, []);
 
   return (
-    <Container>
+    <Container className={"shadow-2xl> mt-8"}>
       {loading && <LoadingOverlay />}
       <Form encType="multipart/form-data" onSubmit={(e) => submitHandler(e)}>
-        <div className="d-flex align-items-center mb-2">
-          <Link to="/profile">
+        <div className="w-full flex items-center mb-2">
+          <Link href={`/users/${user._id}`}>
             <RoundImage
               className="mr-2"
               src={user.profile_photo}
               width="40px"
             />
           </Link>
-          <div className="w-100">
-            <textarea
-              ref={textInputRef}
-              id="post_input_form"
+          <div className="w-full">
+            <Textarea
+              className="w-full pl-3 pr-5"
+              ref={mergeRefs}
+              value={content}
+              placeholder={`What's on your mind, ${displayName}?`}
+              name="content"
               onFocus={() => setExpandForm(true)}
+              onBlur={() => setExpandForm(false)}
+              onChange={(e) => setContent(e.target.value)}
               style={{
                 height: "32px",
                 alignItems: "center",
                 background: "rgb(240, 242, 245)",
                 borderRadius: "24px",
               }}
-              value={content}
-              className="w-100 pl-2 pr-5 d-flex"
-              name="content"
-              onChange={(e) => {
-                setContent(e.target.value);
-              }}
-              placeholder={`What's on your mind, ${displayName}?`}
             />
           </div>
         </div>
@@ -131,17 +129,13 @@ const PostForm = ({ user, setPosts, posts }) => {
             style={{ justifyContent: "center" }}
             className="d-flex w-100 py-2"
           >
-            <Button
-              style={{ background: "lightblue" }}
-              type="submit"
-              className="px-5"
-            >
+            <Button type="submit" className="px-5">
               Post!
             </Button>
           </FormGroup>
         </CSSTransition>
-        <hr className="my-2" />
-        <GrayHover onClick={handleImageFormClick}>
+        {/* <hr className="my-2" /> */}
+        {/* <GrayHover onClick={handleImageFormClick}>
           <input
             onChange={handleImageSelect}
             style={{ display: "none" }}
@@ -150,7 +144,7 @@ const PostForm = ({ user, setPosts, posts }) => {
           />
           <FcStackOfPhotos size={36} className="mr-2" />
           <p className="m-0">Photos</p>
-        </GrayHover>
+        </GrayHover> */}
       </Form>
     </Container>
   );

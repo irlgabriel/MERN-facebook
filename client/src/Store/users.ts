@@ -1,42 +1,65 @@
-import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
-import Axios from "axios";
-import { User } from "../Types/types";
+import {
+  createAsyncThunk,
+  createSelector,
+  createSlice,
+} from "@reduxjs/toolkit";
+import axios from "../helpers/network";
+import { FriendRequest, User } from "../Types/types";
+import { UserIdRequestInput } from "./types";
+import { RootState } from "./store";
+import { getLoggedInUser } from "./auth";
 
 /**
  * ACTIONS
  */
-const getUsers = createAsyncThunk("users/getUsers", async () => {
-  const users = (await Axios.get<User[]>("/users")).data;
+export const getUsers = createAsyncThunk("users/getUsers", async () => {
+  const users = (await axios.get<User[]>("/users")).data;
   return users;
 });
-const getUser = createAsyncThunk("users/getUser", async (userId: string) => {
-  const user = (await Axios.get<User>("/users/" + userId)).data;
+export const getUser = createAsyncThunk(
+  "users/getUser",
+  async (userId: string) => {
+    const user = (await axios.get<User>("/users/" + userId)).data;
+    return user;
+  }
+);
+export const deleteUser = createAsyncThunk("users/deleteUser", async () => {
+  const user = (await axios.delete<User>("/users")).data;
   return user;
 });
-const deleteUser = createAsyncThunk("users/deleteUser", async () => {
-  const user = (await Axios.delete<User>("/users")).data;
-  return user;
-});
-const updateDesc = createAsyncThunk(
+export const updateDesc = createAsyncThunk(
   "users/updateDesc",
   async ({ userId, description }: { userId: string; description: string }) => {
-    const user = (await Axios.post<User>("/users/" + userId, { description }))
+    const user = (await axios.post<User>("/users/" + userId, { description }))
       .data;
     return user;
   }
 );
-const updateProfilePhoto = createAsyncThunk(
+export const updateProfilePhoto = createAsyncThunk(
   "users/updateProfilePhoto",
   async ({ formData }: { formData: FormData }) => {
-    const user = (await Axios.post<User>("/users", { formData })).data;
+    const user = (await axios.post<User>("/users", { formData })).data;
     return user;
   }
 );
-const updateCoverPhoto = createAsyncThunk(
+export const updateCoverPhoto = createAsyncThunk(
   "users/updateCoverPhoto",
   async ({ formData }: { formData: FormData }) => {
-    const user = (await Axios.post<User>("/users", { formData })).data;
+    const user = (await axios.post<User>("/users", { formData })).data;
     return user;
+  }
+);
+
+export const removeFriend = createAsyncThunk(
+  "users/removeFriend",
+  async ({ userId }: UserIdRequestInput, { getState }) => {
+    const request = (
+      await axios.delete<FriendRequest>(`/friend_requests/${userId}/delete`)
+    ).data;
+
+    const owner = (getState() as RootState).auth.user;
+
+    return { request, owner };
   }
 );
 
@@ -51,6 +74,19 @@ const initialState: State = {
 };
 
 /**
+ * SELECTORS
+ */
+
+const selectUserId = (_: State, userId: string) => userId;
+
+const selectUsers = (state: State) => state.users;
+
+export const selectUserById = createSelector(
+  [selectUsers, selectUserId],
+  (users, userId) => users.find((user) => user._id === userId)
+);
+
+/**
  * TYPES
  */
 export interface State {
@@ -60,8 +96,8 @@ export interface State {
   error: string | null;
 }
 
-const postsSlice = createSlice({
-  name: "posts",
+const usersSlice = createSlice({
+  name: "users",
   initialState,
   reducers: {
     fetchPosts: () => undefined,
@@ -153,7 +189,37 @@ const postsSlice = createSlice({
       state.loading = false;
       state.error = action.error.message ?? null;
     });
+    /// REMOVE FRIEND
+    builder.addCase(removeFriend.pending, (state) => {
+      state.loading = true;
+    });
+    builder.addCase(removeFriend.fulfilled, (state, action) => {
+      const {
+        request: { _id: removedFriendId },
+        owner,
+      } = action.payload;
+      state.loading = false;
+      state.users = state.users.map((u) =>
+        u._id === owner?._id
+          ? {
+              ...u,
+              friends: u.friends.filter((friend) => friend !== removedFriendId),
+            }
+          : u
+      );
+    });
+    builder.addCase(removeFriend.rejected, (state, action) => {
+      state.loading = false;
+      state.error = action.error.message ?? null;
+    });
+    /// GET LOGGED IN USER
+    builder.addCase(getLoggedInUser.fulfilled, (state, action) => {
+      const user = action.payload;
+      if (user) {
+        state.users.push(user);
+      }
+    });
   },
 });
 
-export default postsSlice;
+export default usersSlice;

@@ -1,8 +1,11 @@
 import { User } from "./../Types/types";
-import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
-import Axios from "../Api/helpers";
-import { Post } from "../Types/types";
-
+import {
+  createAsyncThunk,
+  createSelector,
+  createSlice,
+} from "@reduxjs/toolkit";
+import { removeFriend } from "./users";
+import axios from "../helpers/network";
 /**
  * ACTIONS
  */
@@ -10,12 +13,12 @@ export const login = createAsyncThunk(
   "auth/login",
   async ({ email, password }: { email: string; password: string }) => {
     const { token, user } = (
-      await Axios.post<{ token: string; user: User }>("/login", {
+      await axios.post<{ token: string; user: User }>("/login", {
         email,
         password,
       })
     ).data;
-    localStorage.setItem("token", token);
+    typeof window !== undefined && localStorage.setItem("token", token);
     return user;
   }
 );
@@ -24,11 +27,11 @@ export const getLoggedInUser = createAsyncThunk(
   "auth/getLoggedInUser",
   async () => {
     const userId = (
-      await Axios.get<{ user_id: User["_id"] | null }>("/isLoggedIn")
+      await axios.get<{ user_id: User["_id"] | null }>("/isLoggedIn")
     ).data.user_id;
     if (userId) {
       console.log(userId);
-      const user = (await Axios.get<User>("/users/" + userId)).data;
+      const user = (await axios.get<User>("/users/" + userId)).data;
       console.log({ user });
       return user;
     }
@@ -54,6 +57,25 @@ export interface State {
   fetched: boolean;
   error: string | null;
 }
+/**
+ * SELECTORS
+ */
+
+const selectUser = (state: State) => state.user;
+
+const selectUserId = (_: State, userId: string) => userId;
+
+export const selectIsFriend = createSelector(
+  [selectUser, selectUserId],
+  (user, userId) => {
+    if (!user) return false;
+    user?.friends.includes(userId);
+  }
+);
+
+/**
+ * REDUCER
+ */
 
 const postsSlice = createSlice({
   name: "posts",
@@ -96,6 +118,23 @@ const postsSlice = createSlice({
     builder.addCase(getLoggedInUser.rejected, (state, action) => {
       state.loading = false;
       state.error = action.error.message ?? null;
+      return state;
+    });
+    // REMOVE FRIEND
+    builder.addCase(removeFriend.fulfilled, (state, action) => {
+      const {
+        request: { _id: removedFriendId },
+        owner,
+      } = action.payload;
+
+      // not logged in
+      if (!state.user) return;
+
+      state.loading = false;
+      state.user.friends = state.user.friends.filter(
+        (friend) => friend !== removedFriendId
+      );
+
       return state;
     });
   },

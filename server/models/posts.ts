@@ -9,7 +9,8 @@ const postSchema = new Schema(
     image: { type: Object },
     user: { type: Schema.Types.ObjectId, ref: "User" },
     likes: [{ type: Schema.Types.ObjectId, ref: "User" }],
-    commentsCount: { type: Number, default: 0 },
+    likesCount: { type: Number, default: 0 },
+    commentsCount: { type: Number },
   },
   { timestamps: true }
 );
@@ -24,5 +25,13 @@ postSchema.post(
     }
   }
 );
+
+postSchema.pre("save", async function (next) {
+  this.likesCount = this.likes.length;
+  const commentsCount = await Comment.countDocuments({ comment: this.id });
+
+  this.commentsCount = commentsCount;
+  next();
+});
 
 export const Post = mongoose.model("Post", postSchema);

@@ -1,3 +1,5 @@
+import passport from "passport";
+import { Types } from "mongoose";
 import { body, validationResult } from "express-validator";
 import multer, { Options } from "multer";
 import AWS from "aws-sdk";
@@ -29,6 +31,34 @@ const upload = multer({
   limits: { fileSize: 5 * 1024 * 1024 },
 }).single("image");
 
+export const get_user_posts: RequestHandler<
+  any,
+  any,
+  any,
+  GetPostsRequestInput
+> = async (req, res, next) => {
+  const { pageSize, offset, userId } = req.query;
+
+  console.log("\n\n\n", req.query);
+
+  try {
+    if (!userId) {
+      res.status(400);
+      if (!userId) throw new Error(`User with id ${userId} not found!`);
+    }
+
+    const posts = await Post.find({ user: new Types.ObjectId(userId) })
+      .select("-likes")
+      .limit(pageSize)
+      .skip(offset)
+      .sort("-createdAt");
+    // .populate(["likes", "user"]);
+    res.json(posts);
+  } catch (e) {
+    next(e);
+  }
+};
+
 export const get_posts: RequestHandler<
   any,
   any,
@@ -38,8 +68,23 @@ export const get_posts: RequestHandler<
   console.log(req.query);
   const { offset, pageSize } = req.query;
 
+  // TODO
+  // DIFFERENTIATE BETWEEN LOGGED IN USER AND PROFILE/[ID] POSTS
+
   try {
-    const posts = await Post.find()
+    if (!req.user) {
+      res.status(401);
+      throw new Error("Unauthorized");
+    }
+    const { user_id: loggedInUser } = req.user;
+    const user = await User.findOne({ _id: loggedInUser });
+
+    if (!user) {
+      res.status(400);
+      throw new Error(`User with id ${loggedInUser} not found!`);
+    }
+
+    const posts = await Post.find({ user: { $in: user.friends } })
       .limit(pageSize)
       .skip(offset)
       .sort("-createdAt")
@@ -51,9 +96,7 @@ export const get_posts: RequestHandler<
 };
 
 export const get_post: RequestHandler = async (req, res, next) => {
-  console.log(req, req.params);
   try {
-    if (req.params.post_id) res.send(req.params.post_id);
     const post = await Post.findById(req.params.post_id).populate([
       "user",
       "likes",

@@ -3,7 +3,7 @@ export interface Post {
   image?: {
     url?: string;
   };
-  user: string;
+  user: string | User;
   likes: string[];
   content: string;
   commentsCount: number;
@@ -46,5 +46,14 @@ export interface Comment {
   user: string;
   image: any;
   comment: string;
+  post: string;
   likes: string[];
+  childrenCount: number;
+}
+
+// TYPE GUARDS
+// for populated fields
+
+export function isUser(obj: User | any): obj is User {
+  return obj && obj.first_name && typeof obj.first_name === "string";
 }

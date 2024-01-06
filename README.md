@@ -146,7 +146,7 @@ This project was built as part of [Theodinproject](https://www.theodinproject.co
 [Mongodb]: https://img.shields.io/badge/mongodb-00ED64?style=for-the-badge
 [Mongodb-url]: https://www.mongodb.com/
 [AWS-EC2]: https://img.shields.io/badge/AWS%20EC2-f8991d?style=for-the-badge
-[AWS-S3]: https://img.shields.io/badge/AWS%20S3f8991d?style=for-the-badge
+[AWS-S3]: https://img.shields.io/badge/AWS%20S3-f8991d?style=for-the-badge
 [AWS-url]: https://aws.amazon.com/
 [React.js]: https://img.shields.io/badge/-ReactJs-61DAFB?logo=react&logoColor=white&style=for-the-badge
 [Redux-url]: https://redux.js.org/

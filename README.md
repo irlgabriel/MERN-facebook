@@ -29,7 +29,7 @@
 <!-- PROJECT LOGO -->
 <br />
 <div align="center">
-  <a href="https://github.com/irlgabriel/Best-README-Template/blob/master/images/logo.png">
+  <a href="https://github.com/irlgabriel/MERN-facebook/blob/master/images/logo.png">
     <img src="http://54.93.240.69/images/logo.png" alt="Logo" width="80" height="80">
   </a>
 

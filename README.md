@@ -49,8 +49,8 @@
     <li>
       <a href="#about-the-project">About The Project</a>
       <ul>
-        <li><a href="#about-the-project">Built With</a></li>
-        <li><a href="#built-with">Built With</a></li>
+        <li><a href="#about-the-project">About the project</a></li>
+        <li><a href="#built-with">Built with</a></li>
         <li><a href="#features">Features</a></li>
         <li><a href="#Acknowledgements">Acknowledgements</a></li>
       </ul>

@@ -125,7 +125,7 @@ Project Link: [https://github.com/irlgabriel/MERN-facebook](https://github.com/i
 <!-- ACKNOWLEDGMENTS -->
 ## Acknowledgments
 
-This project was built as part of [Theodinproject](https://www.theodinproject.com/) javascript course and took around ~300 hours to build from the scrath up, no follow-up tutorials or such.
+This project was built as part of [Theodinproject](https://www.theodinproject.com/) javascript course and took around ~300 hours to build from the scrath up - no code-along tutorials. Some of the biggest challenges that I faced were adding integrating AWS S3 for image uploading, friend requests flow, deploying on EC2, overall monorepo workings.
 
 * [GitHub Pages](https://pages.github.com)
 * [React Icons](https://react-icons.github.io/react-icons/search)

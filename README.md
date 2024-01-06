@@ -21,7 +21,6 @@
 [![Contributors][contributors-shield]][contributors-url]
 [![Forks][forks-shield]][forks-url]
 [![Stargazers][stars-shield]][stars-url]
-[![Issues][issues-shield]][issues-url]
 [![MIT License][license-shield]][license-url]
 [![LinkedIn][linkedin-shield]][linkedin-url]
 
@@ -139,7 +138,7 @@ This project was built as part of [Theodinproject](https://www.theodinproject.co
 <!-- https://www.markdownguide.org/basic-syntax/#reference-style-links -->
 [contributors-shield]: https://img.shields.io/github/contributors/irlgabriel/MERN-facebook.svg?style=for-the-badge
 [contributors-url]: https://github.com/irlgabriel/MERN-facebook/graphs/contributors
-[forks-shield]: https://img.shields.io/github/forcs/irlgabriel/MERN-facebook.svg?style=for-the-badge
+[forks-shield]: https://img.shields.io/github/forks/irlgabriel/MERN-facebook.svg?style=for-the-badge
 [forks-url]: https://github.com/irlgabriel/MERN-facebook/network/members
 [stars-shield]: https://img.shields.io/github/stars/irlgabriel/MERN-facebook.svg?style=for-the-badge
 [stars-url]: https://github.com/irlgabriel/MERN-facebook/stargazers

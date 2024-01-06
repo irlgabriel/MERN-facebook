@@ -66,10 +66,8 @@
 
 [![Preview][product-screenshot]](https://example.com)
 
-This is currently a work in progress to re-deploy the project as a mono-repo after heroku free tier cloud hosting was removed. 
-
-* Server deployed on Amazon EC2 linux server
-* Client deployed using Github pages
+* Server deployed on Amazon EC2 cloud instance
+* Client deployed on Github pages
 * Database hosted on mongodb atlas free tier
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
@@ -85,7 +83,8 @@ This is currently a work in progress to re-deploy the project as a mono-repo aft
 * [![ExpressJS][Express.com]][Express-url]
 * [![Node][Node.com]][Node-url]
 * [![Mongodb][Mongodb]][Mongodb-url]
-* [![AWS][AWS]][AWS-url]
+* [![AWS EC2][AWS-EC2]][AWS-url]
+* [![AWS S3][AWS-S3]][AWS-url]
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
@@ -98,14 +97,6 @@ This is currently a work in progress to re-deploy the project as a mono-repo aft
 - [x] Friend requests
 - [x] Notifications
 - [ ] Built-in real-time chat messaging
-
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
-
-
-<!-- LICENSE -->
-## License
-
-Distributed under the MIT License. See `LICENSE.txt` for more information.
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
@@ -154,7 +145,8 @@ This project was built as part of [Theodinproject](https://www.theodinproject.co
 [Next-url]: https://nextjs.org/
 [Mongodb]: https://img.shields.io/badge/mongodb-00ED64?style=for-the-badge
 [Mongodb-url]: https://www.mongodb.com/
-[AWS]: https://img.shields.io/badge/AWS-f8991d?style=for-the-badge
+[AWS-EC2]: https://img.shields.io/badge/AWS%20EC2-f8991d?style=for-the-badge
+[AWS-S3]: https://img.shields.io/badge/AWS%20S3f8991d?style=for-the-badge
 [AWS-url]: https://aws.amazon.com/
 [React.js]: https://img.shields.io/badge/-ReactJs-61DAFB?logo=react&logoColor=white&style=for-the-badge
 [Redux-url]: https://redux.js.org/

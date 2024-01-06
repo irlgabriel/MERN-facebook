@@ -30,14 +30,14 @@
 <!-- PROJECT LOGO -->
 <br />
 <div align="center">
-  <a href="https://github.com/othneildrew/Best-README-Template/blob/master/images/logo.png">
-    <img src="images/logo.png" alt="Logo" width="80" height="80">
+  <a href="https://github.com/irlgabriel/Best-README-Template/blob/master/images/logo.png">
+    <img src="http://54.93.240.69/images/logo.png" alt="Logo" width="80" height="80">
   </a>
 
   <h3 align="center">MERN Facebook</h3>
 
   <p align="center">
-    <a href="https://github.com/othneildrew/Best-README-Template">Explore app</a>
+    <a href="/">Explore app</a>
   </p>
 </div>
 
@@ -150,6 +150,7 @@ This project was built as part of [Theodinproject](https://www.theodinproject.co
 [linkedin-shield]: https://img.shields.io/badge/-LinkedIn-black.svg?style=for-the-badge&logo=linkedin&colorB=555
 [linkedin-url]: https://www.linkedin.com/in/gabriel-radu-5023021b9/
 [product-screenshot]: http://54.93.240.69/images/previewFB.png
+[logo]: http://54.93.240.69/images/logo.png
 [Next.js]: https://img.shields.io/badge/next.js-000000?style=for-the-badge&logo=nextdotjs&logoColor=white
 [Next-url]: https://nextjs.org/
 [Mongodb]: https://img.shields.io/badge/mongodb-00ED64?style=for-the-badge

@@ -15,23 +15,26 @@ import { AiFillLike } from "react-icons/ai";
 
 import { deleteComment, editComment, likeComment } from "../../Store/comments";
 import { useAppDispatch, useAppSelector } from "../../Hooks/utils";
-import { Comment } from "../../Types/types";
 import { selectPostById } from "../../Store/posts";
 import { selectUserById } from "../../Store/users";
+import { IComment } from "../../../../server/models/comments";
+import { isUser } from "../../Types/types";
 
 interface Props {
-  reply: Comment;
-  level?: number;
-  comment: Comment;
+  reply: IComment;
+  comment: IComment;
 }
 
-const Reply = ({ level = 0, reply, comment }: Props) => {
+const Reply = ({ reply, comment }: Props) => {
   const dispatch = useAppDispatch();
 
   useAppSelector((state) => selectPostById(state.posts, comment.post));
   const post = useAppSelector((state) => state.posts);
-  const user = useAppSelector((state) =>
-    selectUserById(state.users, reply.user)
+  const userId = (isUser(reply.user) ? reply.user._id : reply.user)?.toString();
+
+  const user = useAppSelector((state) => selectUserById(state.users, userId));
+  const commentOwner = useAppSelector((state) =>
+    selectUserById(state.auth, userId)
   );
 
   const [content, setContent] = useState(reply.content);
@@ -119,8 +122,9 @@ const Reply = ({ level = 0, reply, comment }: Props) => {
             </Form>
           )}
           {!showEdit && (
-            <LikesContainer>
+            <LikesContainer className="flex items-center">
               <AiFillLike
+                className="mr-1"
                 fill={
                   reply.likes.some((e) => e._id === user?._id)
                     ? "royalblue"
@@ -128,7 +132,6 @@ const Reply = ({ level = 0, reply, comment }: Props) => {
                 }
                 size={12}
               />
-              &nbsp;
               <p style={{ fontSize: "12px" }} className="d-inline-block mb-0">
                 {reply.likes.length}
               </p>
@@ -136,7 +139,8 @@ const Reply = ({ level = 0, reply, comment }: Props) => {
           )}
         </ReplyBody>
         <ReplyFooter>
-          <FooterLink
+          <span
+            className="text-sm mr-1 font-semibold cursor-pointer"
             color={
               reply.likes.some((e) => e._id === user?._id)
                 ? "royalblue"
@@ -146,21 +150,21 @@ const Reply = ({ level = 0, reply, comment }: Props) => {
             bold
           >
             Like
-          </FooterLink>
-          {user?._id === user?._id && (
-            <FooterLink bold onClick={() => deleteHandler()} color="gray">
+          </span>
+          {commentOwner?._id === user?._id && (
+            <span bold onClick={() => deleteHandler()} color="gray">
               <span style={{ color: "black" }}>&middot;&nbsp;&nbsp;</span>
               Delete
-            </FooterLink>
+            </span>
           )}
-          {user?._id === user?._id && (
-            <FooterLink bold onClick={() => setEdit(!showEdit)} color="gray">
+          {commentOwner?._id === user?._id && (
+            <span bold onClick={() => setEdit(!showEdit)} color="gray">
               Edit
-            </FooterLink>
+            </span>
           )}
-          <FooterLink color="lightgray">
+          <span className="text-xs text-slate-400">
             {moment(reply.createdAt).fromNow()}
-          </FooterLink>
+          </span>
         </ReplyFooter>
       </ReplyWrapper>
     </ReplyContainer>

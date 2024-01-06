@@ -4,12 +4,12 @@ import { RoundImage, PhotoImage } from "./ReplyForm.components";
 import { CSSTransition } from "react-transition-group";
 import { createComment } from "../../Store/comments";
 import { useAppDispatch, useAppSelector } from "../../Hooks/utils";
-import { Comment, Post } from "../../Types/types";
-import { selectUserById } from "../../Store/users";
+import { IPost } from "../../../../server/models/posts";
+import { IComment } from "../../../../server/models/comments";
 
 interface Props {
-  post: Post;
-  comment: Comment;
+  post: IPost;
+  comment: IComment;
 }
 
 const ReplyForm = ({ post, comment }: Props) => {
@@ -53,7 +53,7 @@ const ReplyForm = ({ post, comment }: Props) => {
 
   return (
     <Form onSubmit={(e) => submitHandler(e)}>
-      <FormGroup className="mb-2 mt-1 d-flex align-items-center position-relative">
+      <FormGroup className="mb-2 mt-1 lex items-center relative">
         <RoundImage className="mr-2" src={user?.profile_photo} />
         <Input
           value={content}

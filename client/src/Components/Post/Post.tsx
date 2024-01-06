@@ -1,24 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import moment from "moment";
-import { Form, Input, FormGroup } from "reactstrap";
 
-import {
-  PostContainer,
-  RoundImage,
-  Header,
-  FlexContainer,
-  Body,
-  Footer,
-  TopFooter,
-  BottomFooter,
-  RoundWrapper,
-  FooterItem,
-  RoundedContainer,
-  RoundedWrapper,
-  CommentsContainer,
-  ClickDiv,
-  FunctionalItem,
-} from "./Post.components";
 import { Comment, CommentForm, LikesModal } from "..";
 import {
   AiFillLike,
@@ -29,7 +11,7 @@ import {
 import { BsThreeDotsVertical } from "react-icons/bs";
 import { VscComment } from "react-icons/vsc";
 import { CSSTransition } from "react-transition-group";
-import { Post as PostType, User } from "../../Types/types";
+import { User } from "../../Types/types";
 import useOutsideClick, {
   useAppDispatch,
   useAppSelector,
@@ -38,15 +20,17 @@ import { deletePost, editPost, likePost } from "../../Store/posts";
 import { getComments, selectCommentsByPost } from "../../Store/comments";
 import { RootState } from "../../Store/store";
 import Link from "next/link";
-import { Button } from "flowbite-react";
+import { Button, Dropdown, FileInput, Textarea } from "flowbite-react";
+import { IPost } from "../../../../server/models/posts";
+import { IUser } from "../../../../server/models/users";
 
 interface Props {
-  post: PostType;
+  post: IPost;
 }
 
 const Post = ({ post }: Props) => {
   const dispatch = useAppDispatch();
-  const user = useAppSelector((state) => state.auth.user) as User;
+  const user = useAppSelector((state) => state.auth.user) as IUser;
 
   const comments = useAppSelector((state: RootState) =>
     selectCommentsByPost(state.comments, post._id)
@@ -54,7 +38,7 @@ const Post = ({ post }: Props) => {
   const fetchedComments = useAppSelector((state) => state.comments.fetched);
 
   const [file, setFile] = useState<File | null>(null);
-  const [content, setContent] = useState("");
+  const [content, setContent] = useState(post.content ?? "");
   const [edit, setEdit] = useState(false);
   const [settingsDropdown, setSettingsDropdown] = useState(false);
   const [commentsDropdown, setCommentsDropdown] = useState(false);
@@ -132,95 +116,88 @@ const Post = ({ post }: Props) => {
     }
   }, [edit]);
 
+  const likedPost = true;
+
   return (
-    <PostContainer className="mb-2">
-      <Header className="mb-2">
-        <Link
-          href={
-            postUser._id === user._id ? "/profile" : `/users/${postUser._id}`
-          }
-        >
-          <RoundImage src={postUser.profile_photo} />
+    <div className="bg-white py-2 px-4 rounded shadow-lg mb-2">
+      <div className="flex items-center relative mb-2">
+        <Link className="mr-2" href={`/users/${postUser._id}`}>
+          <img
+            className=" rounded-full w-12 h-12"
+            src={postUser.profile_photo}
+          />
         </Link>
-        <FlexContainer>
+        <div className="flex items-center justify-between w-full">
           <div>
             <h4 className="mb-0">
               {postUser.display_name ||
                 postUser.first_name + " " + postUser.last_name}
             </h4>
-            <p style={{ fontSize: "13px" }} className="mb-0 text-muted">
+            <p
+              style={{ fontSize: "13px" }}
+              className="mb-0 text-sm text-slate-400"
+            >
               {moment(post.createdAt).fromNow()}
             </p>
           </div>
-          {user._id === postUser._id && (
-            <RoundedWrapper
-              onClick={() => setSettingsDropdown(!settingsDropdown)}
+          {user?._id === postUser?._id && (
+            <Dropdown
+              dir="right"
+              renderTrigger={() => (
+                <div className="bg-slate-100 cursor-pointer rounded-full w-8 h-8 flex items-center justify-center hover:bg-slate-300">
+                  <BsThreeDotsVertical size="24" />
+                </div>
+              )}
+              label=""
             >
-              <BsThreeDotsVertical size="24" />
-            </RoundedWrapper>
+              <Dropdown.Item
+                onClick={() => {
+                  setEdit(true);
+                  setSettingsDropdown(false);
+                }}
+              >
+                <AiFillEdit color="palegoldenrod" size={16} />
+                &nbsp;Edit Post
+              </Dropdown.Item>
+              <Dropdown.Divider />
+              <Dropdown.Item onClick={() => deleteHandler()}>
+                <AiFillDelete color="red" size={16} />
+                &nbsp;Delete Post
+              </Dropdown.Item>
+            </Dropdown>
           )}
-        </FlexContainer>
-
-        {/** Settings Dropdown  */}
-        {settingsDropdown && (
-          <RoundedContainer ref={expandedMenu}>
-            <FunctionalItem
-              onClick={() => {
-                setEdit(true);
-                setSettingsDropdown(false);
-              }}
-            >
-              <AiFillEdit color="palegoldenrod" size={32} />
-              &nbsp;Edit Post
-            </FunctionalItem>
-            <hr className="my-2" />
-            <FunctionalItem onClick={() => deleteHandler()}>
-              <AiFillDelete color="red" size={32} />
-              &nbsp;Delete Post
-            </FunctionalItem>
-          </RoundedContainer>
-        )}
-      </Header>
+        </div>
+      </div>
       {!edit && (
-        <div className="flex">
+        <div className="flex flex-col">
           <p
             className="mb-1"
-            dangerouslySetInnerHTML={{ __html: post.content }}
+            dangerouslySetInnerHTML={{ __html: post.content ?? "" }}
           ></p>
           {post.image && post.image.url && (
-            <img className="mb-2" width="100%" src={post.image?.url} />
+            <img className="mb-2" src={post.image?.url} />
           )}
         </div>
       )}
       {edit && (
-        <Form onSubmit={(e) => editHandler(e)}>
-          <FormGroup>
-            <Input
-              placeholder="Content..."
-              type="textarea"
-              onFocus={(e) => onChangeHandler(e)}
-              value={content}
-              onChange={(e) => {
-                setContent(e.target.value);
-                onChangeHandler(e);
-              }}
-            />
-          </FormGroup>
-          <FormGroup style={{ marginLeft: "12px" }}>
-            <Input
-              onChange={(e) => setFile(e.target?.files?.[0] ?? null)}
-              type="file"
-              name="image"
-            />
-            <em>Max 5MB (Accepted formats: jpg, jpeg, png)</em>
-          </FormGroup>
-          <FormGroup className="d-flex align-items-center">
-            <Button
-              className="ml-auto mr-2"
-              type="submit"
-              color="primary"
-              size="sm"
-            >
+        <form className=" pl-3" onSubmit={(e) => editHandler(e)}>
+          <Textarea
+            className="mb-2"
+            placeholder="Content..."
+            onFocus={(e) => onChangeHandler(e)}
+            value={content}
+            onChange={(e) => {
+              setContent(e.target.value);
+              onChangeHandler(e);
+            }}
+          />
+          <FileInput
+            onChange={(e) => setFile(e.target?.files?.[0] ?? null)}
+            name="image"
+          />
+          <em>Max 5MB (Accepted formats: jpg, jpeg, png)</em>
+          <div className="flex text-left">
+            <Button className="-ml-3" type="submit" color="primary" size="sm">
               Edit
             </Button>
             <Button
@@ -231,31 +208,45 @@ const Post = ({ post }: Props) => {
             >
               Cancel
             </Button>
-          </FormGroup>
-        </Form>
+          </div>
+        </form>
       )}
-      <Footer>
-        <TopFooter>
-          <ClickDiv onClick={() => setLikesModal(true)} className="d-flex">
-            <RoundWrapper className="mr-1" bgColor="royalblue">
+      <div className="flex-col">
+        <div className="flex items-center justify-between">
+          <div
+            className="flex cursor-pointer"
+            onClick={() => setLikesModal(true)}
+          >
+            {/**@ts-ignore */}
+            <div
+              className={`mr-1 rounded-full w-5 h-5 ${
+                likedPost ? "bg-blue-500" : "bg-slate-400"
+              } flex items-center justify-center`}
+            >
               <AiFillLike
                 data-toggle="tooltip"
                 data-html="true"
                 size={12}
                 fill="white"
               />
-            </RoundWrapper>
+            </div>
             <p style={{ fontSize: "14px" }} className="mb-0">
-              {post.likes.length}
+              {post.likesCount}
             </p>
-          </ClickDiv>
-          <ClickDiv onClick={() => setCommentsDropdown(!commentsDropdown)}>
+          </div>
+          <div
+            className="cursor-pointer"
+            onClick={() => setCommentsDropdown(!commentsDropdown)}
+          >
             <p className="mb-0">{post.commentsCount} Comments</p>
-          </ClickDiv>
-        </TopFooter>
+          </div>
+        </div>
         <hr className="my-1" />
-        <BottomFooter>
-          <FooterItem onClick={() => like()}>
+        <div className="items-center flex">
+          <div
+            className="w-2/4 rounded-md bg-white flex items-center justify-center font-bold text-gray-600 p-2 hover:bg-slate-100 cursor-pointer"
+            onClick={() => like()}
+          >
             {/*@ts-ignore*/}
             {!post.likes.some((e) => e._id === user._id) ? (
               <div style={{ display: "flex", alignItems: "center" }}>
@@ -268,31 +259,28 @@ const Post = ({ post }: Props) => {
                 <span style={{ color: "royalblue" }}>&nbsp;Liked</span>
               </div>
             )}
-          </FooterItem>
-          <FooterItem onClick={() => setCommentsDropdown(!commentsDropdown)}>
+          </div>
+          <div
+            className="w-2/4 rounded-md bg-white flex items-center justify-center font-bold text-gray-600 p-2 hover:bg-slate-100 cursor-pointer"
+            onClick={() => setCommentsDropdown(!commentsDropdown)}
+          >
             <VscComment size={20} />
             &nbsp;Comment
-          </FooterItem>
-        </BottomFooter>
-      </Footer>
+          </div>
+        </div>
+      </div>
 
       {/** Comment dropdown */}
       {commentsDropdown && (
-        <CommentsContainer>
+        <div>
           <hr className="my-1" />
           {comments
             .filter((comment) => !comment.hasOwnProperty("comment"))
             .map((comment) => (
-              <Comment
-                //@ts-ignore
-                key={comment._id}
-                comments={comments}
-                post={post}
-                comment={comment}
-              />
+              <Comment key={comment._id} post={post} comment={comment} />
             ))}
           <CommentForm post={post} user={user} comments={comments} />
-        </CommentsContainer>
+        </div>
       )}
 
       {/* Likes Modal (absolutely positioned) */}
@@ -304,7 +292,7 @@ const Post = ({ post }: Props) => {
       >
         <LikesModal setLikesModal={setLikesModal} likes={post.likes} />
       </CSSTransition>
-    </PostContainer>
+    </div>
   );
 };
 

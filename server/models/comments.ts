@@ -1,4 +1,4 @@
-import mongoose, { Schema, InferSchemaType } from "mongoose";
+import mongoose, { Schema, InferSchemaType, ObjectId } from "mongoose";
 
 const commentSchema = new Schema(
   {
@@ -14,6 +14,8 @@ const commentSchema = new Schema(
   { timestamps: true }
 );
 
+const Comment = mongoose.model("Comment", commentSchema);
+
 commentSchema.pre("save", async function (next) {
   const commentId = this._id;
 
@@ -26,9 +28,27 @@ commentSchema.pre("save", async function (next) {
   next();
 });
 
-export type IComment = InferSchemaType<typeof commentSchema>;
+commentSchema.pre(
+  "deleteOne",
+  { document: false, query: true },
+  async function (next) {
+    // https://stackoverflow.com/questions/59147493/mongoose-deleteone-middleware-for-cascading-delete-not-working
+    const parentCommentId = this.getFilter()["_id"];
 
-// todo
+    // no dependant comments (replies)
+    if (!parentCommentId) {
+      next();
+    }
+
+    await Comment.deleteMany({ comment: parentCommentId });
+    next();
+  }
+);
+
 // TODO DELETE DEPENDENT COMMENTS ON POST DELETE
 
-export const Comment = mongoose.model("Comment", commentSchema);
+export type IComment = InferSchemaType<typeof commentSchema> & {
+  _id: string;
+};
+
+export default Comment;

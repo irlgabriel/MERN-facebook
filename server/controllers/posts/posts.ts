@@ -1,4 +1,3 @@
-import passport from "passport";
 import { Types } from "mongoose";
 import { body, validationResult } from "express-validator";
 import multer, { Options } from "multer";
@@ -47,12 +46,11 @@ export const get_user_posts: RequestHandler<
       if (!userId) throw new Error(`User with id ${userId} not found!`);
     }
 
-    const posts = await Post.find({ user: new Types.ObjectId(userId) })
-      .select("-likes")
+    const posts = await Post.find({ user: { $eq: new Types.ObjectId(userId) } })
       .limit(pageSize)
       .skip(offset)
-      .sort("-createdAt");
-    // .populate(["likes", "user"]);
+      .sort("-createdAt")
+      .populate(["likes", "user"]);
     res.json(posts);
   } catch (e) {
     next(e);
@@ -221,16 +219,14 @@ export const like_post: RequestHandler = async (req, res, next) => {
         { _id: req.params.post_id },
         { $pull: { likes: user_id } },
         { new: true }
-      ).populate("user", "likes");
+      );
       res.json(updatedPost);
     } else {
       const updatedPost = await Post.findOneAndUpdate(
         { _id: req.params.post_id },
         { $push: { likes: user_id } },
         { new: true }
-      )
-        .populate("user")
-        .populate("likes");
+      ).populate("user");
 
       if (!updatedPost) throw new Error("Could not find post!");
 

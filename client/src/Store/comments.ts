@@ -1,3 +1,4 @@
+import { IComment } from "./../../../server/models/comments";
 import axios from "../helpers/network";
 import { CreateCommentRequestInput, DeleteCommentRequestInput } from "./types";
 import {
@@ -5,8 +6,8 @@ import {
   createSelector,
   createSlice,
 } from "@reduxjs/toolkit";
-import { Comment } from "../Types/types";
 import { fetchPost, fetchPosts } from "./posts";
+import { isComment } from "../Types/types";
 
 /**
  * ACTIONS
@@ -15,7 +16,7 @@ export const getComments = createAsyncThunk(
   "comments/getComments",
   async (postId: string) => {
     const comments = (
-      await axios.get<Comment[]>("/posts/" + postId + "/comments")
+      await axios.get<IComment[]>("/posts/" + postId + "/comments")
     ).data;
     return { comments, postId };
   }
@@ -24,9 +25,8 @@ export const getReplies = createAsyncThunk(
   "comments/getReplies",
   async ({ postId, commentId }: { postId: string; commentId: string }) => {
     const comments = (
-      await axios.get<Comment[]>("/posts/" + postId + "/comments/" + commentId)
+      await axios.get<IComment[]>("/posts/" + postId + "/comments/" + commentId)
     ).data;
-    console.log("in action", { comments });
     return comments;
   }
 );
@@ -34,7 +34,7 @@ export const createComment = createAsyncThunk(
   "comments/createComment",
   async (input: CreateCommentRequestInput) => {
     const comment = (
-      await axios.post<Comment>("/posts/" + input.post_id + "/comments", {
+      await axios.post<IComment>("/posts/" + input.post_id + "/comments", {
         ...input,
       })
     ).data;
@@ -46,7 +46,7 @@ export const editComment = createAsyncThunk(
   "comments/editComment",
   async (input: CreateCommentRequestInput) => {
     const comment = (
-      await axios.put<Comment>(
+      await axios.put<IComment>(
         "/posts/" + input.post_id + "/comments" + input.comment,
         {
           ...input,
@@ -62,7 +62,7 @@ export const likeComment = createAsyncThunk(
   "comments/likeComment",
   async ({ postId, commentId }: DeleteCommentRequestInput) => {
     const comment = (
-      await axios.put<Comment>(`/posts/${postId}/comments/${commentId}`)
+      await axios.post<IComment>(`/posts/${postId}/comments/${commentId}`)
     ).data;
 
     return { commentId, postId, comment };
@@ -100,7 +100,7 @@ const initialState: State = {
  */
 export interface State {
   ids: string[];
-  byId: Record<string, Comment>;
+  byId: Record<string, IComment>;
   idsByPost: Record<string, string[]>;
   idsByComment: Record<string, string[]>;
   loading: boolean;
@@ -113,12 +113,13 @@ export interface State {
  */
 
 const getStoreCommentsMap = (state: State) => state.byId;
+const getCommentToCommentIdsMap = (state: State) => state.idsByComment;
 const getPostToCommentIdsMap = (state: State) => state.idsByPost;
 const getCommentId = (_: State, commentId: string) => commentId;
 const getPostId = (_: State, postId: string) => postId;
 
 export const selectReplies = createSelector(
-  [getStoreCommentsMap, getPostToCommentIdsMap, getCommentId],
+  [getStoreCommentsMap, getCommentToCommentIdsMap, getCommentId],
   (commentsMap, idsByComment, id) => {
     if (!idsByComment[id]) return [];
     return idsByComment[id].map((id) => commentsMap[id]);
@@ -152,7 +153,6 @@ const postsSlice = createSlice({
       state.loading = false;
       comments.forEach((comment) => {
         state.ids.push(comment._id);
-        state.byId[comment._id] = comment;
 
         if (!state.idsByPost[comment._id]) {
           state.idsByPost[comment._id] = [];
@@ -161,10 +161,14 @@ const postsSlice = createSlice({
 
         // is reply
         if (comment.comment) {
-          if (!state.idsByComment[comment._id]) {
-            state.idsByComment[comment._id] = [];
+          const parentCommentId = (
+            isComment(comment.comment) ? comment.comment._id : comment.comment
+          ).toString();
+
+          if (!state.idsByComment[parentCommentId]) {
+            state.idsByComment[parentCommentId] = [];
           }
-          state.idsByComment[comment._id].push(comment._id);
+          state.idsByComment[parentCommentId].push(comment._id);
         }
       });
     });
@@ -180,7 +184,7 @@ const postsSlice = createSlice({
       const comment = action.payload;
       state.loading = false;
       state.byId[comment._id] = comment;
-      state.idsByPost[comment.post];
+      state.idsByPost[comment!.post!.toString()];
     });
     builder.addCase(createComment.rejected, (state, action) => {
       state.loading = false;
@@ -192,7 +196,6 @@ const postsSlice = createSlice({
     });
     builder.addCase(getComments.fulfilled, (state, action) => {
       const { comments, postId } = action.payload;
-      console.log("in reducer", { comments });
       state.loading = false;
 
       state.idsByPost[postId] = comments.map((d) => d._id);

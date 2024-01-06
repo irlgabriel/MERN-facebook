@@ -1,15 +1,21 @@
 import Axios from "axios";
-import React, { useState } from "react";
-import { Form, Input, FormGroup, Button } from "reactstrap";
-import { UserImage, PhotoImage } from "./CommentForm.components";
+import React, { useRef, useState } from "react";
 import { CSSTransition } from "react-transition-group";
 import Link from "next/link";
+import { BsFillImageFill } from "react-icons/bs";
+import { Button, FileInput, Textarea } from "flowbite-react";
+import useOutsideClick from "../../Hooks/utils";
 
 const CommentForm = ({ post, user, comments }) => {
+  const submitButtonArea = useRef<HTMLFormElement | null>(null);
   const [file, setFile] = useState<File | null>(null);
   const [imageForm, setImageForm] = useState(false);
   const [content, setContent] = useState("");
   const [showSubmit, setSubmit] = useState(false);
+
+  useOutsideClick([submitButtonArea], () => {
+    setSubmit(false);
+  });
 
   const submitHandler = (e) => {
     e.preventDefault();
@@ -44,19 +50,18 @@ const CommentForm = ({ post, user, comments }) => {
   };
 
   return (
-    <Form onSubmit={(e) => submitHandler(e)}>
-      <div className="d-flex align-items-center mb-2">
-        <Link href="/profile">
-          <UserImage className="mr-2" src={user.profile_photo} />
+    <form ref={submitButtonArea} onSubmit={(e) => submitHandler(e)}>
+      <div className="flex items-center mb-2">
+        <Link className="mr-2" href="/profile">
+          <img className="w-8 h-8 rounded-2xl" src={user.profile_photo} />
         </Link>
-        <FormGroup className="mb-0 w-100 position-relative">
-          <Input
+        <section className="mb-0 w-full relative">
+          <Textarea
             onFocus={() => setSubmit(true)}
             style={{ borderRadius: "16px" }}
             value={content}
-            className="w-100 py-1 pr-5"
+            className="w-full h-8 py-1 pr-5"
             placeholder="Write a comment.."
-            type="textarea"
             rows={1}
             name="content"
             onChange={(e) => {
@@ -64,36 +69,39 @@ const CommentForm = ({ post, user, comments }) => {
               onChangeHandler(e);
             }}
           />
-          <PhotoImage
+          <BsFillImageFill
+            className="absolute cursor-pointer mr-2 right-3 top-1 transition duration-300 ease-in-out hover:scale-110"
             onClick={() => setImageForm(!imageForm)}
             size={24}
             fill="green"
           />
-        </FormGroup>
+        </section>
       </div>
-      <CSSTransition
-        in={imageForm}
-        timeout={300}
-        classNames="fade"
-        unmountOnExit
-      >
-        <FormGroup style={{ marginLeft: "48px" }}>
-          <Input
+      <CSSTransition in={imageForm} timeout={0} classNames="fade" unmountOnExit>
+        <section className="ml-10">
+          <FileInput
             onChange={(e) => setFile(e.target?.files?.[0] ?? null)}
-            type="file"
             name="image"
           />
-          <em>Max 5MB (Accepted formats: jpg, jpeg, png)</em>
-        </FormGroup>
+          <em className="text-xs text-slate-400">
+            Max 5MB (Accepted formats: jpg, jpeg, png)
+          </em>
+        </section>
       </CSSTransition>
       {showSubmit && (
-        <FormGroup className="text-right">
-          <Button type="submit" color="primary" size="sm">
+        <section className="text-right">
+          <Button
+            className="ml-auto select-none"
+            gradientDuoTone="cyanToBlue"
+            outline
+            type="submit"
+            size="xs"
+          >
             Comment!
           </Button>
-        </FormGroup>
+        </section>
       )}
-    </Form>
+    </form>
   );
 };
 

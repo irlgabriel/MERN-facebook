@@ -5,8 +5,9 @@ import {
   createSlice,
 } from "@reduxjs/toolkit";
 import axios from "../helpers/network";
-import { Post, isUser } from "../Types/types";
+import { isUser } from "../Types/types";
 import { RootState } from "./store";
+import { IPost } from "../../../server/models/posts";
 
 /**
  * ACTIONS
@@ -14,28 +15,28 @@ import { RootState } from "./store";
 export const addPost = createAsyncThunk(
   "posts/addPost",
   async ({ content, image }: { content: string; image: any }) => {
-    const post = (await axios.post<Post>("/posts", { content, image })).data;
+    const post = (await axios.post<IPost>("/posts", { content, image })).data;
     return post;
   }
 );
 export const likePost = createAsyncThunk(
   "posts/likePost",
   async (postId: string) => {
-    const post = (await axios.post<Post>("/posts/" + postId + "/like")).data;
+    const post = (await axios.post<IPost>("/posts/" + postId + "/like")).data;
     return post;
   }
 );
 export const deletePost = createAsyncThunk(
   "posts/deletePost",
   async (postId: string) => {
-    const post = (await axios.delete<Post>("/posts/" + postId)).data;
+    const post = (await axios.delete<IPost>("/posts/" + postId)).data;
     return post;
   }
 );
 export const editPost = createAsyncThunk(
   "posts/editPost",
   async ({ content, image }: Partial<{ content: string; image: any }>) => {
-    const post = (await axios.post<Post>("/posts", { content, image })).data;
+    const post = (await axios.post<IPost>("/posts", { content, image })).data;
     return post;
   }
 );
@@ -43,17 +44,17 @@ export const editPost = createAsyncThunk(
 export const fetchPost = createAsyncThunk(
   "posts/fetchPost",
   async (postId: string) => {
-    const post = (await axios.post<Post>("/post", { post_id: postId })).data;
+    const post = (await axios.post<IPost>("/post", { post_id: postId })).data;
     return post;
   }
 );
 
-export const fetchPosts = createAsyncThunk<Post[], void, { state: RootState }>(
+export const fetchPosts = createAsyncThunk<IPost[], void, { state: RootState }>(
   "posts/fetchPosts",
   async (_: void, { getState }) => {
     const { pageSize, offset } = getState().posts.pageOpts;
     const posts = (
-      await axios.get<Post[]>("/posts", {
+      await axios.get<IPost[]>("/posts", {
         params: { pageSize, offset },
       })
     ).data;
@@ -62,7 +63,7 @@ export const fetchPosts = createAsyncThunk<Post[], void, { state: RootState }>(
 );
 
 export const fetchUserPosts = createAsyncThunk<
-  Post[],
+  IPost[],
   GetUserPostsRequestInput,
   { state: RootState }
 >(
@@ -70,7 +71,7 @@ export const fetchUserPosts = createAsyncThunk<
   async ({ userId }: GetUserPostsRequestInput, { getState }) => {
     const { pageSize, offset } = getState().posts.pageOpts;
     const posts = (
-      await axios.get<Post[]>("/posts/user", {
+      await axios.get<IPost[]>("/posts/user", {
         params: { pageSize, offset, userId },
       })
     ).data;
@@ -111,7 +112,6 @@ export const selectPostById = createSelector(
 export const selectPostsByUser = createSelector(
   [selectPostsMap, selectUserIdToPostIdsMap, selectUserId],
   (posts, usersPostIds, userId) => {
-    console.log("selector input", { posts, usersPostIds, userId });
     if (!usersPostIds[userId]) return [];
     return usersPostIds[userId].map((id) => posts[id]);
   }
@@ -127,7 +127,7 @@ export const selectAllPosts = createSelector(
  */
 export interface State {
   ids: string[];
-  byId: Record<string, Post>;
+  byId: Record<string, IPost>;
   idsByUserId: Record<string, string[]>;
   loading: boolean;
   fetched: boolean;
@@ -155,11 +155,9 @@ const postsSlice = createSlice({
         if (isUser(post.user)) {
           userId = post.user._id;
         } else {
-          userId = post.user;
+          userId = post!.user!.toString();
         }
         if (!userId) return;
-
-        console.log({ post, userId });
 
         state.ids.push(post._id);
         state.byId[post._id] = post;
@@ -190,7 +188,7 @@ const postsSlice = createSlice({
       if (isUser(post.user)) {
         userId = post.user._id;
       } else {
-        userId = post.user;
+        userId = post.user!.toString();
       }
       if (!userId) return;
 
@@ -216,7 +214,7 @@ const postsSlice = createSlice({
       if (isUser(post.user)) {
         userId = post.user._id;
       } else {
-        userId = post.user;
+        userId = post.user!.toString();
       }
       if (!userId) return;
 
@@ -267,6 +265,40 @@ const postsSlice = createSlice({
       state.byId[post._id] = post;
     });
     builder.addCase(likePost.rejected, (state, action) => {
+      state.loading = false;
+      state.error = action.error.message ?? null;
+    });
+    /// GET USER POSTS
+    builder.addCase(fetchUserPosts.pending, (state) => {
+      state.loading = true;
+    });
+    builder.addCase(fetchUserPosts.fulfilled, (state, action) => {
+      const posts = action.payload;
+      state.loading = false;
+      posts.forEach((post) => {
+        let userId: string | null = null;
+        if (isUser(post.user)) {
+          userId = post.user._id;
+        } else {
+          userId = post.user!.toString();
+        }
+        if (!userId) return;
+
+        state.ids.push(post._id);
+        state.byId[post._id] = post;
+        if (!state.idsByUserId[userId]) {
+          state.idsByUserId[userId] = [];
+        }
+        state.idsByUserId[userId].push(post._id);
+      });
+      state.fetched = true;
+      if (posts.length) {
+        state.pageOpts.offset += posts.length;
+      } else {
+        state.hasMoreData = false;
+      }
+    });
+    builder.addCase(fetchUserPosts.rejected, (state, action) => {
       state.loading = false;
       state.error = action.error.message ?? null;
     });

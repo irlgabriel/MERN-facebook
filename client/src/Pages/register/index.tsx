@@ -34,7 +34,6 @@ const Register = ({ user, reloadUser, getUser }) => {
         push("/");
       })
       .catch((err) => {
-        console.log(err.response);
         setMessage(err.response.data.message);
       });
   };

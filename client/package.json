@@ -59,6 +59,7 @@
     "@types/react-transition-group": "^4.4.9",
     "@types/styled-components": "^5.1.32",
     "autoprefixer": "^10.4.16",
+    "eslint": "^8.56.0",
     "postcss": "^8.4.32",
     "tailwindcss": "^3.4.0"
   }

@@ -1,13 +1,11 @@
-import { body, validationResult } from "express-validator";
+import { validationResult } from "express-validator";
 import multer, { Options } from "multer";
 import AWS from "aws-sdk";
-import async from "async";
 import path from "path";
-import { Comment, IComment } from "../../models/comments";
+import Comment from "../../models/comments";
 import { Notification } from "../../models/notifications";
 import { User } from "../../models/users";
 import { Request, RequestHandler } from "express";
-import { CallbackError, Document } from "mongoose";
 import { ManagedUpload } from "aws-sdk/clients/s3";
 import {
   CreateCommentInput,
@@ -59,7 +57,7 @@ export const get_replies: RequestHandler<{ comment_id: string }> = async (
   next
 ) => {
   try {
-    const replies = await Comment.find({ $comment: req.params.comment_id })
+    const replies = await Comment.find({ comment: req.params.comment_id })
       .populate("comment")
       .populate("user")
       .populate("user")
@@ -105,7 +103,6 @@ export const create_comment: RequestHandler<
 
         S3.upload(params, async (err: Error, data: ManagedUpload.SendData) => {
           if (err) {
-            console.log("Error uploading:", err);
             next(err);
           } else {
             try {
@@ -242,7 +239,7 @@ export const like_comment: RequestHandler<LikeCommentInput> = async (
         if (!newComment) throw new Error("Could not find Comment!");
 
         try {
-          const comment = newComment.populate([
+          const comment = await newComment.populate([
             "user",
             "comment",
             "post",

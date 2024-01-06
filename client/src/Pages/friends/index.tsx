@@ -8,11 +8,7 @@ import {
   FriendRequest,
 } from "../../Components";
 import Axios from "axios";
-import {
-  Post,
-  User,
-  FriendRequest as FriendRequestType,
-} from "../../Types/types";
+import { User } from "../../Types/types";
 import { useAppDispatch, useAppSelector } from "../../Hooks/utils";
 import {
   acceptRequest,
@@ -23,14 +19,13 @@ import {
 } from "../../Store/friendRequests";
 import { fetchPosts } from "../../Store/posts";
 import { ProtectedRoute } from "../../Components/ProtectedRoute/ProtectedRoute";
-
+import { IUser } from "../../../../server/models/users";
 const Friends = () => {
   const dispatch = useAppDispatch();
 
-  const [previewUser, setPreviewUser] = useState<User | undefined>(undefined);
+  const [previewUser, setPreviewUser] = useState<IUser | undefined>(undefined);
 
-  const user = useAppSelector((state) => state.auth.user) as User;
-  const posts = useAppSelector((state) => state.posts.posts);
+  const user = useAppSelector((state) => state.auth.user) as IUser;
   const requests = useAppSelector((state) => state.friendRequests.requests);
   const suggestions = useAppSelector(
     (state) => state.friendRequests.suggestions
@@ -41,10 +36,6 @@ const Friends = () => {
     () => requests.filter((request) => request._id === user._id),
     [requests]
   );
-
-  const previewUserPosts = useMemo(() => {
-    return posts.filter((post) => post.user === previewUser?._id);
-  }, [previewUser, posts]);
 
   const clickHandler = (id: string) => {
     //e.stopPropagation();
@@ -70,7 +61,7 @@ const Friends = () => {
   useEffect(() => {
     dispatch(getRequests());
     dispatch(getRecommendations());
-    dispatch(fetchPosts({}));
+    dispatch(fetchPosts());
   }, []);
 
   return (

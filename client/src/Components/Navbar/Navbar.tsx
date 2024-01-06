@@ -44,7 +44,6 @@ import { Notification } from "..";
 import {
   FriendRequest,
   Notification as NotificationType,
-  User,
 } from "../../Types/types";
 import { useAppDispatch, useAppSelector } from "../../Hooks/utils";
 import { getUsers } from "../../Store/users";
@@ -56,14 +55,15 @@ import Link from "next/link";
 import { useRouter } from "next/router";
 import { ProtectedRoute } from "../ProtectedRoute/ProtectedRoute";
 import { getRequests } from "../../Store/friendRequests";
+import { IUser } from "../../../../server/models/users";
 
 const Navbar = () => {
   const dispatch = useAppDispatch();
 
   const { pathname, push } = useRouter();
 
-  const user = useAppSelector((state) => state.auth.user) as User;
-  const users = useAppSelector((state) => state.users.users) as User[];
+  const user = useAppSelector((state) => state.auth.user) as IUser;
+  const users = useAppSelector((state) => state.users.users) as IUser[];
   const requests = useAppSelector((state) => state.friendRequests.requests);
   const usersFetched = useAppSelector((state) => state.users.fetched);
 
@@ -80,7 +80,7 @@ const Navbar = () => {
   const [showSearch, setShowSearch] = useState(false);
   const [searchDropdown, setSearchDropdown] = useState(false);
   const [query, setQuery] = useState("");
-  const [results, setResults] = useState<User[]>([]);
+  const [results, setResults] = useState<IUser[]>([]);
   const [userDropdown, setUserDropdown] = useState(false);
   const [warning, setWarning] = useState(false);
   const [notificationDropdown, setNotificationDropdown] = useState(false);

@@ -1,7 +1,7 @@
 import axios from "axios";
 import { isClient } from "../helpers/utils";
 
-axios.defaults.baseURL = "http://54.93.240.69/";
+axios.defaults.baseURL = process.env.API_URL ?? "http://localhost:5000";
 
 axios.interceptors.request.use(
   (config) => {
@@ -9,6 +9,8 @@ axios.interceptors.request.use(
       config.headers["Authorization"] =
         "bearer " + localStorage?.getItem("token");
     }
+    config.withCredentials = false;
+
     return config;
   },
   (error) => {

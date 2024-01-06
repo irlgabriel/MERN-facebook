@@ -1,4 +1,4 @@
-import { User } from "./../Types/types";
+import { IUser } from "./../../../server/models/users";
 import {
   createAsyncThunk,
   createSelector,
@@ -6,6 +6,7 @@ import {
 } from "@reduxjs/toolkit";
 import { removeFriend } from "./users";
 import axios from "../helpers/network";
+
 /**
  * ACTIONS
  */
@@ -13,7 +14,7 @@ export const login = createAsyncThunk(
   "auth/login",
   async ({ email, password }: { email: string; password: string }) => {
     const { token, user } = (
-      await axios.post<{ token: string; user: User }>("/login", {
+      await axios.post<{ token: string; user: IUser }>("/login", {
         email,
         password,
       })
@@ -27,12 +28,10 @@ export const getLoggedInUser = createAsyncThunk(
   "auth/getLoggedInUser",
   async () => {
     const userId = (
-      await axios.get<{ user_id: User["_id"] | null }>("/isLoggedIn")
+      await axios.get<{ user_id: IUser["_id"] | null }>("/isLoggedIn")
     ).data.user_id;
     if (userId) {
-      console.log(userId);
-      const user = (await axios.get<User>("/users/" + userId)).data;
-      console.log({ user });
+      const user = (await axios.get<IUser>("/users/" + userId)).data;
       return user;
     }
   }
@@ -52,7 +51,7 @@ const initialState: State = {
  * TYPES
  */
 export interface State {
-  user: User | null;
+  user: IUser | null;
   loading: boolean;
   fetched: boolean;
   error: string | null;
@@ -69,6 +68,7 @@ export const selectIsFriend = createSelector(
   [selectUser, selectUserId],
   (user, userId) => {
     if (!user) return false;
+    //@ts-ignore
     user?.friends.includes(userId);
   }
 );
@@ -91,7 +91,7 @@ const postsSlice = createSlice({
     });
     builder.addCase(login.fulfilled, (state, action) => {
       //@ts-ignore
-      const user = action.payload as User;
+      const user = action.payload as IUser;
       state.loading = false;
       state.user = user;
       state.fetched = true;
@@ -109,7 +109,7 @@ const postsSlice = createSlice({
     });
     builder.addCase(getLoggedInUser.fulfilled, (state, action) => {
       //@ts-ignore
-      const user = action.payload as User;
+      const user = action.payload as IUser;
       state.loading = false;
       state.user = user;
       state.fetched = true;
@@ -132,7 +132,7 @@ const postsSlice = createSlice({
 
       state.loading = false;
       state.user.friends = state.user.friends.filter(
-        (friend) => friend !== removedFriendId
+        (friend) => friend.toString() !== removedFriendId
       );
 
       return state;

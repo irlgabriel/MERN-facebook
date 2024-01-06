@@ -1,3 +1,6 @@
+import { isObjectIdOrHexString } from "mongoose";
+import { IComment } from "../../../server/models/comments";
+
 export interface Post {
   _id: string;
   image?: {
@@ -5,6 +8,7 @@ export interface Post {
   };
   user: string | User;
   likes: string[];
+  likesCount: number;
   content: string;
   commentsCount: number;
   createdAt?: string;
@@ -48,11 +52,17 @@ export interface Comment {
   comment: string;
   post: string;
   likes: string[];
-  childrenCount: number;
+  commentsCount: number;
 }
 
 // TYPE GUARDS
 // for populated fields
+
+// GENERIC
+
+export function isComment(obj: User | any): obj is IComment {
+  return obj && obj._id;
+}
 
 export function isUser(obj: User | any): obj is User {
   return obj && obj.first_name && typeof obj.first_name === "string";

@@ -14,12 +14,13 @@ import { addPost } from "../../Store/posts";
 import { User } from "../../Types/types";
 import Link from "next/link";
 import { Button, Textarea } from "flowbite-react";
+import { IUser } from "../../../../server/models/users";
 
 const PostForm = ({
   user,
   postInputRef,
 }: {
-  user: User;
+  user: IUser;
   postInputRef?: MutableRefObject<HTMLTextAreaElement | null>;
 }) => {
   const dispatch = useAppDispatch();
@@ -75,7 +76,7 @@ const PostForm = ({
   }, [file]);
 
   useEffect(() => {
-    setDisplayName(user.first_name || user.display_name.split(" ")[0]);
+    setDisplayName(user.first_name ?? user.display_name?.split(" ")[0] ?? "");
   }, []);
 
   return (

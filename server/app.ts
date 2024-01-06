@@ -7,17 +7,14 @@ import path from "path";
 import cors from "cors";
 import cookieParser from "cookie-parser";
 import logger from "morgan";
-import mongoose, { Document } from "mongoose";
+import mongoose from "mongoose";
 
-import indexRouter from "./routes/index";
 import authRouter from "./routes/auth";
 import usersRouter from "./routes/users";
 import postsRouter from "./routes/posts";
 import commentsRouter from "./routes/comment";
 import friendRequestsRouter from "./routes/friend_requests";
 import notificationsRouter from "./routes/notifications";
-import { IPost, Post } from "./models/posts";
-import { Comment } from "./models/comments";
 
 mongoose.connect(process.env.DB_STRING as string, {
   // useUnifiedTopology: true,
@@ -28,14 +25,12 @@ mongoose.connection.on("open", () => console.log("Connected to mongoDB"));
 
 const app = express();
 
-app.use(express.static(path.resolve(__dirname, "client/build")));
-app.use(express.static(path.join(__dirname, "public")));
 app.use(
   cors({
     origin: function (origin, callback) {
       callback(null, origin);
     },
-    credentials: true,
+    credentials: false,
   })
 );
 

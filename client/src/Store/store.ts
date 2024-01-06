@@ -6,7 +6,9 @@ import commentsState, { State as CommentsState } from "./comments";
 import friendRequestsState, {
   State as FriendRequestsState,
 } from "./friendRequests";
-import notificationsState, { State as NotificationsState } from "./comments";
+import notificationsState, {
+  State as NotificationsState,
+} from "./notifications";
 
 export interface State {
   posts: PostsState;

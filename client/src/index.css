@@ -11,6 +11,10 @@
   font-family: "Roboto", sans-serif;
 }
 
+img {
+  max-width: inherit;
+}
+
 #root {
   min-height: 100vh;
   background: #f0f2f5;

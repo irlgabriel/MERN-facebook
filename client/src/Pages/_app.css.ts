@@ -7,6 +7,11 @@ export const GlobalStyle = createGlobalStyle`
 body {
   background: rgb(240, 242, 245);
 }
+
+img {
+  max-width: inherit;
+}
+
 #index-main {
   hr {
     height: 1px;

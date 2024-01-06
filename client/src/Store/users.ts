@@ -1,10 +1,11 @@
+import { IUser } from "./../../../server/models/users";
 import {
   createAsyncThunk,
   createSelector,
   createSlice,
 } from "@reduxjs/toolkit";
 import axios from "../helpers/network";
-import { FriendRequest, User } from "../Types/types";
+import { FriendRequest } from "../Types/types";
 import { UserIdRequestInput } from "./types";
 import { RootState } from "./store";
 import { getLoggedInUser } from "./auth";
@@ -13,24 +14,24 @@ import { getLoggedInUser } from "./auth";
  * ACTIONS
  */
 export const getUsers = createAsyncThunk("users/getUsers", async () => {
-  const users = (await axios.get<User[]>("/users")).data;
+  const users = (await axios.get<IUser[]>("/users")).data;
   return users;
 });
 export const getUser = createAsyncThunk(
   "users/getUser",
   async (userId: string) => {
-    const user = (await axios.get<User>("/users/" + userId)).data;
+    const user = (await axios.get<IUser>("/users/" + userId)).data;
     return user;
   }
 );
 export const deleteUser = createAsyncThunk("users/deleteUser", async () => {
-  const user = (await axios.delete<User>("/users")).data;
+  const user = (await axios.delete<IUser>("/users")).data;
   return user;
 });
 export const updateDesc = createAsyncThunk(
   "users/updateDesc",
   async ({ userId, description }: { userId: string; description: string }) => {
-    const user = (await axios.post<User>("/users/" + userId, { description }))
+    const user = (await axios.post<IUser>("/users/" + userId, { description }))
       .data;
     return user;
   }
@@ -38,14 +39,14 @@ export const updateDesc = createAsyncThunk(
 export const updateProfilePhoto = createAsyncThunk(
   "users/updateProfilePhoto",
   async ({ formData }: { formData: FormData }) => {
-    const user = (await axios.post<User>("/users", { formData })).data;
+    const user = (await axios.post<IUser>("/users", { formData })).data;
     return user;
   }
 );
 export const updateCoverPhoto = createAsyncThunk(
   "users/updateCoverPhoto",
   async ({ formData }: { formData: FormData }) => {
-    const user = (await axios.post<User>("/users", { formData })).data;
+    const user = (await axios.post<IUser>("/users", { formData })).data;
     return user;
   }
 );
@@ -83,14 +84,14 @@ const selectUsers = (state: State) => state.users;
 
 export const selectUserById = createSelector(
   [selectUsers, selectUserId],
-  (users, userId) => users.find((user) => user._id === userId)
+  (users, userId) => users?.find((user) => user._id === userId) ?? null
 );
 
 /**
  * TYPES
  */
 export interface State {
-  users: User[];
+  users: IUser[];
   loading: boolean;
   fetched: boolean;
   error: string | null;
@@ -203,7 +204,9 @@ const usersSlice = createSlice({
         u._id === owner?._id
           ? {
               ...u,
-              friends: u.friends.filter((friend) => friend !== removedFriendId),
+              friends: u.friends.filter(
+                (friend) => friend.toString() !== removedFriendId
+              ),
             }
           : u
       );

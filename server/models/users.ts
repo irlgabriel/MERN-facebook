@@ -1,8 +1,8 @@
 import mongoose, { InferSchemaType, Schema } from "mongoose";
 import { Post } from "./posts";
-import { Comment } from "./comments";
+import Comment from "./comments";
 
-export type IUser = InferSchemaType<typeof UserSchema>;
+export type IUser = InferSchemaType<typeof UserSchema> & { _id: string };
 
 const UserSchema = new Schema(
   {
@@ -30,26 +30,34 @@ UserSchema.virtual("full_name").get(function (this: IUser) {
   return this.first_name + " " + this.last_name;
 });
 
-// UserSchema.pre("remove", async function (next) {
-//   // delete all posts of this user
-//   try {
-//     await Post.deleteMany({ user: this._id });
-//   } catch (e: any) {
-//     next(e);
-//   }
-//   // delete all comments of this user
-//   try {
-//     await Comment.deleteMany({ user: this._id });
-//   } catch (e: any) {
-//     next(e);
-//   }
-//   // delete this user form all their friends' list
-//   this.friends.forEach((friend) => {
-//     (friend as any as typeof User)
-//       .updateOne({ $pull: { friends: this._id } })
-//       .exec();
-//   });
-//   return next();
-// });
+UserSchema.pre(
+  "deleteOne",
+  { query: true, document: false },
+  async function (next) {
+    const userId = this.getFilter()["_id"];
+
+    // delete all posts
+    try {
+      await Post.deleteMany({ user: userId });
+    } catch (e: any) {
+      next(e);
+    }
+    // delete all comments
+    try {
+      await Comment.deleteMany({ user: userId });
+    } catch (e: any) {
+      next(e);
+    }
+    // delete this user from all their friends' list
+    try {
+      await User.updateMany(
+        { friends: { $includes: userId } },
+        { $pull: { friends: userId } }
+      );
+    } catch (e: any) {
+      next(e);
+    }
+  }
+);
 
 export { User };

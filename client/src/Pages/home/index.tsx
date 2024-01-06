@@ -10,12 +10,13 @@ import { useAppDispatch, useAppSelector } from "../../Hooks/utils";
 import { fetchPosts, selectAllPosts } from "../../Store/posts";
 import { User } from "../../Types/types";
 import { ProtectedRoute } from "../../Components/ProtectedRoute/ProtectedRoute";
+import { IUser } from "../../../../server/models/users";
 
 const Home = () => {
   const { ref, inView } = useInView();
   const dispatch = useAppDispatch();
   const posts = useAppSelector((state) => selectAllPosts(state.posts));
-  const user = useAppSelector((state) => state.auth.user) as User;
+  const user = useAppSelector((state) => state.auth.user) as IUser;
   const loading = useAppSelector((state) => state.posts.loading);
   const hasMoreData = useAppSelector((state) => state.posts.hasMoreData);
 
@@ -27,21 +28,19 @@ const Home = () => {
 
   useEffect(() => {
     if (inView && !loading && hasMoreData) {
-      dispatch(fetchPosts({}));
+      dispatch(fetchPosts());
     }
   }, [inView, loading, hasMoreData]);
 
   if (!user) return;
 
-  console.log(posts);
-
   return (
-    <div className="w-full gap-5 grid grid-cols-12 pt-14">
+    <div className="w-full h-dvh gap-5 grid grid-cols-12 pt-14">
       <CSSTransition in={loading} timeout={300} classNames="fade" unmountOnExit>
         <LoadingOverlay />
       </CSSTransition>
       <Navbar key="home" />
-      <div className="md:hidden lg:block lg:col-span-3">
+      <div className="md:hidden overflow-scroll lg:block lg:col-span-3">
         <NavItem href={`/users/${user._id}`}>
           <RoundImage src={user.profile_photo} />
           &nbsp;{user.display_name || user.first_name + " " + user.last_name}
@@ -51,10 +50,10 @@ const Home = () => {
           &nbsp;Friends
         </NavItem>
       </div>
-      <div className="sm:col-span-12 md:col-span-10 md:col-start-2 lg:col-span-6">
+      <div className="sm:col-span-12 md:col-span-10 md:col-start-2 lg:col-span-6 overflow-scroll -mx-6 px-6">
         <PostForm postInputRef={postInputRef} user={user} />
         {posts.map((post) => (
-          <Post post={post} />
+          <Post key={`post-${post._id}`} post={post} />
         ))}
         {!posts.length && (
           <NoPostsDiv>
@@ -72,7 +71,7 @@ const Home = () => {
         )}
         <div ref={ref} style={{ width: "10px", height: "2px" }} />
       </div>
-      <div className="md:hidden lg:block lg:col-span-3">
+      <div className="md:hidden lg:block lg:col-span-3 overflow-scroll">
         <h5 style={{ color: "darkgray" }}>Contacts</h5>
         <hr className="my-2" style={{ backgroundColor: "lightgray" }}></hr>
         {user.friends.map((friend) => (

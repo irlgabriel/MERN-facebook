@@ -35,7 +35,6 @@ export const ReplyFooter = styled.div`
 
 export const FooterLink = styled.p<{ bold?: boolean; color: string }>`
   font-weight: ${({ bold }) => (bold ? "bold" : "")};
-  font-size: 12px;
   color: ${({ color }) => (color ? color : "black")};
   margin-right: 0.5rem;
   margin-bottom: 0;

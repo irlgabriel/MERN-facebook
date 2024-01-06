@@ -1,92 +1,95 @@
 import moment from "moment";
 import React, { useState, useEffect } from "react";
-import {
-  CommentContainer,
-  UserPhoto,
-  CommentBody,
-  CommentWrapper,
-  CommentFooter,
-  FooterLink,
-  LikesContainer,
-  ReplyCount,
-} from "./Comment.components";
-import { Form, Input, Button, FormGroup } from "reactstrap";
 import { Reply } from "..";
 import { AiFillLike } from "react-icons/ai";
 import { BsArrow90DegDown } from "react-icons/bs";
 import { ReplyForm } from "..";
 import Link from "next/link";
-import { Comment as CommentType, Post, User } from "../../Types/types";
-import { getReplies, selectReplies } from "../../Store/comments";
+import { User, isComment } from "../../Types/types";
+import {
+  deleteComment,
+  editComment,
+  getReplies,
+  likeComment,
+  selectReplies,
+} from "../../Store/comments";
 import { useAppDispatch, useAppSelector } from "../../Hooks/utils";
+import { IComment } from "../../../../server/models/comments";
+import { IPost } from "../../../../server/models/posts";
+import { Button, FileInput, Textarea } from "flowbite-react";
 
 interface Props {
   level?: number;
-  comments: CommentType[];
-  comment: CommentType;
-  post: Post;
+  comment: IComment;
+  post: IPost;
 }
 
 const Comment = ({ level = 0, comment, post }: Props) => {
   const dispatch = useAppDispatch();
 
-  const commentOwner = post.user as any as User;
+  const commentOwner = comment.user as any as User;
+  const user = useAppSelector((state) => state.auth.user);
 
   const replies = useAppSelector((state) =>
     selectReplies(state.comments, comment._id)
   );
-
+  const loading = useAppSelector((state) => state.comments.loading);
   const [file, setFile] = useState<File | null>(null);
   const [showReplyForm, setShowReply] = useState(false);
   const [showReplies, setShowReplies] = useState(false);
-  const [content, setContent] = useState(comment.content);
+  const [content, setContent] = useState(comment.content ?? "");
   const [showEdit, setEdit] = useState(false);
 
   const deleteHandler = () => {
-    window.confirm(
-      "Are you sure you want to delete this comment? This action cannot be undone."
-    );
-    // &&
-    //   axios
-    //     .delete(`/posts/${post._id}/comments/${comment._id}`)
-    //     .then((res) => {
-    //       setComments(
-    //         comments.filter((comment) => comment._id !== res.data._id)
-    //       );
-    //     })
-    //     .catch((err) => console.log(err));
+    if (
+      window.confirm(
+        "Are you sure you want to delete this comment? This action cannot be undone."
+      )
+    ) {
+      const postId = post._id;
+      const commentId = comment._id;
+      const parentCommentId = (
+        isComment(comment?.comment) ? comment?.comment._id : comment._id
+      ).toString();
+
+      dispatch(
+        deleteComment({
+          postId,
+          commentId,
+          ...(comment?.comment ? { parentCommentId } : {}),
+        })
+      );
+    }
   };
 
-  const likeComment = () => {
-    // axios
-    //   .post(`/posts/${post._id}/comments/${comment._id}`, {})
-    //   .then((res) => {
-    //     setComments(
-    //       comments.map((comment) =>
-    //         comment._id === res.data._id ? res.data : comment
-    //       )
-    //     );
-    //   })
-    //   .catch((err) => console.log(err));
+  const likeHandler = () => {
+    if (loading) return;
+    const postId = post._id;
+    const commentId = comment._id;
+    const parentCommentId = (
+      isComment(comment?.comment) ? comment?.comment._id : comment._id
+    ).toString();
+
+    dispatch(
+      likeComment({
+        postId,
+        commentId,
+        ...(comment?.comment ? { parentCommentId } : {}),
+      })
+    );
   };
 
   const editHandler = (e) => {
     e.preventDefault();
 
     const formData = new FormData();
-    formData.append("content", content);
+    if (typeof content === "string") {
+      formData.append("content", content);
+    }
     if (file) formData.append("image", file);
-    // axios
-    //   .put(`/posts/${post._id}/comments/${comment._id}`, formData)
-    //   .then((res) => {
-    //     setComments(
-    //       comments.map((comment) =>
-    //         comment._id === res.data._id ? res.data : comment
-    //       )
-    //     );
-    //     setEdit(false);
-    //   })
-    //   .catch((err) => console.log(err));
+    dispatch(
+      editComment({ data: formData, comment: comment._id, post_id: post._id })
+    );
   };
 
   const onChangeHandler = (target) => {
@@ -108,8 +111,10 @@ const Comment = ({ level = 0, comment, post }: Props) => {
   };
 
   useEffect(() => {
-    dispatch(getReplies({ commentId: comment._id, postId: post._id }));
-  }, []);
+    if (showReplies) {
+      dispatch(getReplies({ commentId: comment._id, postId: post._id }));
+    }
+  }, [showReplies]);
 
   useEffect(() => {
     const textarea = document.querySelector("textarea");
@@ -118,22 +123,29 @@ const Comment = ({ level = 0, comment, post }: Props) => {
     }
   }, [showEdit]);
 
+  useEffect(() => {
+    console.log({ commentOwner, likes: comment.likes });
+  }, [comment.likes]);
+
   return (
-    <CommentContainer>
-      <Link href={`/users/${commentOwner._id}`}>
-        <UserPhoto className="mr-2" src={commentOwner.profile_photo} />
+    <div className="flex mt-1">
+      <Link className="font-semibold" href={`/users/${commentOwner._id}`}>
+        <img
+          className="w-8 h-8 mr-2 rounded-2xl"
+          src={commentOwner.profile_photo}
+        />
       </Link>
-      <CommentWrapper className={"w-100"}>
-        <CommentBody>
+      <div className={"p-1 flex-col w-full"}>
+        <div className="p-2 relative rounded-lg w-full bg-slate-100">
           <h6 className="mb-0">
             {commentOwner.display_name ||
               commentOwner.first_name + " " + commentOwner.last_name}
           </h6>
           {!showEdit ? (
-            <div style={{ wordBreak: "break-word" }}>
+            <div className="w-full" style={{ wordBreak: "break-word" }}>
               <p
                 className="mb-0"
-                dangerouslySetInnerHTML={{ __html: comment.content }}
+                dangerouslySetInnerHTML={{ __html: comment.content ?? "" }}
               ></p>
               {comment.image && (
                 <Link href={`/users/${comment.user}`}>
@@ -142,28 +154,28 @@ const Comment = ({ level = 0, comment, post }: Props) => {
               )}
             </div>
           ) : (
-            <Form onSubmit={(e) => editHandler(e)} className="w-100">
-              <FormGroup>
-                <Input
-                  type="textarea"
-                  placeholder="Content..."
-                  value={content}
-                  onChange={(e) => {
-                    setContent(e.target.value);
-                    onChangeHandler(e.target);
-                  }}
-                />
-              </FormGroup>
-              <FormGroup style={{ marginLeft: "12px" }}>
-                <Input
-                  onChange={(e) => setFile(e.target?.files?.[0] ?? null)}
-                  type="file"
-                  name="image"
-                />
-                <em>Max 5MB (Accepted formats: jpg, jpeg, png)</em>
-              </FormGroup>
-              <FormGroup className="text-right mb-1">
-                <Button color="primary" type="submit" size="sm">
+            <form onSubmit={(e) => editHandler(e)} className="w-full pl-3">
+              <Textarea
+                placeholder="Content..."
+                value={content}
+                onChange={(e) => {
+                  setContent(e.target.value);
+                  onChangeHandler(e.target);
+                }}
+                className="mb-2"
+              />
+              <FileInput
+                onChange={(e) => setFile(e.target?.files?.[0] ?? null)}
+                name="image"
+              />
+              <em>Max 5MB (Accepted formats: jpg, jpeg, png)</em>
+              <div className="w-full flex text-left">
+                <Button
+                  className="-ml-3"
+                  color="primary"
+                  type="submit"
+                  size="sm"
+                >
                   Edit
                 </Button>
                 <Button
@@ -175,93 +187,105 @@ const Comment = ({ level = 0, comment, post }: Props) => {
                 >
                   Cancel
                 </Button>
-              </FormGroup>
-            </Form>
+              </div>
+            </form>
           )}
           {!showEdit && (
-            <LikesContainer>
+            <div className="bg-white absolute rounded-md flex items-center px-1 -bottom-3 right-1">
               <AiFillLike
                 fill={
-                  //@ts-ignore
-                  comment.likes.some((e) => e._id === commentOwner._id)
+                  comment.likes.some(
+                    (like) => like._id.toString() === user?._id.toString()
+                  )
                     ? "royalblue"
                     : ""
                 }
                 size={12}
               />
-              &nbsp;
-              <p style={{ fontSize: "12px" }} className="d-inline-block mb-0">
+              <p className="text-xs font-size-2 inline-block ml-1 mb-0">
                 {comment.likes.length}
               </p>
-            </LikesContainer>
+            </div>
           )}
-        </CommentBody>
-        <CommentFooter>
-          <FooterLink
+        </div>
+        <div className="flex items-center">
+          <span
+            className="font-semibold cursor-pointer mr-2 text-sm"
             color={
               //@ts-ignore
               comment.likes.some((e) => e._id === commentOwner._id)
                 ? "royalblue"
                 : "black"
             }
-            onClick={() => likeComment()}
-            bold
+            onClick={() => likeHandler()}
           >
             Like
-          </FooterLink>
+          </span>
           {level < 3 && (
-            <FooterLink bold onClick={() => setShowReply(!showReplyForm)}>
+            <span
+              color=""
+              className="font-semibold cursor-pointer text-sm"
+              onClick={() => setShowReply(!showReplyForm)}
+            >
               Reply
-            </FooterLink>
+            </span>
           )}
-          {commentOwner._id === commentOwner._id && (
-            <FooterLink bold onClick={() => deleteHandler()} color="gray">
-              <span style={{ color: "black" }}>&middot;&nbsp;&nbsp;</span>
-              Delete
-            </FooterLink>
+          {user?._id === commentOwner._id && (
+            <>
+              <span
+                className="pointer-events-none mx-2"
+                style={{ color: "black" }}
+              >
+                &middot;
+              </span>
+              <span
+                color=""
+                className="font-semibold cursor-pointer mr-2 text-sm"
+                onClick={() => deleteHandler()}
+              >
+                Delete
+              </span>
+              <span
+                color=""
+                className="font-semibold cursor-pointer mr-2 text-sm"
+                onClick={() => setEdit(!showEdit)}
+              >
+                Edit
+              </span>
+            </>
           )}
-          {commentOwner._id === commentOwner._id && (
-            <FooterLink bold onClick={() => setEdit(!showEdit)} color="gray">
-              Edit
-            </FooterLink>
-          )}
-          <FooterLink color="lightgray">
-            {/*@ts-ignore*/}
+
+          <span className="ml-1 text-xs text-slate-400">
             {moment(comment.createdAt).fromNow()}
-          </FooterLink>
-        </CommentFooter>
-        {comment.childrenCount && !showReplies ? (
+          </span>
+        </div>
+        {comment.commentsCount && !showReplies ? (
           <div
             onClick={() => setShowReplies(true)}
-            className="pl-3 pt-2 d-flex align-items-center"
+            className="cursor-pointer pl-3 pt-2 flex items-center"
           >
             <BsArrow90DegDown
-              size={24}
+              size={16}
               fill="black"
+              className="mr-1"
               style={{ transform: "rotate(-90deg)" }}
             />
-            &nbsp;
-            <ReplyCount className="mb-0 font-weight-bold">
-              {comment.childrenCount} Replies
-            </ReplyCount>
+            <div className="select-none cursor-pointer mb-0 text-xs font-semibold">
+              {comment.commentsCount} Replies
+            </div>
           </div>
         ) : (
           ""
         )}
         {showReplies &&
           replies.map((reply) => (
-            <Reply
-              //@ts-ignore
-              key={reply._id}
-              reply={reply}
-              comment={comment}
-            />
+            <Reply key={reply._id} reply={reply} comment={comment} />
           ))}
         {showReplyForm && (
           <ReplyForm key={comment._id} post={post} comment={comment} />
         )}
-      </CommentWrapper>
-    </CommentContainer>
+      </div>
+    </div>
   );
 };
 

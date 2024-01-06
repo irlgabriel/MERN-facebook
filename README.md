@@ -97,6 +97,7 @@
 - [x] Friend requests
 - [x] Notifications
 - [ ] Built-in real-time chat messaging
+- [ ] CI/CD integration
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 

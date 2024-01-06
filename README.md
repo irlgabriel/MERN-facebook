@@ -141,7 +141,7 @@ Use this space to list resources you find helpful and would like to give credit 
 [license-url]: https://github.com/irlgabriel/MERN-facebook/blob/master/LICENSE.txt
 [linkedin-shield]: https://img.shields.io/badge/-LinkedIn-black.svg?style=for-the-badge&logo=linkedin&colorB=555
 [linkedin-url]: https://www.linkedin.com/in/gabriel-radu-5023021b9/
-[product-screenshot]: server/images/preview.png
+[product-screenshot]: http://54.93.240.69/images/previewFB.png
 [Next.js]: https://img.shields.io/badge/next.js-000000?style=for-the-badge&logo=nextdotjs&logoColor=white
 [Next-url]: https://nextjs.org/
 [React.js]: https://img.shields.io/badge/-ReactJs-61DAFB?logo=react&logoColor=white&style=for-the-badge

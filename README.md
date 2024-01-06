@@ -30,7 +30,7 @@
 <!-- PROJECT LOGO -->
 <br />
 <div align="center">
-  <a href="https://github.com/othneildrew/Best-README-Template">
+  <a href="https://github.com/othneildrew/Best-README-Template/blob/master/images/logo.png">
     <img src="images/logo.png" alt="Logo" width="80" height="80">
   </a>
 
@@ -82,6 +82,7 @@ Use the `BLANK_README.md` to get started.
 
 * [![Next][Next.js]][Next-url]
 * [![React][React.js]][React-url]
+* [![Redux][Redux.js]][Redux-url]
 * [![Tailwind][Tailwind.com]][Tailwind-url]
 * [![ExpressJS][Express.com]][Express-url]
 * [![Node][Node.com]][Node-url]
@@ -112,16 +113,11 @@ Project Link: [https://github.com/irlgabriel/MERN-facebook](https://github.com/i
 <!-- ACKNOWLEDGMENTS -->
 ## Acknowledgments
 
-Use this space to list resources you find helpful and would like to give credit to. I've included a few of my favorites to kick things off!
+This project was built as part of [Theodinproject](https://www.theodinproject.com/) javascript course.
 
-* [Choose an Open Source License](https://choosealicense.com)
-* [GitHub Emoji Cheat Sheet](https://www.webpagefx.com/tools/emoji-cheat-sheet)
-* [Malven's Flexbox Cheatsheet](https://flexbox.malven.co/)
-* [Malven's Grid Cheatsheet](https://grid.malven.co/)
-* [Img Shields](https://shields.io)
 * [GitHub Pages](https://pages.github.com)
-* [Font Awesome](https://fontawesome.com)
 * [React Icons](https://react-icons.github.io/react-icons/search)
+* [Start learning today (The odin project)](https://www.theodinproject.com/paths)
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
@@ -145,6 +141,8 @@ Use this space to list resources you find helpful and would like to give credit 
 [Next.js]: https://img.shields.io/badge/next.js-000000?style=for-the-badge&logo=nextdotjs&logoColor=white
 [Next-url]: https://nextjs.org/
 [React.js]: https://img.shields.io/badge/-ReactJs-61DAFB?logo=react&logoColor=white&style=for-the-badge
+[Redux-url]: https://redux.js.org/
+[Redux.js]: https://img.shields.io/badge/redux-js-blue?style=for-the-badge
 [React-url]: https://react.dev/
 [Tailwind.com]: https://img.shields.io/badge/Tailwind_CSS-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white
 [Tailwind-url]: https://tailwindcss.com/

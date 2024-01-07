@@ -3,7 +3,7 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
-    "start": "ts-node ./bin/www.ts",
+    "start": "node -r ts-node/register --max-old-space-size=8192 ./bin/www.ts",
     "startDev": "ts-node-dev ./bin/www",
     "build": "npm run start"
   },

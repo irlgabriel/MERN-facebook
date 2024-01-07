@@ -5,7 +5,7 @@
   "scripts": {
     "start": "node -r ts-node/register --max-old-space-size=8192 ./bin/www.ts",
     "startDev": "ts-node-dev ./bin/www",
-    "build": "npm run start"
+    "build": "node -r ts-node/register --max-old-space-size=8192 ./bin/www.ts"
   },
   "dependencies": {
     "@types/async": "^3.2.24",

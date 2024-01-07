@@ -1,7 +1,7 @@
 import axios from "axios";
 import { isClient } from "../helpers/utils";
 
-axios.defaults.baseURL = process.env.API_URL ?? "http://localhost:5000";
+axios.defaults.baseURL = process.env.API_URL ?? "http://54.93.240.69";
 
 axios.interceptors.request.use(
   (config) => {

@@ -2,8 +2,8 @@ import React, { useState } from "react";
 import { Form, Input, FormGroup, Button } from "reactstrap";
 import { RoundImage, PhotoImage } from "./ReplyForm.components";
 import { CSSTransition } from "react-transition-group";
-import { createComment } from "../../Store/comments";
-import { useAppDispatch, useAppSelector } from "../../Hooks/utils";
+import { createComment } from "../../store/comments";
+import { useAppDispatch, useAppSelector } from "../../hooks/utils";
 import { IPost } from "../../../../server/models/posts";
 import { IComment } from "../../../../server/models/comments";
 

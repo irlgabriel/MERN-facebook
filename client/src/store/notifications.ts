@@ -1,6 +1,6 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import axios from "../helpers/network";
-import { Notification } from "../Types/types";
+import { Notification } from "../types/types";
 
 /**
  * ACTIONS

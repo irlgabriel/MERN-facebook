@@ -4,10 +4,10 @@ import {
   DeleteButton,
 } from "./Notification.components";
 import React, { PropsWithChildren } from "react";
-import { Notification as NotificationType } from "../../Types/types";
+import { Notification as NotificationType } from "../../types/types";
 import { useRouter } from "next/router";
-import { clearNotification, readNotification } from "../../Store/notifications";
-import { useAppDispatch } from "../../Hooks/utils";
+import { clearNotification, readNotification } from "../../store/notifications";
+import { useAppDispatch } from "../../hooks/utils";
 
 type Props = PropsWithChildren<{
   notification: NotificationType;

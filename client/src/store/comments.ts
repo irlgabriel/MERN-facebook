@@ -7,7 +7,7 @@ import {
   createSlice,
 } from "@reduxjs/toolkit";
 import { fetchPost, fetchPosts } from "./posts";
-import { isComment } from "../Types/types";
+import { isComment } from "../types/types";
 
 /**
  * ACTIONS

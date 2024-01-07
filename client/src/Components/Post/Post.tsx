@@ -11,14 +11,14 @@ import {
 import { BsThreeDotsVertical } from "react-icons/bs";
 import { VscComment } from "react-icons/vsc";
 import { CSSTransition } from "react-transition-group";
-import { User } from "../../Types/types";
+import { User } from "../../types/types";
 import useOutsideClick, {
   useAppDispatch,
   useAppSelector,
-} from "../../Hooks/utils";
-import { deletePost, editPost, likePost } from "../../Store/posts";
-import { getComments, selectCommentsByPost } from "../../Store/comments";
-import { RootState } from "../../Store/store";
+} from "../../hooks/utils";
+import { deletePost, editPost, likePost } from "../../store/posts";
+import { getComments, selectCommentsByPost } from "../../store/comments";
+import { RootState } from "../../store/store";
 import Link from "next/link";
 import { Button, Dropdown, FileInput, Textarea } from "flowbite-react";
 import { IPost } from "../../../../server/models/posts";

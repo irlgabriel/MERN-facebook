@@ -1,6 +1,6 @@
 import { ComponentType, useEffect } from "react";
-import { useAppDispatch, useAppSelector } from "../../Hooks/utils";
-import { getLoggedInUser } from "../../Store/auth";
+import { useAppDispatch, useAppSelector } from "../../hooks/utils";
+import { getLoggedInUser } from "../../store/auth";
 import { useRouter } from "next/router";
 import { connect } from "react-redux";
 

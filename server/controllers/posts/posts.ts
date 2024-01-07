@@ -1,4 +1,4 @@
-import { Types } from "mongoose";
+import { types } from "mongoose";
 import { body, validationResult } from "express-validator";
 import multer, { Options } from "multer";
 import AWS from "aws-sdk";
@@ -46,7 +46,7 @@ export const get_user_posts: RequestHandler<
       if (!userId) throw new Error(`User with id ${userId} not found!`);
     }
 
-    const posts = await Post.find({ user: { $eq: new Types.ObjectId(userId) } })
+    const posts = await Post.find({ user: { $eq: new types.ObjectId(userId) } })
       .limit(pageSize)
       .skip(offset)
       .sort("-createdAt")

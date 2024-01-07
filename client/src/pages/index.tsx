@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from "react";
 import { TextInput, Button } from "flowbite-react";
 import { CSSTransition } from "react-transition-group";
-import { login } from "../Store/auth";
+import { login } from "../store/auth";
 import { LoadingOverlay } from "../Components";
-import { useAppDispatch, useAppSelector } from "../Hooks/utils";
+import { useAppDispatch, useAppSelector } from "../hooks/utils";
 import Link from "next/link";
 import { useRouter } from "next/router";
 

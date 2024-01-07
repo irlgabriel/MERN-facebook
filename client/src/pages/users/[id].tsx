@@ -11,21 +11,21 @@ import {
 import { CSSTransition } from "react-transition-group";
 import { AiFillCamera } from "react-icons/ai";
 import { FaCheck } from "react-icons/fa";
-import { useAppDispatch, useAppSelector } from "../../Hooks/utils";
+import { useAppDispatch, useAppSelector } from "../../hooks/utils";
 import {
   acceptRequest,
   declineRequest,
   selectSentFriendRequest,
   selectReceivedFriendRequest,
   sendRequest,
-} from "../../Store/friendRequests";
-import { removeFriend, selectUserById } from "../../Store/users";
-import { selectIsFriend } from "../../Store/auth";
+} from "../../store/friendRequests";
+import { removeFriend, selectUserById } from "../../store/users";
+import { selectIsFriend } from "../../store/auth";
 import Photos from "../../Components/Photos/Photos";
 import { useRouter } from "next/router";
 import { ProtectedRoute } from "../../Components/ProtectedRoute/ProtectedRoute";
 import Link from "next/link";
-import { fetchUserPosts, selectPostsByUser } from "../../Store/posts";
+import { fetchUserPosts, selectPostsByUser } from "../../store/posts";
 import styled from "styled-components";
 
 const Profile = ({ showNav = true }) => {

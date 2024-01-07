@@ -5,15 +5,15 @@ import { AiFillLike } from "react-icons/ai";
 import { BsArrow90DegDown } from "react-icons/bs";
 import { ReplyForm } from "..";
 import Link from "next/link";
-import { User, isComment } from "../../Types/types";
+import { User, isComment } from "../../types/types";
 import {
   deleteComment,
   editComment,
   getReplies,
   likeComment,
   selectReplies,
-} from "../../Store/comments";
-import { useAppDispatch, useAppSelector } from "../../Hooks/utils";
+} from "../../store/comments";
+import { useAppDispatch, useAppSelector } from "../../hooks/utils";
 import { IComment } from "../../../../server/models/comments";
 import { IPost } from "../../../../server/models/posts";
 import { Button, FileInput, Textarea } from "flowbite-react";

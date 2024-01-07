@@ -3,8 +3,8 @@ import { Container } from "reactstrap";
 import { Post, Navbar, LoadingOverlay } from "../../Components";
 import { CSSTransition } from "react-transition-group";
 import { useRouter } from "next/router";
-import { fetchPost, selectPostById } from "../../Store/posts";
-import { useAppDispatch, useAppSelector } from "../../Hooks/utils";
+import { fetchPost, selectPostById } from "../../store/posts";
+import { useAppDispatch, useAppSelector } from "../../hooks/utils";
 import { ProtectedRoute } from "../../Components/ProtectedRoute/ProtectedRoute";
 
 const PostPage = () => {

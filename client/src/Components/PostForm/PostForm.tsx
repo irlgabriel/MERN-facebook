@@ -9,9 +9,9 @@ import {
 } from "./PostForm.components";
 import { CSSTransition } from "react-transition-group";
 import { LoadingOverlay } from "..";
-import { useAppDispatch, useAppSelector } from "../../Hooks/utils";
-import { addPost } from "../../Store/posts";
-import { User } from "../../Types/types";
+import { useAppDispatch, useAppSelector } from "../../hooks/utils";
+import { addPost } from "../../store/posts";
+import { User } from "../../types/types";
 import Link from "next/link";
 import { Button, Textarea } from "flowbite-react";
 import { IUser } from "../../../../server/models/users";

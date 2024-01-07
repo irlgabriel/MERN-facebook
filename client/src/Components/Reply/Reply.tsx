@@ -13,12 +13,12 @@ import {
 import { Form, Input, Button, FormGroup } from "reactstrap";
 import { AiFillLike } from "react-icons/ai";
 
-import { deleteComment, editComment, likeComment } from "../../Store/comments";
-import { useAppDispatch, useAppSelector } from "../../Hooks/utils";
-import { selectPostById } from "../../Store/posts";
-import { selectUserById } from "../../Store/users";
+import { deleteComment, editComment, likeComment } from "../../store/comments";
+import { useAppDispatch, useAppSelector } from "../../hooks/utils";
+import { selectPostById } from "../../store/posts";
+import { selectUserById } from "../../store/users";
 import { IComment } from "../../../../server/models/comments";
-import { isUser } from "../../Types/types";
+import { isUser } from "../../types/types";
 
 interface Props {
   reply: IComment;

@@ -5,9 +5,9 @@ import { useInView } from "react-intersection-observer";
 import Link from "next/link";
 
 import { Navbar, PostForm, Post, LoadingOverlay } from "../../Components";
-import { useAppDispatch, useAppSelector } from "../../Hooks/utils";
-import { fetchPosts, selectAllPosts } from "../../Store/posts";
-import { User } from "../../Types/types";
+import { useAppDispatch, useAppSelector } from "../../hooks/utils";
+import { fetchPosts, selectAllPosts } from "../../store/posts";
+import { User } from "../../types/types";
 import { ProtectedRoute } from "../../Components/ProtectedRoute/ProtectedRoute";
 import { IUser } from "../../../../server/models/users";
 

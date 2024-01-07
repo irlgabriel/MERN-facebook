@@ -5,7 +5,7 @@ import {
   createSlice,
 } from "@reduxjs/toolkit";
 import axios from "../helpers/network";
-import { isUser } from "../Types/types";
+import { isUser } from "../types/types";
 import { RootState } from "./store";
 import { IPost } from "../../../server/models/posts";
 

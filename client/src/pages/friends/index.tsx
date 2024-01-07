@@ -8,16 +8,16 @@ import {
   FriendRequest,
 } from "../../Components";
 import Axios from "axios";
-import { User } from "../../Types/types";
-import { useAppDispatch, useAppSelector } from "../../Hooks/utils";
+import { User } from "../../types/types";
+import { useAppDispatch, useAppSelector } from "../../hooks/utils";
 import {
   acceptRequest,
   declineRequest,
   getRecommendations,
   getRequests,
   sendRequest,
-} from "../../Store/friendRequests";
-import { fetchPosts } from "../../Store/posts";
+} from "../../store/friendRequests";
+import { fetchPosts } from "../../store/posts";
 import { ProtectedRoute } from "../../Components/ProtectedRoute/ProtectedRoute";
 import { IUser } from "../../../../server/models/users";
 const Friends = () => {

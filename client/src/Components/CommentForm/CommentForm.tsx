@@ -4,7 +4,7 @@ import { CSSTransition } from "react-transition-group";
 import Link from "next/link";
 import { BsFillImageFill } from "react-icons/bs";
 import { Button, FileInput, Textarea } from "flowbite-react";
-import useOutsideClick from "../../Hooks/utils";
+import useOutsideClick from "../../hooks/utils";
 
 const CommentForm = ({ post, user, comments }) => {
   const submitButtonArea = useRef<HTMLFormElement | null>(null);

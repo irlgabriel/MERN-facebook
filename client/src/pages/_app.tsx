@@ -2,7 +2,7 @@ import React from "react";
 import Head from "next/head";
 import { GlobalStyle } from "./_app.css";
 import { Provider } from "react-redux";
-import store from "../Store/store";
+import store from "../store/store";
 import "tailwindcss/tailwind.css";
 
 const App = ({ Component }: { Component: React.FC }) => {

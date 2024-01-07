@@ -44,17 +44,17 @@ import { Notification } from "..";
 import {
   FriendRequest,
   Notification as NotificationType,
-} from "../../Types/types";
-import { useAppDispatch, useAppSelector } from "../../Hooks/utils";
-import { getUsers } from "../../Store/users";
+} from "../../types/types";
+import { useAppDispatch, useAppSelector } from "../../hooks/utils";
+import { getUsers } from "../../store/users";
 import {
   clearAllNotifications,
   getNotifications,
-} from "../../Store/notifications";
+} from "../../store/notifications";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import { ProtectedRoute } from "../ProtectedRoute/ProtectedRoute";
-import { getRequests } from "../../Store/friendRequests";
+import { getRequests } from "../../store/friendRequests";
 import { IUser } from "../../../../server/models/users";
 
 const Navbar = () => {

@@ -5,7 +5,7 @@ import {
   Friend,
   Image,
 } from "./FriendsProfile.components";
-import { User } from "../../Types/types";
+import { User } from "../../types/types";
 
 const FriendsProfile = ({ user }) => {
   const [friends, setFriends] = useState<User[]>([]);

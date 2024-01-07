@@ -4,7 +4,7 @@ import {
   createSelector,
   createSlice,
 } from "@reduxjs/toolkit";
-import { FriendRequest, User } from "../Types/types";
+import { FriendRequest, User } from "../types/types";
 import axios from "../helpers/network";
 
 /**

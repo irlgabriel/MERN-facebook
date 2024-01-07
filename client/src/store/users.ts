@@ -5,7 +5,7 @@ import {
   createSlice,
 } from "@reduxjs/toolkit";
 import axios from "../helpers/network";
-import { FriendRequest } from "../Types/types";
+import { FriendRequest } from "../types/types";
 import { UserIdRequestInput } from "./types";
 import { RootState } from "./store";
 import { getLoggedInUser } from "./auth";

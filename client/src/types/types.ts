@@ -1,4 +1,3 @@
-import { isObjectIdOrHexString } from "mongoose";
 import { IComment } from "../../../server/models/comments";
 
 export interface Post {

@@ -1,6 +1,6 @@
 import { createGlobalStyle } from "styled-components";
 
-export const GlobalStyle = createGlobalStyle`
+export default createGlobalStyle`
 @tailwind base;
 @tailwind components;
 @tailwind utilities;

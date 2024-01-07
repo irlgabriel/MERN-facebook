@@ -1,5 +1,5 @@
 import React, { PropsWithChildren } from "react";
-import { Photo } from "../../Components";
+import { Photo } from "..";
 import { PhotosContainer } from "./Photos.components";
 
 type Props = PropsWithChildren<{

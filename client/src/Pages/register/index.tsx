@@ -1,7 +1,6 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
 import { Container, Form, Input, Label, FormGroup, Button } from "reactstrap";
-import { FlashMessage } from "./style";
 import { CSSTransition } from "react-transition-group";
 import Link from "next/link";
 import { useRouter } from "next/router";
@@ -61,7 +60,9 @@ const Register = ({ user, reloadUser, getUser }) => {
         classNames="fade"
         unmountOnExit
       >
-        <FlashMessage>{message}</FlashMessage>
+        <div className="w-3/4 bg-slate-500 p-2 my-2 mx-0 text-white">
+          {message}
+        </div>
       </CSSTransition>
       <Form onSubmit={(e) => submitHandler(e)}>
         <FormGroup>

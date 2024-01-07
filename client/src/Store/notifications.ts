@@ -35,7 +35,7 @@ export const clearAllNotifications = createAsyncThunk(
 export const clearNotification = createAsyncThunk(
   "notifications/clearNotification",
   async (notificationId: string) => {
-    await axios.delete(`/posts/${notificationId}`);
+    await axios.delete(`/notifications/${notificationId}`);
 
     return notificationId;
   }

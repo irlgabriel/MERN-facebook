@@ -2,24 +2,6 @@ import React, { useEffect, useState } from "react";
 import { Container, Col, Button } from "reactstrap";
 import { Navbar } from "../../Components";
 import {
-  CoverPhoto,
-  ProfilePhoto,
-  ProfilePhotoWrapper,
-  ProfileSection,
-  ProfileHeader,
-  ProfileNav,
-  NavItem,
-  Main,
-  DefaultCoverPhoto,
-  ChangeProfilePhoto,
-  GrayHoverDiv,
-  FlexDivGray,
-  Option,
-  CollapseDiv,
-  WhiteContainer,
-  Description,
-} from "./style";
-import {
   Post,
   PostForm,
   ImageForm,
@@ -29,7 +11,6 @@ import {
 import { CSSTransition } from "react-transition-group";
 import { AiFillCamera } from "react-icons/ai";
 import { FaCheck } from "react-icons/fa";
-import { Post as PostType } from "../../Types/types";
 import { useAppDispatch, useAppSelector } from "../../Hooks/utils";
 import {
   acceptRequest,
@@ -40,11 +21,12 @@ import {
 } from "../../Store/friendRequests";
 import { removeFriend, selectUserById } from "../../Store/users";
 import { selectIsFriend } from "../../Store/auth";
-import Photos from "../Photos/Photos";
+import Photos from "../../Components/Photos/Photos";
 import { useRouter } from "next/router";
 import { ProtectedRoute } from "../../Components/ProtectedRoute/ProtectedRoute";
 import Link from "next/link";
 import { fetchUserPosts, selectPostsByUser } from "../../Store/posts";
+import styled from "styled-components";
 
 const Profile = ({ showNav = true }) => {
   const dispatch = useAppDispatch();
@@ -100,7 +82,7 @@ const Profile = ({ showNav = true }) => {
   };
 
   return profileUser ? (
-    <Container fluid className="p-0">
+    <div className="p-0">
       <CSSTransition in={loading} timeout={300} classNames="fade" unmountOnExit>
         <LoadingOverlay />
       </CSSTransition>
@@ -120,13 +102,16 @@ const Profile = ({ showNav = true }) => {
       )}
       <div style={{ background: "white" }}>
         {showNav && <Navbar key="profile" />}
-        <ProfileSection className="px-0">
+        <div className="px-0 w-full my-0 mx-auto mb-7 rounded-t-md rounded-b-md relative">
           {profileUser.cover_photo ? (
             <Link href={"profileUser.cover_photo"}>
-              <CoverPhoto src={profileUser.cover_photo}></CoverPhoto>
+              <img
+                className="w-full h-80 rounded-bl-md rounded-br-md"
+                src={profileUser.cover_photo}
+              />
             </Link>
           ) : (
-            <DefaultCoverPhoto />
+            <div className="bg-slate-50 w-full h-80 rounded-bl-md rounded-br-md" />
           )}
           {/* {sameUser && (
             <GrayHoverDiv onClick={() => setCoverPhotoForm(true)}>
@@ -134,7 +119,8 @@ const Profile = ({ showNav = true }) => {
             </GrayHoverDiv>
           )} */}
           {isFriends && (
-            <GrayHoverDiv
+            <div
+              className="absolute bottom-5 right-5 rounded-md bg-slate-200 py-2 px-1 cursor-pointer hover:bg-slate-300"
               data-id={profileUser._id}
               onClick={() => setCollapse(!collapse)}
             >
@@ -143,16 +129,19 @@ const Profile = ({ showNav = true }) => {
               </p>
               {/* Collapsed div for friend options */}
               {collapse && (
-                <CollapseDiv>
-                  <Option onClick={() => deleteFriend(profileUser._id)}>
+                <div className="absolute w-36 bg-white -bottom-11 right-0 rounded-md p-1 border">
+                  <div
+                    className="bg-white rounded-md p-1 cursor-pointer hover:bg-slate-100"
+                    onClick={() => deleteFriend(profileUser._id)}
+                  >
                     Remove Friend
-                  </Option>
-                </CollapseDiv>
+                  </div>
+                </div>
               )}
-            </GrayHoverDiv>
+            </div>
           )}
           {receivedRequest && (
-            <FlexDivGray>
+            <div className="max-w-48 absolute bottom-5 right-5 rounded-md py2 px-1 cursor-pointer hover:opacity-75">
               <p className="mb-1">
                 {profileUser.display_name ||
                   profileUser.first_name + " " + profileUser.last_name}{" "}
@@ -175,47 +164,57 @@ const Profile = ({ showNav = true }) => {
                   Delete
                 </Button>
               </div>
-            </FlexDivGray>
+            </div>
           )}
           {sentRequest && (
-            <GrayHoverDiv>
+            <div className="max-w-48 absolute bottom-5 right-5 rounded-md py2 px-1 cursor-pointer hover:opacity-75">
               <p className="mb-0">
                 <FaCheck /> Sent Friend Request
               </p>
-            </GrayHoverDiv>
+            </div>
           )}
           {!sentRequest && !receivedRequest && !isFriends && (
-            <GrayHoverDiv onClick={() => sendFriendRequest(profileUser._id)}>
+            <div
+              className="max-w-48 absolute bottom-5 right-5 rounded-md py2 px-1 cursor-pointer hover:opacity-75"
+              onClick={() => sendFriendRequest(profileUser._id)}
+            >
               <p className="mb-0">Send Friend Request</p>
-            </GrayHoverDiv>
+            </div>
           )}
-          <ProfilePhotoWrapper>
+          <div className="absolute left-[calc(50%-96px)] -bottom-6 border-full border border-bg-slate-100">
             {profileUser?.profile_photo && (
               <Link href={"profileUser.profile_photo"}>
-                <ProfilePhoto src={profileUser.profile_photo}></ProfilePhoto>
+                <img
+                  className="w-48 h-48 z-50 rounded-full border-white border-4"
+                  src={profileUser.profile_photo}
+                />
               </Link>
             )}
             {profileUser._id === profileUser._id && (
-              <ChangeProfilePhoto onClick={() => setProfilePhotoForm(true)}>
+              <div
+                className="p-1 rounded-2xl w-9 h-9 flex items-center justify-center absolute bg-slate-100 right-2 bottom-4 z-6 hover:bg-slate-300 cursor-pointer"
+                onClick={() => setProfilePhotoForm(true)}
+              >
                 <AiFillCamera fill="black" size={24} />
-              </ChangeProfilePhoto>
+              </div>
             )}
-          </ProfilePhotoWrapper>
-        </ProfileSection>
+          </div>
+        </div>
         <h1 className="text-center">
           {profileUser.display_name ||
             profileUser.first_name + " " + profileUser.last_name}
         </h1>
         {/* Small Description */}
         {profileUser.description.length && (
-          <Description
+          <Link
+            className="min-w-36 max-w-64 block my-0 mx-auto bg-transparent text-black rounded-md text-center hover:bg-slate-100"
             href="https://github.com/irlgabriel"
             dangerouslySetInnerHTML={{ __html: profileUser.description }}
-          ></Description>
+          ></Link>
         )}
-        <ProfileHeader>
+        <div className="w-full my-0 mx-auto">
           <hr className="my-2" />
-          <ProfileNav>
+          <div className="flex items-center">
             {/*@ts-ignore*/}
             <NavItem
               onClick={() => setSubPage("main")}
@@ -237,8 +236,8 @@ const Profile = ({ showNav = true }) => {
             >
               Friends
             </NavItem>
-          </ProfileNav>
-        </ProfileHeader>
+          </div>
+        </div>
       </div>
       {subPage === "main" && (
         <div className="grid grid-cols-12 gap-6 px-20">
@@ -255,9 +254,9 @@ const Profile = ({ showNav = true }) => {
             )}
             {}
             {!userPosts.length && (
-              <WhiteContainer className="mt-2">
+              <div className="mt-2 flex p-2 rounded-md bg-white w-full">
                 <p>No Posts available</p>
-              </WhiteContainer>
+              </div>
             )}
             {userPosts.map((post) => (
               <Post key={post._id} post={post} />
@@ -267,8 +266,26 @@ const Profile = ({ showNav = true }) => {
       )}
       {subPage === "photos" && <Photos photos={[]} />}
       {subPage === "friends" && <FriendsProfile user={profileUser} />}
-    </Container>
+    </div>
   ) : null;
 };
+
+const NavItem = styled.a<{ active?: boolean }>`
+  padding: 1rem;
+  background: white;
+  transition: all 0.2s;
+  font-weight: bold;
+  color: black;
+  border-radius: ${({ active }) => (active ? "0" : "6px")};
+  border-bottom: ${({ active }) =>
+    active ? "3px solid royalblue" : "3px solid transparent"};
+  color: ${({ active }) => (active ? "royalblue" : "black")};
+  &:hover {
+    cursor: pointer;
+    color: black;
+    text-decoration: none;
+    background: ${({ active }) => (active ? "white" : "#f0f2f5")};
+  }
+`;
 
 export default ProtectedRoute(Profile);

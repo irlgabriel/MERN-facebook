@@ -4,7 +4,6 @@ import { FaUserFriends } from "react-icons/fa";
 import { useInView } from "react-intersection-observer";
 import Link from "next/link";
 
-import { NavItem, RoundImage, NoPostsDiv, FakeLink } from "./style";
 import { Navbar, PostForm, Post, LoadingOverlay } from "../../Components";
 import { useAppDispatch, useAppSelector } from "../../Hooks/utils";
 import { fetchPosts, selectAllPosts } from "../../Store/posts";
@@ -41,14 +40,20 @@ const Home = () => {
       </CSSTransition>
       <Navbar key="home" />
       <div className="md:hidden overflow-scroll lg:block lg:col-span-3">
-        <NavItem href={`/users/${user._id}`}>
-          <RoundImage src={user.profile_photo} />
+        <Link
+          className="flex items-center p-2 rounded-md text-black text-md cursor-pointer hover:bg-black"
+          href={`/users/${user._id}`}
+        >
+          <img className="rounded-full w-9 h-9" src={user.profile_photo} />
           &nbsp;{user.display_name || user.first_name + " " + user.last_name}
-        </NavItem>
-        <NavItem href="/friends">
+        </Link>
+        <Link
+          className="flex items-center p-2 rounded-md text-black text-md cursor-pointer hover:bg-black"
+          href="/friends"
+        >
           <FaUserFriends size={36} fill="royalblue" />
           &nbsp;Friends
-        </NavItem>
+        </Link>
       </div>
       <div className="sm:col-span-12 md:col-span-10 md:col-start-2 lg:col-span-6 overflow-scroll -mx-6 px-6">
         <PostForm postInputRef={postInputRef} user={user} />
@@ -56,7 +61,7 @@ const Home = () => {
           <Post key={`post-${post._id}`} post={post} />
         ))}
         {!posts.length && (
-          <NoPostsDiv>
+          <div className="p-2 w-full rounded bg-white flex items-center justify-center">
             <p style={{ display: "inline-block" }} className="mb-0">
               No posts yet. Find{" "}
               <Link style={{ color: "royalblue" }} href="/friends">
@@ -64,10 +69,13 @@ const Home = () => {
               </Link>{" "}
               or
             </p>
-            <FakeLink onClick={() => postInputRef?.current?.focus()}>
+            <div
+              className="inline-block text-blue-500 cursor-pointer hover:text-underline"
+              onClick={() => postInputRef?.current?.focus()}
+            >
               &nbsp;create a post!
-            </FakeLink>
-          </NoPostsDiv>
+            </div>
+          </div>
         )}
         <div ref={ref} style={{ width: "10px", height: "2px" }} />
       </div>
@@ -75,16 +83,18 @@ const Home = () => {
         <h5 style={{ color: "darkgray" }}>Contacts</h5>
         <hr className="my-2" style={{ backgroundColor: "lightgray" }}></hr>
         {user.friends.map((friend) => (
-          //@ts-ignore
-          <NavItem key={friend._id} href={`/users/${friend._id}`}>
+          <Link
+            className="flex items-center p-2 rounded-md text-black text-md cursor-pointer hover:bg-black"
+            href={`/users/${friend._id}`}
+          >
             {/*@ts-ignore*/}
-            <RoundImage src={friend.profile_photo} />
+            <img className="rounded-full w-9 h-9" src={friend.profile_photo} />
             &nbsp;
             {/*@ts-ignore*/}
             {friend.display_name ||
               //@ts-ignore
               friend.first_name + " " + friend.last_name}
-          </NavItem>
+          </Link>
         ))}
       </div>
     </div>

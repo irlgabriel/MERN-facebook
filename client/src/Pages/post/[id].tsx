@@ -5,6 +5,7 @@ import { CSSTransition } from "react-transition-group";
 import { useRouter } from "next/router";
 import { fetchPost, selectPostById } from "../../Store/posts";
 import { useAppDispatch, useAppSelector } from "../../Hooks/utils";
+import { ProtectedRoute } from "../../Components/ProtectedRoute/ProtectedRoute";
 
 const PostPage = () => {
   const {
@@ -32,4 +33,4 @@ const PostPage = () => {
   );
 };
 
-export default PostPage;
+export default ProtectedRoute(PostPage);

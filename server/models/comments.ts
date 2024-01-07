@@ -3,13 +3,13 @@ import mongoose, { Schema, InferSchemaType, ObjectId } from "mongoose";
 const commentSchema = new Schema(
   {
     content: String,
-    user: { type: Schema.types.ObjectId, ref: "User" },
+    user: { type: Schema.Types.ObjectId, ref: "User" },
     image: Object,
-    post: { type: Schema.types.ObjectId, ref: "Post" },
-    comment: { type: Schema.types.ObjectId, ref: "Comment" },
-    commentsCount: { type: Schema.types.Number, default: 0 },
-    likes: [{ type: Schema.types.ObjectId, ref: "User" }],
-    likesCount: { type: Schema.types.Number, default: 0 },
+    post: { type: Schema.Types.ObjectId, ref: "Post" },
+    comment: { type: Schema.Types.ObjectId, ref: "Comment" },
+    commentsCount: { type: Schema.Types.Number, default: 0 },
+    likes: [{ type: Schema.Types.ObjectId, ref: "User" }],
+    likesCount: { type: Schema.Types.Number, default: 0 },
   },
   { timestamps: true }
 );

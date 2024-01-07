@@ -7,8 +7,8 @@ const postSchema = new Schema(
   {
     content: String,
     image: { type: Object },
-    user: { type: Schema.types.ObjectId, ref: "User" },
-    likes: [{ type: Schema.types.ObjectId, ref: "User" }],
+    user: { type: Schema.Types.ObjectId, ref: "User" },
+    likes: [{ type: Schema.Types.ObjectId, ref: "User" }],
     likesCount: { type: Number, default: 0 },
     commentsCount: { type: Number },
   },

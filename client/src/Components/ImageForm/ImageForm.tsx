@@ -1,8 +1,6 @@
 import Axios from "axios";
 import React, { useState } from "react";
-import { GrDiamond } from "react-icons/gr";
-import { Container, Form, Input, Button, FormGroup } from "reactstrap";
-import { TransparentBackground } from "./ImageForm.components";
+import { Button, FileInput } from "flowbite-react";
 
 const ImageForm = ({ method = "PUT", content, path, setImageForm }) => {
   const [file, setFile] = useState<File | null>(null);
@@ -28,34 +26,28 @@ const ImageForm = ({ method = "PUT", content, path, setImageForm }) => {
   };
 
   return (
-    <TransparentBackground className="d-flex justify-content-center align-items-center">
-      <Form
+    <div className="flex justify-center items-center fixed top-0 left-0 right-0 bottom-0 z-50 bg-slate-400 opacity-45">
+      <form
         onSubmit={(e) => onSubmitHandler(e)}
         style={{ background: "white", borderRadius: "10px" }}
-        className="p-3 w-50 mx-auto"
-        border
+        className="p-3 w-50 mx-auto border border-slate-100"
       >
-        <FormGroup className="text-center">
-          <Input
-            onChange={(e) => setFile(e.target?.files?.[0] ?? null)}
-            type="file"
-            name="image"
-          />
-        </FormGroup>
-        <FormGroup className="d-flex justify-content-end">
-          <Button className="mr-2" type="submit" color="secondary">
-            Submit
-          </Button>
-          <Button
-            type="button"
-            color="danger"
-            onClick={() => setImageForm(false)}
-          >
-            Cancel
-          </Button>
-        </FormGroup>
-      </Form>
-    </TransparentBackground>
+        <FileInput
+          onChange={(e) => setFile(e.target?.files?.[0] ?? null)}
+          name="image"
+        />
+        <Button className="mr-2" type="submit" color="secondary">
+          Submit
+        </Button>
+        <Button
+          type="button"
+          color="danger"
+          onClick={() => setImageForm(false)}
+        >
+          Cancel
+        </Button>
+      </form>
+    </div>
   );
 };
 

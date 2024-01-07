@@ -4,7 +4,7 @@ import {
   FriendInfo,
   RoundImage,
 } from "./FriendRequest.components";
-import { Button } from "reactstrap";
+import { Button } from "flowbite-react";
 const FriendRequest = ({
   onClick,
   confirmFriend,

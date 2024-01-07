@@ -1,4 +1,4 @@
-import { Container, Row, Col, Button } from "reactstrap";
+import { Button } from "flowbite-react";
 import {
   FriendsContainer,
   FriendInfo,

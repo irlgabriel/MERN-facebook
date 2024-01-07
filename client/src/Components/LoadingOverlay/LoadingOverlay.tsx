@@ -1,6 +1,6 @@
 import React from "react";
 import { AbsoluteContainer } from "./LoadingOverlay.components";
-import { Spinner } from "reactstrap";
+import { Spinner } from "flowbite-react";
 
 type Props = React.PropsWithChildren<{
   loading?: boolean;

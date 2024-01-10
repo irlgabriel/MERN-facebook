@@ -1,0 +1,13 @@
+{
+  "name": "facebook_mern",
+  "version": "1.0.0",
+  "main": "index.js",
+  "repository": "https://github.com/irlgabriel/MERN-facebook.git",
+  "author": "Gabriel radu <radu.gabriel131@gmail.com>",
+  "license": "MIT",
+  "private": true,
+  "workspaces": [
+    "client",
+    "server"
+  ]
+}

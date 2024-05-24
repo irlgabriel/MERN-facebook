@@ -105,7 +105,7 @@
 <!-- CONTACT -->
 ## Contact
 
-Your Name - [Gabriel Radu](https://www.linkedin.com/in/gabriel-radu-5023021b9/) - radu.gabriel131@gmail.com
+[Gabriel Radu](https://www.linkedin.com/in/gabriel-radu-5023021b9/) - radu.gabriel131@gmail.com
 
 Project Link: [https://github.com/irlgabriel/MERN-facebook](https://github.com/irlgabriel/MERN-facebook)
 

@@ -5,6 +5,7 @@ import Link from "next/link";
 import { BsFillImageFill } from "react-icons/bs";
 import { Button, FileInput, Textarea } from "flowbite-react";
 import useOutsideClick from "../../hooks/utils";
+import { ImageWithFallback } from "../ImageWithFallback/ImageWithFallback";
 
 const CommentForm = ({ post, user, comments }) => {
   const submitButtonArea = useRef<HTMLFormElement | null>(null);

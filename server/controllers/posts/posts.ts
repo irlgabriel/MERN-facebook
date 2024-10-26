@@ -37,6 +37,7 @@ export const get_user_posts: RequestHandler<
   GetPostsRequestInput
 > = async (req, res, next) => {
   const { pageSize, offset, userId } = req.query;
+  console.log({ pageSize, offset, userId });
 
   console.log("\n\n\n", req.query);
 
@@ -123,27 +124,28 @@ export const create_post: RequestHandler[] = [
         user: req.user.user_id,
       });
 
-      if (req.file) {
-        const originalName = req.file.originalname.split(".");
-        const format = originalName[originalName.length - 1];
+      // no aws
+      // if (req.file) {
+      //   const originalName = req.file.originalname.split(".");
+      //   const format = originalName[originalName.length - 1];
 
-        const params = {
-          Bucket: process.env.AWS_BUCKET,
-          Key: `${post._id}.${format}`,
-          Body: req.file.buffer,
-        };
-        S3.upload(params, async (err: Error, data: ManagedUpload.SendData) => {
-          if (err) {
-            console.log(err);
-          } else {
-            post.image = {
-              url: data.Location,
-              id: post._id.toString() + "." + format,
-            };
-            await post.save();
-          }
-        });
-      }
+      //   const params = {
+      //     Bucket: process.env.AWS_BUCKET,
+      //     Key: `${post._id}.${format}`,
+      //     Body: req.file.buffer,
+      //   };
+      //   S3.upload(params, async (err: Error, data: ManagedUpload.SendData) => {
+      //     if (err) {
+      //       console.log(err);
+      //     } else {
+      //       post.image = {
+      //         url: data.Location,
+      //         id: post._id.toString() + "." + format,
+      //       };
+      //       await post.save();
+      //     }
+      //   });
+      // }
       const newPost = await post.populate("user");
       res.json(newPost);
     } catch (e) {
@@ -166,41 +168,41 @@ export const edit_post: RequestHandler[] = [
       const post = await Post.findById(req.params.post_id);
       if (!post) throw new Error("Could not find post!");
 
-      if (req.file) {
-        //upload it to s3
-        const originalName = req.file.originalname.split(".");
-        const format = originalName[originalName.length - 1];
+      //no aws
+      // if (req.file) {
+      //   //upload it to s3
+      //   const originalName = req.file.originalname.split(".");
+      //   const format = originalName[originalName.length - 1];
 
-        const params = {
-          Bucket: process.env.AWS_BUCKET,
-          Key: `${post._id}.${format}`,
-          Body: req.file.buffer,
-        };
-        S3.upload(params, async (err: Error, data: ManagedUpload.SendData) => {
-          if (err) console.log(err);
-          const newPost = await Post.findOneAndUpdate(
-            { _id: req.params.post_id },
-            {
-              image: {
-                url: data.Location,
-                id: post._id.toString() + "." + format,
-              },
-              content,
-            },
-            { new: true }
-          ).populate("user", "likes");
+      //   const params = {
+      //     Bucket: process.env.AWS_BUCKET,
+      //     Key: `${post._id}.${format}`,
+      //     Body: req.file.buffer,
+      //   };
+      //   S3.upload(params, async (err: Error, data: ManagedUpload.SendData) => {
+      //     if (err) console.log(err);
+      //     const newPost = await Post.findOneAndUpdate(
+      //       { _id: req.params.post_id },
+      //       {
+      //         image: {
+      //           url: data.Location,
+      //           id: post._id.toString() + "." + format,
+      //         },
+      //         content,
+      //       },
+      //       { new: true }
+      //     ).populate("user", "likes");
 
-          res.json(newPost);
-        });
-      } else {
-        const newPost = await Post.findOneAndUpdate(
-          { _id: req.params.post_id },
-          { content },
-          { new: true }
-        ).populate("user", "likes");
+      //     res.json(newPost);
+      //   });
+      // } else {
+      const newPost = await Post.findOneAndUpdate(
+        { _id: req.params.post_id },
+        { content },
+        { new: true }
+      ).populate("user", "likes");
 
-        res.json(newPost);
-      }
+      res.json(newPost);
     } catch (e) {
       next(e);
     }
@@ -252,18 +254,19 @@ export const delete_post: RequestHandler = async (req, res, next) => {
 
     // Delete image from AWS, if there's any
     //@ts-ignore
-    if (post.image) {
-      const params = {
-        Bucket: process.env.AWS_BUCKET,
-        //@ts-ignore
-        Key: post.image.id,
-      };
-      S3.deleteObject(params, (err: Error, data: DeleteObjectOutput) => {
-        if (err) {
-          next(err);
-        }
-      });
-    }
+    // no aws
+    // if (post.image) {
+    //   const params = {
+    //     Bucket: process.env.AWS_BUCKET,
+    //     //@ts-ignore
+    //     Key: post.image.id,
+    //   };
+    //   S3.deleteObject(params, (err: Error, data: DeleteObjectOutput) => {
+    //     if (err) {
+    //       next(err);
+    //     }
+    //   });
+    // }
     res.json(post);
   } catch (e) {
     next(e);

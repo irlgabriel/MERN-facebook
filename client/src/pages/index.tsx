@@ -46,7 +46,7 @@ const Index = () => {
       <div id="facebook-story">
         <img
           id="fb-logo"
-          src="https://static.xx.fbcdn.net/rsrc.php/y8/r/dF5SId3UHWd.svg"
+          src="https://static.xx.fbcdn.net/rsrc.php/y1/r/4lCu2zih0ca.svg"
           alt="fb-logo"
         />
         <p>Connect with friends and the world around you on Facebook.</p>
@@ -67,8 +67,7 @@ const Index = () => {
           />
           <Button
             size="sm"
-            style={{ fontSize: "20px" }}
-            className="w-full mt-4"
+            className="w-full mt-4 text-white text-3xl bg-blue-600 py-4 "
             type="submit"
           >
             Log In
@@ -76,7 +75,7 @@ const Index = () => {
         </form>
         <Link className="mt-2 w-full" href="/register">
           <Button
-            className="w-full hover:text-slate-500"
+            className="w-full text-white  bg-slate-500 p-2"
             size="sm"
             color="none"
           >
@@ -92,7 +91,11 @@ const Index = () => {
               : "https://fcloneodin.herokuapp.com/auth/facebook"
           }
         >
-          <Button className="w-full " size="sm" color="blue">
+          <Button
+            className="w-full p-2 bg-slate-300 text-black"
+            size="sm"
+            color="blue"
+          >
             Login with Facebook
           </Button>
         </a>

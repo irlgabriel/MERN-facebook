@@ -23,6 +23,7 @@ import Link from "next/link";
 import { Button, Dropdown, FileInput, Textarea } from "flowbite-react";
 import { IPost } from "../../../../server/models/posts";
 import { IUser } from "../../../../server/models/users";
+import { ImageWithFallback } from "../ImageWithFallback/ImageWithFallback";
 
 interface Props {
   post: IPost;
@@ -175,7 +176,7 @@ const Post = ({ post }: Props) => {
             dangerouslySetInnerHTML={{ __html: post.content ?? "" }}
           ></p>
           {post.image && post.image.url && (
-            <img className="mb-2" src={post.image?.url} />
+            <img className="w-full h-auto p-2" src={post.image?.url} />
           )}
         </div>
       )}

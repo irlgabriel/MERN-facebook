@@ -13,6 +13,7 @@ import axios from "../helpers/network";
 export const login = createAsyncThunk(
   "auth/login",
   async ({ email, password }: { email: string; password: string }) => {
+    console.log("Axios Base URL:", axios.defaults.baseURL);
     const { token, user } = (
       await axios.post<{ token: string; user: IUser }>("/login", {
         email,
@@ -34,6 +35,7 @@ export const getLoggedInUser = createAsyncThunk(
       const user = (await axios.get<IUser>("/users/" + userId)).data;
       return user;
     }
+    return null;
   }
 );
 
@@ -69,7 +71,7 @@ export const selectIsFriend = createSelector(
   (user, userId) => {
     if (!user) return false;
     //@ts-ignore
-    user?.friends.includes(userId);
+    return user?.friends.includes(userId) || user._id === userId;
   }
 );
 
@@ -116,6 +118,7 @@ const postsSlice = createSlice({
       return state;
     });
     builder.addCase(getLoggedInUser.rejected, (state, action) => {
+      state.fetched = true;
       state.loading = false;
       state.error = action.error.message ?? null;
       return state;

@@ -131,7 +131,7 @@ const PostForm = ({
             className="d-flex w-100 py-2"
           >
             <Button type="submit" className="px-5">
-              Post!
+              <p>Post!</p>
             </Button>
           </FormGroup>
         </CSSTransition>

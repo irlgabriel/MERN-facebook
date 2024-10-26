@@ -73,7 +73,6 @@ export const create_comment: RequestHandler<
   any,
   CreateCommentInput
 >[] = [
-  //body('content').trim().isLength({min: 1}).escape(),
   upload,
   async (req, res, next) => {
     const errors = validationResult(req);
@@ -91,39 +90,40 @@ export const create_comment: RequestHandler<
       const comment = await Comment.create(newComment);
 
       // WITH FILE!
-      if (req.file) {
-        const originalName = req.file.originalname.split(".");
-        const format = originalName[originalName.length - 1];
+      // move on from AWS S3;
+      // if (req.file) {
+      //   const originalName = req.file.originalname.split(".");
+      //   const format = originalName[originalName.length - 1];
 
-        const params = {
-          Bucket: process.env.AWS_BUCKET,
-          Key: `${comment._id}.${format}`,
-          Body: req.file.buffer,
-        };
+      //   const params = {
+      //     Bucket: process.env.AWS_BUCKET,
+      //     Key: `${comment._id}.${format}`,
+      //     Body: req.file.buffer,
+      //   };
 
-        S3.upload(params, async (err: Error, data: ManagedUpload.SendData) => {
-          if (err) {
-            next(err);
-          } else {
-            try {
-              const newComment = await Comment.findOneAndUpdate(
-                { _id: comment._id },
-                {
-                  image: {
-                    url: data.Location,
-                    id: comment._id.toString() + "." + format,
-                  },
-                },
-                { new: true, populate: ["user", "comment", "post", "likes"] }
-              );
+      //   S3.upload(params, async (err: Error, data: ManagedUpload.SendData) => {
+      //     if (err) {
+      //       next(err);
+      //     } else {
+      //       try {
+      //         const newComment = await Comment.findOneAndUpdate(
+      //           { _id: comment._id },
+      //           {
+      //             image: {
+      //               url: data.Location,
+      //               id: comment._id.toString() + "." + format,
+      //             },
+      //           },
+      //           { new: true, populate: ["user", "comment", "post", "likes"] }
+      //         );
 
-              res.json(newComment);
-            } catch (e) {
-              res.status(400).json(e);
-            }
-          }
-        });
-      }
+      //         res.json(newComment);
+      //       } catch (e) {
+      //         res.status(400).json(e);
+      //       }
+      //     }
+      //   });
+      // }
     } catch (e) {
       if (e) return res.status(400).json(e);
     }
@@ -143,70 +143,70 @@ export const edit_comment: RequestHandler<any, any, any>[] = [
       const comment = await Comment.findById(req.params.comment_id);
       if (!comment) return next(new Error("Could not find post!"));
 
-      if (req.file) {
-        const originalName = req.file.originalname.split(".");
-        const format = originalName[originalName.length - 1];
+      // move away from aws s3
+      // if (req.file) {
+      //   const originalName = req.file.originalname.split(".");
+      //   const format = originalName[originalName.length - 1];
 
-        const params = {
-          Bucket: process.env.AWS_BUCKET,
-          Key: `${comment._id}.${format}`,
-          Body: req.file.buffer,
-        };
+      //   const params = {
+      //     Bucket: process.env.AWS_BUCKET,
+      //     Key: `${comment._id}.${format}`,
+      //     Body: req.file.buffer,
+      //   };
 
-        S3.upload(params, async (err: Error, data: ManagedUpload.SendData) => {
-          if (err) return res.status(400).json(err);
-          try {
-            const newComment = await Comment.findOneAndUpdate(
-              { _id: comment._id },
-              {
-                image: {
-                  url: data.Location,
-                  id: comment._id.toString() + "." + format,
-                },
-                content,
-              },
-              { new: true }
-            );
+      //   S3.upload(params, async (err: Error, data: ManagedUpload.SendData) => {
+      //     if (err) return res.status(400).json(err);
+      //     try {
+      //       const newComment = await Comment.findOneAndUpdate(
+      //         { _id: comment._id },
+      //         {
+      //           image: {
+      //             url: data.Location,
+      //             id: comment._id.toString() + "." + format,
+      //           },
+      //           content,
+      //         },
+      //         { new: true }
+      //       );
 
-            if (!newComment) throw new Error("Could not find comment!");
+      //       if (!newComment) throw new Error("Could not find comment!");
 
-            try {
-              const comment = await newComment.populate([
-                "user",
-                "comment",
-                "post",
-                "likes",
-              ]);
-              res.json(comment);
-            } catch (e) {
-              next(e);
-            }
-          } catch (e) {
-            next(e);
-          }
-        });
-      } else {
+      //       try {
+      //         const comment = await newComment.populate([
+      //           "user",
+      //           "comment",
+      //           "post",
+      //           "likes",
+      //         ]);
+      //         res.json(comment);
+      //       } catch (e) {
+      //         next(e);
+      //       }
+      //     } catch (e) {
+      //       next(e);
+      //     }
+      //   });
+      // } else {
+      try {
+        const comment = await Comment.findOneAndUpdate(
+          { _id: req.params.comment_id },
+          { content },
+          { new: true }
+        );
+        if (!comment) throw new Error("Could not find comment!");
         try {
-          const comment = await Comment.findOneAndUpdate(
-            { _id: req.params.comment_id },
-            { content },
-            { new: true }
-          );
-          if (!comment) throw new Error("Could not find comment!");
-          try {
-            const newComment = await comment.populate([
-              "user",
-              "comment",
-              "post",
-              "likes",
-            ]);
-            res.json(newComment);
-          } catch (e) {
-            next(e);
-          }
+          const newComment = await comment.populate([
+            "user",
+            "comment",
+            "post",
+            "likes",
+          ]);
+          res.json(newComment);
         } catch (e) {
           next(e);
         }
+      } catch (e) {
+        next(e);
       }
     } catch (e) {
       return res.status(400).json(e);
@@ -305,15 +305,16 @@ export const delete_comment: RequestHandler<DeleteCommmentParams> = async (
     if (!comment) throw new Error("Could not find comment");
 
     // Delete image from AWS if there's any
-    if (comment.image) {
-      const params = {
-        Bucket: process.env.AWS_BUCKET,
-        Key: comment.image.id,
-      };
-      S3.deleteObject(params, (err, data) => {
-        if (err) next(err);
-      });
-    }
+    // no aws
+    // if (comment.image) {
+    //   const params = {
+    //     Bucket: process.env.AWS_BUCKET,
+    //     Key: comment.image.id,
+    //   };
+    //   S3.deleteObject(params, (err, data) => {
+    //     if (err) next(err);
+    //   });
+    // }
 
     // DELETE REPLIES
     try {

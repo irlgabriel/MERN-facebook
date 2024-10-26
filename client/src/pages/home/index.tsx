@@ -10,6 +10,7 @@ import { fetchPosts, selectAllPosts } from "../../store/posts";
 import { User } from "../../types/types";
 import { ProtectedRoute } from "../../Components/ProtectedRoute/ProtectedRoute";
 import { IUser } from "../../../../server/models/users";
+import { ImageWithFallback } from "../../Components/ImageWithFallback/ImageWithFallback";
 
 const Home = () => {
   const { ref, inView } = useInView();
@@ -41,14 +42,14 @@ const Home = () => {
       <Navbar key="home" />
       <div className="md:hidden overflow-scroll lg:block lg:col-span-3">
         <Link
-          className="flex items-center p-2 rounded-md text-black text-md cursor-pointer hover:bg-black"
+          className="flex items-center p-2 rounded-md text-black text-md cursor-pointer hover:bg-slate-400"
           href={`/users/${user._id}`}
         >
           <img className="rounded-full w-9 h-9" src={user.profile_photo} />
           &nbsp;{user.display_name || user.first_name + " " + user.last_name}
         </Link>
         <Link
-          className="flex items-center p-2 rounded-md text-black text-md cursor-pointer hover:bg-black"
+          className="flex items-center p-2 rounded-md text-black text-md cursor-pointer hover:bg-slate-400"
           href="/friends"
         >
           <FaUserFriends size={36} fill="royalblue" />
@@ -84,11 +85,15 @@ const Home = () => {
         <hr className="my-2" style={{ backgroundColor: "lightgray" }}></hr>
         {user.friends.map((friend) => (
           <Link
-            className="flex items-center p-2 rounded-md text-black text-md cursor-pointer hover:bg-black"
+            className="flex items-center p-2 rounded-md text-black text-md cursor-pointer hover:bg-slate-400"
             href={`/users/${friend._id}`}
           >
             {/*@ts-ignore*/}
-            <img className="rounded-full w-9 h-9" src={friend.profile_photo} />
+            <img
+              className
+              className="rounded-full w-9 h-9"
+              src={friend.profile_photo}
+            />
             &nbsp;
             {/*@ts-ignore*/}
             {friend.display_name ||

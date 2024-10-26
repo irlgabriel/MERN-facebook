@@ -19,6 +19,7 @@ import { selectPostById } from "../../store/posts";
 import { selectUserById } from "../../store/users";
 import { IComment } from "../../../../server/models/comments";
 import { isUser } from "../../types/types";
+import { ImageWithFallback } from "../ImageWithFallback/ImageWithFallback";
 
 interface Props {
   reply: IComment;
@@ -88,7 +89,7 @@ const Reply = ({ reply, comment }: Props) => {
 
   return (
     <ReplyContainer>
-      <UserPhoto className="mr-2" src={user?.profile_photo} />
+      <img className="mr-2" src={user?.profile_photo} />
       <ReplyWrapper className={"w-100"}>
         <ReplyBody>
           <h6 className="mb-0">

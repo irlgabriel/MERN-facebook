@@ -17,6 +17,7 @@ import { useAppDispatch, useAppSelector } from "../../hooks/utils";
 import { IComment } from "../../../../server/models/comments";
 import { IPost } from "../../../../server/models/posts";
 import { Button, FileInput, Textarea } from "flowbite-react";
+import { ImageWithFallback } from "../ImageWithFallback/ImageWithFallback";
 
 interface Props {
   level?: number;
@@ -149,7 +150,7 @@ const Comment = ({ level = 0, comment, post }: Props) => {
               ></p>
               {comment.image && (
                 <Link href={`/users/${comment.user}`}>
-                  <img width="100%" src={comment.image.url} />
+                  <img className="w-full" src={comment.image.url} />
                 </Link>
               )}
             </div>

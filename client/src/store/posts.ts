@@ -69,10 +69,9 @@ export const fetchUserPosts = createAsyncThunk<
 >(
   "posts/fetchUserPosts",
   async ({ userId }: GetUserPostsRequestInput, { getState }) => {
-    const { pageSize, offset } = getState().posts.pageOpts;
     const posts = (
       await axios.get<IPost[]>("/posts/user", {
-        params: { pageSize, offset, userId },
+        params: { userId },
       })
     ).data;
     return posts;

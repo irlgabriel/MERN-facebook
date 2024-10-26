@@ -56,6 +56,7 @@ import { useRouter } from "next/router";
 import { ProtectedRoute } from "../ProtectedRoute/ProtectedRoute";
 import { getRequests } from "../../store/friendRequests";
 import { IUser } from "../../../../server/models/users";
+import { ImageWithFallback } from "../ImageWithFallback/ImageWithFallback";
 
 const Navbar = () => {
   const dispatch = useAppDispatch();
@@ -109,6 +110,7 @@ const Navbar = () => {
     // todo
     // logout
     // delete the cookie if there's any
+    localStorage.removeItem("token");
     document.cookie = "token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
     push("/");
   };
@@ -237,7 +239,10 @@ const Navbar = () => {
             active={pathname === `/users/${user._id}`}
             className="mr-1"
           >
-            <TopRightUserImg src={user.profile_photo} className="mr-2" />
+            <img
+              src={user.profile_photo}
+              className="w-7 h-7 rounded-2xl mr-2"
+            />
             <p className="mb-0">
               {user.first_name
                 ? user.first_name

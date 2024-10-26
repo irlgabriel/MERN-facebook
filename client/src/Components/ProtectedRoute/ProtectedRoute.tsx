@@ -37,13 +37,15 @@ export const ProtectedRoute =
 
     // CHECK IF USER IS LOGGED IN
     useEffect(() => {
+      console.log({ fetchedUser });
       if (!fetchedUser) {
         dispatch(getLoggedInUser());
       }
       if (fetchedUser && !isAuthenticated) {
+        console.log({ isAuthenticated, fetchedUser });
         push("/");
       }
-    }, [fetchedUser]);
+    }, [fetchedUser, isAuthenticated]);
 
     if (isAuthenticated) {
       return <Component {...props} />;

@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useMemo } from "react";
 import { Navbar } from "../../Components";
-import { Container, Row, Col, Button } from "reactstrap";
 // import { Profile } from "..";
 import {
   LoadingOverlay,
@@ -20,6 +19,8 @@ import {
 import { fetchPosts } from "../../store/posts";
 import { ProtectedRoute } from "../../Components/ProtectedRoute/ProtectedRoute";
 import { IUser } from "../../../../server/models/users";
+import { Profile } from "../users/[id]";
+
 const Friends = () => {
   const dispatch = useAppDispatch();
 
@@ -65,18 +66,12 @@ const Friends = () => {
   }, []);
 
   return (
-    <Container fluid className="px-0">
+    <div className="px-0 h-dvh w-full">
       {/* Loading overlay */}
       {loading && <LoadingOverlay />}
       <Navbar key="friends" />
-      <Row className="p-0 m-0" style={{ height: "auto" }}>
-        <Col
-          id="friends-col"
-          className="d-none d-md-block box-shadow-right p-0 px-2"
-          md="4"
-          lg="3"
-          style={{ background: "white" }}
-        >
+      <div className="grid grid-rows-1 grid-flow-col gap-4 h-full">
+        <div className="row-span-1 cols-span-1" style={{ background: "white" }}>
           <h2>Friends</h2>
           <h5>{receivedRequests.length} Friend Requests</h5>
           <hr className="my-1"></hr>
@@ -102,12 +97,12 @@ const Friends = () => {
               to={to}
             />
           ))}
-        </Col>
-        {/* <Col id="friends-profile" className="p-0">
-          {previewUser && <Profile showNav={false} />}
-        </Col> */}
-      </Row>
-    </Container>
+        </div>
+        <div className="row-span-1 col-span-5">
+          {previewUser && <Profile userId={previewUser._id} showNav={false} />}
+        </div>
+      </div>
+    </div>
   );
 };
 

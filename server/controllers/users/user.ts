@@ -31,33 +31,32 @@ export const update_profile_photo: RequestHandler[] = [
   async (req, res, next) => {
     try {
       if (!req.file) throw new Error("Could not find file!");
-      const originalFile = req.file?.originalname.split(".");
+      // const originalFile = req.file?.originalname.split(".");
 
-      const format = originalFile[originalFile.length - 1];
+      // const format = originalFile[originalFile.length - 1];
 
-      const user = await User.findById(req.params.user_id);
-      if (!user) throw new Error("Could not find User!");
+      // const user = await User.findById(req.params.user_id);
+      // if (!user) throw new Error("Could not find User!");
 
-      const params = {
-        Bucket: process.env.AWS_BUCKET,
-        Key: `${user._id}_profile.${format}`,
-        Body: req.file.buffer,
-      };
+      // const params = {
+      //   Bucket: process.env.AWS_BUCKET,
+      //   Key: `${user._id}_profile.${format}`,
+      //   Body: req.file.buffer,
+      // };
 
-      // Delete previous instance from s3
-      S3.deleteObject({ Bucket: params.Bucket, Key: params.Key }, (err) => {
-        if (err) return res.status(500).json(err);
-      });
+      // // Delete previous instance from s3
+      // S3.deleteObject({ Bucket: params.Bucket, Key: params.Key }, (err) => {
+      //   if (err) return res.status(500).json(err);
+      // });
 
-      S3.upload(params, async (err: Error, data: ManagedUpload.SendData) => {
-        if (err) return res.status(500).json(err);
-        const updatedUser = await User.findOneAndUpdate(
-          { _id: req.params.user_id },
-          { profile_photo: data.Location },
-          { new: true }
-        );
-        res.json(updatedUser);
-      });
+      // S3.upload(params, async (err: Error, data: ManagedUpload.SendData) => {
+      //   if (err) return res.status(500).json(err);
+      //   const updatedUser = await User.findOneAndUpdate(
+      //     { _id: req.params.user_id },
+      //     { profile_photo: data.Location },
+      //     { new: true }
+      //   );
+      res.status(400);
     } catch (e) {
       next(e);
     }
@@ -68,36 +67,35 @@ export const update_cover_photo: RequestHandler[] = [
   upload,
   async (req, res, next) => {
     try {
-      if (!req.file) throw new Error("Could not find file!");
-      const originalFile = req.file.originalname.split(".");
-      const format = originalFile[originalFile.length - 1];
+      // if (!req.file) throw new Error("Could not find file!");
+      // const originalFile = req.file.originalname.split(".");
+      // const format = originalFile[originalFile.length - 1];
 
-      const user = await User.findById(req.params.user_id);
-      if (!user) throw new Error("Could not find User!");
+      // const user = await User.findById(req.params.user_id);
+      // if (!user) throw new Error("Could not find User!");
 
-      const params = {
-        Bucket: process.env.AWS_BUCKET,
-        Key: `${user._id}_cover.${format}`,
-        Body: req.file.buffer,
-      };
+      // const params = {
+      //   Bucket: process.env.AWS_BUCKET,
+      //   Key: `${user._id}_cover.${format}`,
+      //   Body: req.file.buffer,
+      // };
 
-      //Delete previous instance from s3
-      S3.deleteObject(
-        { Bucket: params.Bucket, Key: params.Key },
-        (err, data) => {
-          if (err) return res.status(500).json(err);
-        }
-      );
+      // //Delete previous instance from s3
+      // S3.deleteObject(
+      //   { Bucket: params.Bucket, Key: params.Key },
+      //   (err, data) => {
+      //     if (err) return res.status(500).json(err);
+      //   }
+      // );
 
-      S3.upload(params, async (err: Error, data: ManagedUpload.SendData) => {
-        if (err) throw err;
-        const newUser = await User.findOneAndUpdate(
-          { _id: req.params.user_id },
-          { cover_photo: data.Location },
-          { new: true }
-        );
-        res.json(newUser);
-      });
+      // S3.upload(params, async (err: Error, data: ManagedUpload.SendData) => {
+      //   if (err) throw err;
+      //   const newUser = await User.findOneAndUpdate(
+      //     { _id: req.params.user_id },
+      //     { cover_photo: data.Location },
+      //     { new: true }
+      //   );
+      res.status(400);
     } catch (e) {
       next(e);
     }

@@ -28,17 +28,25 @@ import Link from "next/link";
 import { fetchUserPosts, selectPostsByUser } from "../../store/posts";
 import styled from "styled-components";
 
-const Profile = ({ showNav = true }) => {
+export const Profile = ({
+  showNav = true,
+  userId: previewUserId,
+}: {
+  showNav: boolean;
+  userId?: string;
+}) => {
   const dispatch = useAppDispatch();
   const {
     query: { id },
   } = useRouter();
-  const userId = id as string;
+
+  const userId = (id ?? previewUserId) as string;
 
   const profileUser = useAppSelector((state) =>
     selectUserById(state.users, userId)
   );
 
+  const loggedInUserId = useAppSelector((state) => state.auth.user?._id);
   const loading = useAppSelector((state) => state.users.loading);
   const userPosts = useAppSelector((state) =>
     selectPostsByUser(state.posts, userId)
@@ -81,6 +89,12 @@ const Profile = ({ showNav = true }) => {
     dispatch(removeFriend({ userId: _id }));
   };
 
+  const onClickFriendDropdown = () => {
+    const canCollapse = userId !== loggedInUserId;
+    if (!canCollapse) return;
+    setCollapse((state) => !state);
+  };
+
   return profileUser ? (
     <div className="p-0">
       <CSSTransition in={loading} timeout={300} classNames="fade" unmountOnExit>
@@ -113,20 +127,14 @@ const Profile = ({ showNav = true }) => {
           ) : (
             <div className="bg-slate-50 w-full h-80 rounded-bl-md rounded-br-md" />
           )}
-          {/* {sameUser && (
-            <GrayHoverDiv onClick={() => setCoverPhotoForm(true)}>
-              <p className="mb-0">Change Cover Photo</p>
-            </GrayHoverDiv>
-          )} */}
-          {isFriends && (
+          {isFriends ? (
             <div
-              className="absolute bottom-5 right-5 rounded-md bg-slate-200 py-2 px-1 cursor-pointer hover:bg-slate-300"
+              className="min-w-[120px] flex items-center justify-center absolute bottom-5 right-5 rounded-md bg-slate-200 py-2 px-1 cursor-pointer hover:bg-slate-300"
               data-id={profileUser._id}
-              onClick={() => setCollapse(!collapse)}
+              onClick={() => onClickFriendDropdown()}
             >
-              <p className="mb-0">
-                <FaCheck /> Friends
-              </p>
+              <FaCheck />
+              <p className="mb-0 ml-1">Friends</p>
               {/* Collapsed div for friend options */}
               {collapse && (
                 <div className="absolute w-36 bg-white -bottom-11 right-0 rounded-md p-1 border">
@@ -139,8 +147,10 @@ const Profile = ({ showNav = true }) => {
                 </div>
               )}
             </div>
+          ) : (
+            <></>
           )}
-          {receivedRequest && (
+          {receivedRequest ? (
             <div className="max-w-48 absolute bottom-5 right-5 rounded-md py2 px-1 cursor-pointer hover:opacity-75">
               <p className="mb-1">
                 {profileUser.display_name ||
@@ -165,38 +175,48 @@ const Profile = ({ showNav = true }) => {
                 </Button>
               </div>
             </div>
+          ) : (
+            <></>
           )}
-          {sentRequest && (
+          {sentRequest ? (
             <div className="max-w-48 absolute bottom-5 right-5 rounded-md py2 px-1 cursor-pointer hover:opacity-75">
               <p className="mb-0">
                 <FaCheck /> Sent Friend Request
               </p>
             </div>
+          ) : (
+            <></>
           )}
-          {!sentRequest && !receivedRequest && !isFriends && (
+          {!sentRequest && !receivedRequest && !isFriends ? (
             <div
               className="max-w-48 absolute bottom-5 right-5 rounded-md py2 px-1 cursor-pointer hover:opacity-75"
               onClick={() => sendFriendRequest(profileUser._id)}
             >
               <p className="mb-0">Send Friend Request</p>
             </div>
+          ) : (
+            <></>
           )}
-          <div className="absolute left-[calc(50%-96px)] -bottom-6 border-full border border-bg-slate-100">
-            {profileUser?.profile_photo && (
+          <div className="absolute left-[calc(50%-96px)] -bottom-6">
+            {profileUser?.profile_photo ? (
               <Link href={"profileUser.profile_photo"}>
                 <img
-                  className="w-48 h-48 z-50 rounded-full border-white border-4"
+                  className="!w-48 !h-48 z-50 rounded-full"
                   src={profileUser.profile_photo}
                 />
               </Link>
+            ) : (
+              <></>
             )}
-            {profileUser._id === profileUser._id && (
+            {profileUser._id === profileUser._id ? (
               <div
                 className="p-1 rounded-2xl w-9 h-9 flex items-center justify-center absolute bg-slate-100 right-2 bottom-4 z-6 hover:bg-slate-300 cursor-pointer"
                 onClick={() => setProfilePhotoForm(true)}
               >
                 <AiFillCamera fill="black" size={24} />
               </div>
+            ) : (
+              <></>
             )}
           </div>
         </div>
@@ -205,12 +225,14 @@ const Profile = ({ showNav = true }) => {
             profileUser.first_name + " " + profileUser.last_name}
         </h1>
         {/* Small Description */}
-        {profileUser.description.length && (
+        {profileUser.description.length ? (
           <Link
             className="min-w-36 max-w-64 block my-0 mx-auto bg-transparent text-black rounded-md text-center hover:bg-slate-100"
             href="https://github.com/irlgabriel"
             dangerouslySetInnerHTML={{ __html: profileUser.description }}
           ></Link>
+        ) : (
+          <></>
         )}
         <div className="w-full my-0 mx-auto">
           <hr className="my-2" />
@@ -239,7 +261,7 @@ const Profile = ({ showNav = true }) => {
           </div>
         </div>
       </div>
-      {subPage === "main" && (
+      {subPage === "main" ? (
         <div className="grid grid-cols-12 gap-6 px-20">
           <div className="col-span-5">
             <p className="font-weight-bold mb-0">Photos</p>
@@ -252,7 +274,6 @@ const Profile = ({ showNav = true }) => {
             {profileUser !== profileUser && (
               <p className="font-weight-bold mb-0">Posts</p>
             )}
-            {}
             {!userPosts.length && (
               <div className="mt-2 flex p-2 rounded-md bg-white w-full">
                 <p>No Posts available</p>
@@ -263,9 +284,11 @@ const Profile = ({ showNav = true }) => {
             ))}
           </div>
         </div>
+      ) : (
+        <></>
       )}
-      {subPage === "photos" && <Photos photos={[]} />}
-      {subPage === "friends" && <FriendsProfile user={profileUser} />}
+      {subPage === "photos" ? <Photos photos={[]} /> : <></>}
+      {subPage === "friends" ? <FriendsProfile user={profileUser} /> : <></>}
     </div>
   ) : null;
 };
